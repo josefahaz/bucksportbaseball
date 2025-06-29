@@ -3,3 +3,4 @@ uvicorn[standard]==0.29.0
 sqlmodel==0.0.16
 python-multipart==0.0.7
 pydantic[email]==2.7.3
+pydantic-core==2.18.4
