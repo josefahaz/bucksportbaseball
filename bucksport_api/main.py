@@ -128,9 +128,7 @@ def get_locations():
 def get_coaches():
     # Dummy data. In a real app, this would come from a 'coaches' table.
     return [
-        {"id": 1, "name": "Coach Bob"},
-        {"id": 2, "name": "Coach Sarah"},
-        {"id": 3, "name": "Coach Mike"}
+        {"id": 1, "name": "Rob Wadleigh"}
     ]
 
 class EventRequest(BaseModel):
