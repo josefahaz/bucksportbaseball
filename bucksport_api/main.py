@@ -147,6 +147,31 @@ def request_new_event(request: EventRequest):
     # In a real app, you would save this request to the database for admin approval.
     return {"status": "success", "message": "Event request received and logged."}
 
+# ----------------- Inventory endpoints -----------------
+@app.get("/api/inventory")
+def get_inventory():
+    # Dummy data for now. In a real app, this would come from an 'inventory' table.
+    return []
+
+@app.get("/api/inventory/summary")
+def get_inventory_summary():
+    # Dummy data for now. In a real app, calculate from inventory table.
+    return {
+        "total_items": 0,
+        "available": 0,
+        "checked_out": 0,
+        "needs_repair": 0
+    }
+
+@app.get("/api/inventory/categories")
+def get_inventory_categories():
+    # Return standard equipment categories
+    return ["jersey", "pants", "hat", "cleats", "bat", "ball", "glove", "helmet", "other"]
+
+@app.get("/api/inventory/statuses")
+def get_inventory_statuses():
+    # Return standard inventory statuses
+    return ["in-stock", "checked-out", "low-stock", "needs-repair", "retired"]
 
 # Mount the static directory to serve frontend files. This should be last.
 app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
