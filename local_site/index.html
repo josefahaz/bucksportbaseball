@@ -254,6 +254,16 @@
       </div>
     </header>
 
+    <!-- Board Members Section -->
+    <div class="mb-10 bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6">
+      <h2 class="text-xl font-bold text-purple-900 mb-4 pb-2 border-b-2 border-yellow-400 flex items-center gap-3">
+        <i class="fas fa-users-cog"></i> 2026 Board Members
+      </h2>
+      <div id="board-members-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Board members will be loaded dynamically -->
+      </div>
+    </div>
+
     <!-- Coaching Staff Section -->
     <div class="mb-10 bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6">
       <h2 class="text-xl font-bold text-purple-900 mb-4 pb-2 border-b-2 border-yellow-400 flex items-center gap-3">
@@ -276,10 +286,49 @@
 
   <script src="js/api.js"></script>
   <script>
-    // Load coaches dynamically
+    // Load board members and coaches dynamically
     document.addEventListener('DOMContentLoaded', async () => {
+      const boardMembersGrid = document.getElementById('board-members-grid');
       const coachesGrid = document.getElementById('coaches-grid');
       
+      // Load board members
+      try {
+        const boardMembers = await fetchBoardMembers();
+        
+        if (!boardMembers || boardMembers.length === 0) {
+          boardMembersGrid.innerHTML = '<p class="text-gray-500 col-span-full text-center py-4">No board members available at this time.</p>';
+        } else {
+          const colors = ['bg-purple-800', 'bg-red-600', 'bg-green-600', 'bg-blue-600', 'bg-indigo-600', 'bg-pink-600'];
+          
+          boardMembers.forEach((member, index) => {
+            const initials = member.name.split(' ').map(n => n[0]).join('').toUpperCase();
+            const bgColor = colors[index % colors.length];
+            
+            const memberCard = document.createElement('div');
+            memberCard.className = 'bg-white rounded-lg p-4 shadow-sm border border-gray-200';
+            memberCard.innerHTML = `
+              <div class="flex items-start gap-3 mb-2">
+                <div class="w-12 h-12 rounded-full ${bgColor} text-white flex items-center justify-center font-bold text-sm flex-shrink-0">${initials}</div>
+                <div class="flex-1 min-w-0">
+                  <h3 class="font-semibold text-purple-900 text-sm">${member.name}</h3>
+                  <p class="text-xs text-gray-600 font-medium">${member.position}</p>
+                  ${member.division ? `<p class="text-xs text-gray-500 italic">${member.division}</p>` : ''}
+                </div>
+              </div>
+              <div class="text-xs text-gray-600 space-y-1 mt-2">
+                ${member.email && member.email !== 'N/A' ? `<p><i class="fas fa-envelope w-4 text-purple-700"></i> ${member.email}</p>` : '<p class="text-gray-400"><i class="fas fa-envelope w-4"></i> Email not available</p>'}
+                ${member.phone && member.phone !== 'N/A' ? `<p><i class="fas fa-phone w-4 text-purple-700"></i> ${member.phone}</p>` : '<p class="text-gray-400"><i class="fas fa-phone w-4"></i> Phone not available</p>'}
+              </div>
+            `;
+            boardMembersGrid.appendChild(memberCard);
+          });
+        }
+      } catch (error) {
+        console.error('Error loading board members:', error);
+        boardMembersGrid.innerHTML = '<p class="text-red-500 col-span-full text-center py-4">Failed to load board members.</p>';
+      }
+      
+      // Load coaches
       try {
         const coaches = await fetchCoaches();
         

@@ -128,7 +128,31 @@ def get_locations():
 def get_coaches():
     # Dummy data. In a real app, this would come from a 'coaches' table.
     return [
-        {"id": 1, "name": "Rob Wadleigh"}
+        {"id": 1, "name": "Rob Wadleigh", "email": "N/A", "phone": "N/A"}
+    ]
+
+@app.get("/api/board-members")
+def get_board_members():
+    # 2026 Board Members data
+    return [
+        # League-wide positions
+        {"id": 1, "name": "Katie Littlefield", "position": "President", "division": None, "email": "N/A", "phone": "N/A"},
+        {"id": 2, "name": "Kim Burgess", "position": "Treasurer", "division": None, "email": "N/A", "phone": "N/A"},
+        {"id": 3, "name": "Joe Hazlett", "position": "Fundraising/Marketing Coordinator", "division": None, "email": "N/A", "phone": "N/A"},
+        {"id": 4, "name": "Jamie Bowden", "position": "Umpire in Chief", "division": None, "email": "N/A", "phone": "N/A"},
+        {"id": 5, "name": "John Robinson", "position": "Equipment Coordinator", "division": None, "email": "N/A", "phone": "N/A"},
+        # Baseball division
+        {"id": 6, "name": "Erick Kennard", "position": "Vice President", "division": "Baseball", "email": "N/A", "phone": "N/A"},
+        {"id": 7, "name": "Ryan Lighthouse", "position": "Secretary", "division": "Baseball", "email": "N/A", "phone": "N/A"},
+        {"id": 8, "name": "Harold Littlefield", "position": "Coaching Coordinator", "division": "Baseball", "email": "N/A", "phone": "N/A"},
+        {"id": 9, "name": "Whitney Wentworth", "position": "Player Agent", "division": "Baseball", "email": "N/A", "phone": "N/A"},
+        {"id": 10, "name": "Ashley Kennard", "position": "Concessions Manager", "division": "Baseball", "email": "N/A", "phone": "N/A"},
+        # Softball division
+        {"id": 11, "name": "Shelby Emery", "position": "Vice President", "division": "Softball", "email": "N/A", "phone": "N/A"},
+        {"id": 12, "name": "Lisa Hazlett", "position": "Secretary", "division": "Softball", "email": "N/A", "phone": "N/A"},
+        {"id": 13, "name": "Chris Remick", "position": "Coaching Coordinator", "division": "Softball", "email": "N/A", "phone": "N/A"},
+        {"id": 14, "name": "Taylor Beaulieu", "position": "Player Agent", "division": "Softball", "email": "N/A", "phone": "N/A"},
+        {"id": 15, "name": "VACANT", "position": "Concession Manager", "division": "Softball", "email": "N/A", "phone": "N/A"},
     ]
 
 class EventRequest(BaseModel):

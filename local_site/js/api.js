@@ -33,6 +33,17 @@ async function fetchCoaches() {
     }
 }
 
+async function fetchBoardMembers() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/board-members`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching board members:', error);
+        return [];
+    }
+}
+
 async function fetchTeams() {
     try {
         const response = await fetch(`${API_BASE_URL}/teams`);
