@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bucksport LL - Event Concessions</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    body { background-color: #f0f2f5; color: #333; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; }
+    .sidebar { width: 250px; background-color: #4b2d72; color: white; padding: 1.5rem 1rem; box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1); position: fixed; height: 100vh; overflow-y: auto; z-index: 1000; }
+    .sidebar-header { padding: 0 0.5rem 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 1rem; }
+    .sidebar h2 { color: #ffc72c; font-size: 1.25rem; font-weight: 700; margin: 0; }
+    .sidebar-nav { display: flex; flex-direction: column; gap: 0.25rem; }
+    .sidebar a { color: white; text-decoration: none; padding: 0.75rem 1rem; border-radius: 0.375rem; display: flex; align-items: center; gap: 0.75rem; transition: all 0.2s; font-size: 0.9375rem; }
+    .sidebar a:hover { background-color: rgba(255, 255, 255, 0.1); color: #ffc72c; }
+    .sidebar a.active { background-color: #ffc72c; color: #4b2d72; font-weight: 500; }
+    .sidebar i { width: 1.25rem; text-align: center; font-size: 1rem; }
+    .sidebar-section { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+    .sidebar-section-title { color: rgba(255, 255, 255, 0.6); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 0 1rem; margin-bottom: 0.5rem; }
+    .sidebar-subitem { padding-left: 2.25rem !important; font-size: 0.875rem !important; color: rgba(255, 255, 255, 0.8) !important; }
+    .sidebar-subitem:hover { color: #ffc72c !important; background-color: rgba(255, 255, 255, 0.05) !important; }
+    .main-content { margin-left: 250px; flex-grow: 1; padding: 2rem; }
+  </style>
+</head>
+<body class="min-h-screen bg-gray-100">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header"><h2>Bucksport LL</h2></div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section"><p class="sidebar-section-title">Public</p><a href="index.html"><i class="fas fa-home"></i> Home</a><a href="teams.html"><i class="fas fa-users"></i> Teams</a></div>
+      <div class="sidebar-section"><p class="sidebar-section-title">Admin</p><a href="coach-dashboard.html"><i class="fas fa-tachometer-alt"></i> Coach Dashboard</a><a href="inventory.html"><i class="fas fa-tshirt"></i> Equipment Inventory</a><a href="schedule.html"><i class="fas fa-calendar-alt"></i> Schedule</a>
+        </div><div class="sidebar-section"><p class="sidebar-section-title">Marketing & Fundraising</p>
+        <a href="concessions.html" class="sidebar-subitem"><i class="fas fa-hamburger"></i> Concessions</a>
+        <a href="event_concessions.html" class="active sidebar-subitem"><i class="fas fa-clipboard-list"></i> Event Concessions</a>
+        <a href="fundraising.html" class="sidebar-subitem"><i class="fas fa-hand-holding-usd"></i> Fundraising & Donations</a>
+      </div>
+    </nav>
+  </div>
+  
+  <div class="main-content">
+    <header class="flex justify-between items-center mb-8">
+        <h1 class="text-4xl font-bold text-purple-900">Event Concession Tracking</h1>
+        <button id="sync-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transform transition-transform duration-200 hover:scale-105 hidden"><i class="fas fa-sync-alt mr-2"></i>Sync to Main Inventory</button>
+    </header>
+
+    <div class="bg-white text-gray-800 p-6 sm:p-8 rounded-lg shadow-xl">
+      <div class="mb-6">
+        <label for="event-select" class="block text-sm font-medium text-gray-700 mb-2">Select an Event:</label>
+        <select id="event-select" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm rounded-md">
+          <option value="">Select an event</option>
+        </select>
+      </div>
+
+      <div id="usage-table-container" class="hidden mt-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 id="event-title" class="text-purple-900 text-2xl font-bold"></h2>
+          <button id="add-item-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transform transition-transform duration-200 hover:scale-105"><i class="fas fa-plus mr-2"></i>Add New Item</button>
+        </div>
+        <p id="sync-status" class="mb-4 font-semibold"></p>
+        <div class="overflow-x-auto">
+          <table class="min-w-full bg-white rounded-lg shadow">
+            <thead>
+              <tr class="bg-purple-800 text-white uppercase text-sm leading-normal">
+                <th class="py-3 px-6 text-left whitespace-nowrap">Item</th>
+                <th class="py-3 px-6 text-left">Category</th>
+                <th class="py-3 px-6 text-center">Start Qty</th>
+                <th class="py-3 px-6 text-center">Qty Used</th>
+                <th class="py-3 px-6 text-center">End Qty</th>
+                <th class="py-3 px-6 text-right">Cost/Item</th>
+                <th class="py-3 px-6 text-right">Total Usage Cost</th>
+              </tr>
+            </thead>
+            <tbody id="usage-table-body" class="text-gray-800 text-sm font-light">
+            </tbody>
+            <tfoot id="usage-table-footer" class="font-semibold text-gray-800">
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <footer class="mt-12 text-center">
+      <p class="text-gray-500 font-medium">Bucksport Little League &copy; 2025</p>
+    </footer>
+  </div>
+
+  <!-- Add/Edit Item Modal -->
+  <div id="item-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
+      <div class="mt-3 text-center">
+        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Add New Item</h3>
+        <div class="mt-2 px-7 py-3">
+          <form id="item-form" class="text-left">
+            <input type="hidden" id="item-id">
+            <div class="mb-4"><label class="block text-gray-700 text-sm font-bold mb-2" for="item-name">Item Name</label><input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" type="text" id="item-name" required></div>
+            <div class="mb-4">
+              <label class="block text-gray-700 text-sm font-bold mb-2" for="item-category-select">Category</label>
+              <select id="item-category-select" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                <!-- Options will be populated by JS -->
+              </select>
+              <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mt-2 hidden" type="text" id="item-category-new" placeholder="Enter new category">
+            </div>
+            <div class="mb-4"><label class="block text-gray-700 text-sm font-bold mb-2" for="item-quantity">Quantity</label><input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" type="number" id="item-quantity" required></div>
+            <div class="mb-4"><label class="block text-gray-700 text-sm font-bold mb-2" for="item-cost">Cost Per Item</label><input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" type="number" step="0.01" id="item-cost" required></div>
+            <div class="items-center px-4 py-3 mt-6">
+              <button id="save-item-btn" type="submit" class="px-4 py-2 bg-purple-800 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-purple-900 focus:outline-none focus:ring-2 focus:ring-purple-500">Save</button>
+              <button id="close-modal-btn" type="button" class="mt-2 px-4 py-2 bg-gray-300 text-gray-800 text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- DOM Elements ---
+        const eventSelect = document.getElementById('event-select');
+        const usageTableContainer = document.getElementById('usage-table-container');
+        const usageTableBody = document.getElementById('usage-table-body');
+        const usageTableFooter = document.getElementById('usage-table-footer');
+        const eventTitle = document.getElementById('event-title');
+        const syncBtn = document.getElementById('sync-btn');
+        const syncStatusEl = document.getElementById('sync-status');
+        const modal = document.getElementById('item-modal');
+        const addItemBtn = document.getElementById('add-item-btn');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const itemForm = document.getElementById('item-form');
+        const itemNameInput = document.getElementById('item-name');
+        const itemCategorySelect = document.getElementById('item-category-select');
+        const itemCategoryNewInput = document.getElementById('item-category-new');
+        const itemQuantityInput = document.getElementById('item-quantity');
+        const itemCostInput = document.getElementById('item-cost');
+
+        // --- State ---
+        let allEvents = [];
+        let allConcessions = [];
+        let currentEventId = null;
+        let currentEventData = {};
+
+        // --- Main Initialization ---
+        async function initializePage() {
+            allEvents = await fetchEvents();
+            populateEventsDropdown();
+        }
+
+        function populateEventsDropdown() {
+            eventSelect.innerHTML = '<option value="">Select an event</option>';
+            allEvents.forEach(event => {
+                const option = document.createElement('option');
+                option.value = event.id;
+                option.textContent = `${new Date(event.date).toLocaleDateString()} - ${event.name}`;
+                eventSelect.appendChild(option);
+            });
+        }
+
+        eventSelect.addEventListener('change', async (e) => {
+            currentEventId = e.target.value;
+            if (currentEventId) {
+                const selectedEvent = allEvents.find(ev => ev.id == currentEventId);
+                eventTitle.textContent = selectedEvent.name;
+                await loadEventData(currentEventId);
+                usageTableContainer.classList.remove('hidden');
+                syncBtn.classList.remove('hidden');
+            } else {
+                usageTableContainer.classList.add('hidden');
+                syncBtn.classList.add('hidden');
+            }
+        });
+
+        async function loadEventData(eventId) {
+            [allConcessions, currentEventData] = await Promise.all([
+                fetchConcessions(),
+                fetchEventUsage(eventId)
+            ]);
+            renderUsageTable();
+        }
+
+        function renderUsageTable() {
+            usageTableBody.innerHTML = '';
+            let grandTotal = 0;
+
+            if (allConcessions.length === 0) {
+                usageTableBody.innerHTML = '<tr><td colspan="7" class="text-center py-4">No concession items found. Please add one.</td></tr>';
+                usageTableFooter.innerHTML = '';
+                updateSyncStatus();
+                return;
+            }
+
+            allConcessions.forEach(item => {
+                const usedQty = currentEventData.usage[item.id] || 0;
+                const endQty = item.quantity - usedQty;
+                const totalCost = usedQty * item.cost;
+                grandTotal += totalCost;
+
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-200 hover:bg-gray-100';
+                row.dataset.itemId = item.id;
+                row.innerHTML = `
+                    <td class="py-3 px-6 text-left whitespace-nowrap">${item.item}</td>
+                    <td class="py-3 px-6 text-left">${item.category}</td>
+                    <td class="py-3 px-6 text-center start-qty">${item.quantity}</td>
+                    <td class="py-3 px-6 text-center"><input type="number" class="w-20 p-1 border rounded text-center qty-used" value="${usedQty}" min="0" ${currentEventData.synced ? 'disabled' : ''}></td>
+                    <td class="py-3 px-6 text-center end-qty">${endQty}</td>
+                    <td class="py-3 px-6 text-right">$${item.cost.toFixed(2)}</td>
+                    <td class="py-3 px-6 text-right total-usage-cost">$${totalCost.toFixed(2)}</td>
+                `;
+                usageTableBody.appendChild(row);
+            });
+
+            usageTableFooter.innerHTML = `
+                <tr class="bg-gray-200">
+                    <td colspan="6" class="py-3 px-6 text-right font-bold">Grand Total:</td>
+                    <td id="grand-total" class="py-3 px-6 text-right font-bold">$${grandTotal.toFixed(2)}</td>
+                </tr>
+            `;
+            updateSyncStatus();
+        }
+
+        function updateSyncStatus() {
+            if (currentEventData.synced) {
+                syncStatusEl.textContent = 'This event has been synced with the main inventory.';
+                syncStatusEl.className = 'mb-4 font-semibold text-green-600';
+                syncBtn.disabled = true;
+                syncBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                syncStatusEl.textContent = 'Changes are not yet synced.';
+                syncStatusEl.className = 'mb-4 font-semibold text-red-600';
+                syncBtn.disabled = false;
+                syncBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        // --- Event Handlers ---
+        usageTableBody.addEventListener('input', async (e) => {
+            if (e.target.classList.contains('qty-used')) {
+                const row = e.target.closest('tr');
+                const itemId = row.dataset.itemId;
+                const usedQty = parseInt(e.target.value) || 0;
+                currentEventData.usage[itemId] = usedQty;
+                await saveEventUsage(currentEventId, { usage: currentEventData.usage });
+                renderUsageTable(); // Re-render to update totals
+            }
+        });
+
+        syncBtn.addEventListener('click', async () => {
+            if (!currentEventId || currentEventData.synced) return;
+            if (confirm('Are you sure you want to sync these changes? This cannot be undone.')) {
+                try {
+                    await syncEventInventory(currentEventId);
+                    alert('Inventory synced successfully!');
+                    await loadEventData(currentEventId); // Refresh data
+                } catch (error) {
+                    alert('Failed to sync inventory. Please try again.');
+                }
+            }
+        });
+
+        // --- Modal Logic ---
+        addItemBtn.addEventListener('click', () => {
+            itemForm.reset();
+            populateCategoryDropdown();
+            itemCategoryNewInput.classList.add('hidden');
+            modal.classList.remove('hidden');
+        });
+
+        closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
+
+        itemCategorySelect.addEventListener('change', () => {
+            if (itemCategorySelect.value === 'other') {
+                itemCategoryNewInput.classList.remove('hidden');
+                itemCategoryNewInput.focus();
+            } else {
+                itemCategoryNewInput.classList.add('hidden');
+            }
+        });
+
+        itemForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            let category = itemCategorySelect.value === 'other' ? itemCategoryNewInput.value.trim() : itemCategorySelect.value;
+            if (!category) { alert('Please select or enter a category.'); return; }
+
+            const newItem = {
+                item: itemNameInput.value,
+                category: category,
+                quantity: parseInt(itemQuantityInput.value) || 0,
+                cost: parseFloat(itemCostInput.value) || 0,
+            };
+
+            try {
+                await addConcessionItem(newItem);
+                alert('Item added successfully!');
+                modal.classList.add('hidden');
+                await loadEventData(currentEventId);
+            } catch (error) {
+                alert('Failed to add item. Please try again.');
+            }
+        });
+
+        function populateCategoryDropdown() {
+            const categories = [...new Set(allConcessions.map(item => item.category))];
+            itemCategorySelect.innerHTML = '<option value="">Select a category</option>';
+            categories.forEach(cat => {
+                if (cat) {
+                    const option = document.createElement('option');
+                    option.value = cat;
+                    option.textContent = cat;
+                    itemCategorySelect.appendChild(option);
+                }
+            });
+            itemCategorySelect.innerHTML += '<option value="other">Other...</option>';
+        }
+
+        // --- Start ---
+        initializePage();
+    });
+  </script>
+</body>
+</html>

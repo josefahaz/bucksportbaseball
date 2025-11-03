@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bucksport Little League - Teams</title>
+  <script src="https://cdn.tailwindcss.com/3.4.1"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    body {
+      background-color: #4b2d72;
+      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.5;
+      display: flex;
+      min-height: 100vh;
+    }
+    .coach-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .coach-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .player-card {
+        background-color: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        font-weight: 500;
+        color: #1f2937;
+        text-align: center;
+        transition: all 0.2s;
+    }
+    .player-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border-color: #d1d5db;
+    }
+    .player-number {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: #4b2d72;
+        margin-bottom: 0.25rem;
+    }
+    .sidebar {
+      width: 250px;
+      background-color: #4b2d72;
+      color: white;
+      padding: 1.5rem 1rem;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 1000;
+    }
+    .sidebar h2 {
+      color: #ffc72c;
+      margin-bottom: 2rem;
+      padding: 0 0.5rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+    .sidebar nav {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      padding: 0.75rem 1rem;
+      border-radius: 0.375rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: all 0.2s;
+    }
+    .sidebar a:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #ffc72c;
+    }
+    .sidebar a.active {
+      background-color: #ffc72c;
+      color: #4b2d72;
+      font-weight: 500;
+    }
+    .sidebar i {
+      width: 1.5rem;
+      text-align: center;
+    }
+    .main-content {
+        margin-left: 250px;
+        flex-grow: 1;
+        padding: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>Bucksport LL</h2>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">
+        <p class="sidebar-section-title">Public</p>
+        <a href="index.html"><i class="fas fa-home"></i> Home</a>
+        <a href="teams.html" class="active"><i class="fas fa-users"></i> Teams</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-title">Admin</p>
+        <a href="coach-dashboard.html"><i class="fas fa-tachometer-alt"></i> Coach Dashboard</a>
+        <a href="inventory.html"><i class="fas fa-tshirt"></i> Equipment Inventory</a>
+        <a href="schedule.html"><i class="fas fa-calendar-alt"></i> Schedule</a>
+        </div><div class="sidebar-section"><p class="sidebar-section-title">Marketing & Fundraising</p>
+        <a href="concessions.html" class="sidebar-subitem"><i class="fas fa-hamburger"></i> Concessions</a>
+        <a href="event_concessions.html" class="sidebar-subitem"><i class="fas fa-clipboard-list"></i> Event Concessions</a>
+        <a href="fundraising.html" class="sidebar-subitem"><i class="fas fa-hand-holding-usd"></i> Fundraising & Donations</a>
+      </div>
+    </nav>
+  </div>
+
+  <div class="main-content">
+    <div class="container mx-auto text-gray-800">
+        
+        <header class="text-center mb-8">
+            <img src="images/logo.png" alt="Bucksport Little League Logo" class="mx-auto h-24 mb-4">
+            <h1 class="text-3xl font-extrabold" style="color: #ffc72c; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">League Teams</h1>
+            <p class="text-gray-300 mt-2">Meet the teams and coaches for the season.</p>
+        </header>
+
+        <div class="space-y-12">
+            <!-- Boys Baseball Team -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-purple-900 mb-4 border-b-2 border-yellow-400 pb-2">Boys Baseball</h2>
+                
+                <h3 class="text-xl font-semibold text-gray-800 mb-3">Coaches</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                    <!-- Coach 1 -->
+                    <div class="coach-card bg-gray-50 rounded-lg p-4 shadow-md border border-gray-200 flex flex-col">
+                        <div class="flex items-center mb-3">
+                            <div class="w-10 h-10 rounded-full bg-purple-900 text-white flex items-center justify-center text-lg font-bold mr-3">JD</div>
+                            <div>
+                                <h4 class="font-bold text-purple-900">John Davis</h4>
+                                <p class="text-sm text-gray-600">Head Coach</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Coach 2 -->
+                    <div class="coach-card bg-gray-50 rounded-lg p-4 shadow-md border border-gray-200 flex flex-col">
+                        <div class="flex items-center mb-3">
+                            <div class="w-10 h-10 rounded-full bg-purple-900 text-white flex items-center justify-center text-lg font-bold mr-3">MS</div>
+                            <div>
+                                <h4 class="font-bold text-purple-900">Mike Smith</h4>
+                                <p class="text-sm text-gray-600">Assistant Coach</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Coach 3 -->
+                    <div class="coach-card bg-gray-50 rounded-lg p-4 shadow-md border border-gray-200 flex flex-col">
+                        <div class="flex items-center mb-3">
+                            <div class="w-10 h-10 rounded-full bg-purple-900 text-white flex items-center justify-center text-lg font-bold mr-3">RB</div>
+                            <div>
+                                <h4 class="font-bold text-purple-900">Robert Brown</h4>
+                                <p class="text-sm text-gray-600">Assistant Coach</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="text-xl font-semibold text-gray-800 mb-3">Players</h3>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    <div class="player-card"><span class="player-number">#1</span> Liam Johnson</div>
+                    <div class="player-card"><span class="player-number">#5</span> Noah Williams</div>
+                    <div class="player-card"><span class="player-number">#8</span> Oliver Brown</div>
+                    <div class="player-card"><span class="player-number">#12</span> Elijah Jones</div>
+                    <div class="player-card"><span class="player-number">#23</span> James Garcia</div>
+                </div>
+            </div>
+
+            <!-- Girls Softball Team -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-purple-900 mb-4 border-b-2 border-yellow-400 pb-2">Girls Softball</h2>
+                
+                <h3 class="text-xl font-semibold text-gray-800 mb-3">Coaches</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                    <!-- Coach 1 -->
+                    <div class="coach-card bg-gray-50 rounded-lg p-4 shadow-md border border-gray-200 flex flex-col">
+                        <div class="flex items-center mb-3">
+                            <div class="w-10 h-10 rounded-full bg-red-700 text-white flex items-center justify-center text-lg font-bold mr-3">JD</div>
+                            <div>
+                                <h4 class="font-bold text-purple-900">Jane Doe</h4>
+                                <p class="text-sm text-gray-600">Head Coach</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Coach 2 -->
+                    <div class="coach-card bg-gray-50 rounded-lg p-4 shadow-md border border-gray-200 flex flex-col">
+                        <div class="flex items-center mb-3">
+                            <div class="w-10 h-10 rounded-full bg-red-700 text-white flex items-center justify-center text-lg font-bold mr-3">EW</div>
+                            <div>
+                                <h4 class="font-bold text-purple-900">Emily White</h4>
+                                <p class="text-sm text-gray-600">Assistant Coach</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Coach 3 -->
+                    <div class="coach-card bg-gray-50 rounded-lg p-4 shadow-md border border-gray-200 flex flex-col">
+                        <div class="flex items-center mb-3">
+                            <div class="w-10 h-10 rounded-full bg-red-700 text-white flex items-center justify-center text-lg font-bold mr-3">SG</div>
+                            <div>
+                                <h4 class="font-bold text-purple-900">Sarah Green</h4>
+                                <p class="text-sm text-gray-600">Assistant Coach</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="text-xl font-semibold text-gray-800 mb-3">Players</h3>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    <div class="player-card"><span class="player-number">#2</span> Olivia Smith</div>
+                    <div class="player-card"><span class="player-number">#4</span> Emma Martinez</div>
+                    <div class="player-card"><span class="player-number">#7</span> Ava Robinson</div>
+                    <div class="player-card"><span class="player-number">#11</span> Sophia Clark</div>
+                    <div class="player-card"><span class="player-number">#15</span> Isabella Rodriguez</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

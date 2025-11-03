@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bucksport Little League</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    body {
+      background-color: #4b2d72;
+      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.5;
+      margin: 0;
+      padding: 0;
+    }
+    
+    /* Sidebar Styles */
+    .sidebar {
+      width: 250px;
+      background-color: #4b2d72;
+      color: white;
+      padding: 1.5rem 1rem;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 1000;
+    }
+    
+    .sidebar-header {
+      padding: 0 0.5rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 1rem;
+    }
+    
+    .sidebar h2 {
+      color: #ffc72c;
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 0;
+    }
+    
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      padding: 0.75rem 1rem;
+      border-radius: 0.375rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: all 0.2s;
+      font-size: 0.9375rem;
+    }
+    
+    .sidebar a:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #ffc72c;
+    }
+    
+    .sidebar a.active {
+      background-color: #ffc72c;
+      color: #4b2d72;
+      font-weight: 500;
+    }
+    
+    .sidebar i {
+      width: 1.25rem;
+      text-align: center;
+      font-size: 1rem;
+    }
+    
+    .sidebar-section {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .sidebar-section-title {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0 1rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .sidebar-subitem {
+      padding-left: 2.25rem !important;
+      font-size: 0.875rem !important;
+      color: rgba(255, 255, 255, 0.8) !important;
+    }
+    
+    .sidebar-subitem:hover {
+      color: #ffc72c !important;
+      background-color: rgba(255, 255, 255, 0.05) !important;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    .form-container {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 30px;
+      border-radius: 8px;
+      margin: 20px 0;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      margin: 0 0 20px;
+    }
+    .form-col {
+      flex: 0 0 calc(50% - 10px);
+      min-width: 200px;
+      margin-right: 10px;
+      margin-bottom: 15px;
+    }
+    .form-col:last-child {
+      margin-right: 0;
+    }
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 6px;
+      font-size: 16px;
+      background-color: rgba(255, 255, 255, 0.9);
+      transition: all 0.2s ease;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: #ffc72c;
+      box-shadow: 0 0 0 2px rgba(255, 199, 44, 0.2);
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #4b2d72;
+      font-weight: 600;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .required::after {
+      content: ' *';
+      color: #ef4444;
+    }
+    .submit-btn {
+      background: #ffc72c;
+      color: #4b2d72;
+      border: none;
+      padding: 14px 28px;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .submit-btn:hover {
+      background: #ffd75e;
+      transform: translateY(-1px);
+    }
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+    /* Coach card styles for registration page */
+    .coaches-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+    
+    .coach-card {
+      background: white;
+      border-radius: 6px;
+      padding: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 1px solid #eee;
+    }
+    
+    .coach-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body class="min-h-screen" style="display: flex;">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>Bucksport LL</h2>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">
+        <p class="sidebar-section-title">Public</p>
+        <a href="index.html" class="active"><i class="fas fa-home"></i> Home</a>
+        <a href="teams.html"><i class="fas fa-users"></i> Teams</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-title">Admin</p>
+        <a href="coach-dashboard.html"><i class="fas fa-tachometer-alt"></i> Coach Dashboard</a>
+        <a href="inventory.html"><i class="fas fa-tshirt"></i> Equipment Inventory</a>
+        <a href="schedule.html"><i class="fas fa-calendar-alt"></i> Schedule</a>
+        </div><div class="sidebar-section"><p class="sidebar-section-title">Marketing & Fundraising</p>
+        <a href="concessions.html" class="sidebar-subitem"><i class="fas fa-hamburger"></i> Concessions</a>
+        <a href="event_concessions.html" class="sidebar-subitem"><i class="fas fa-clipboard-list"></i> Event Concessions</a>
+        <a href="fundraising.html" class="sidebar-subitem"><i class="fas fa-hand-holding-usd"></i> Fundraising & Donations</a>
+      </div>
+    </nav>
+  </div>
+  
+  <div class="main-content" style="flex-grow: 1;">
+  <div class="container mx-auto px-4">
+    <header class="text-center py-8">
+      <div class="flex flex-col items-center">
+        <img src="images/logo.png" alt="Bucksport Little League" class="h-20 mb-4" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
+        <h1 class="text-3xl font-extrabold" style="color: #ffc72c; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">Welcome to Bucksport Little League</h1>
+      </div>
+    </header>
+
+    <!-- Coaching Staff Section -->
+    <div class="mb-10 bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6">
+      <h2 class="text-xl font-bold text-purple-900 mb-4 pb-2 border-b-2 border-yellow-400 flex items-center gap-3">
+        <i class="fas fa-user-tie"></i> Coaching Staff
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Coach 1 -->
+        <div class="bg-white rounded-lg p-3 shadow-sm border border-gray-200 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-purple-800 text-white flex items-center justify-center font-bold text-sm">JD</div>
+          <div>
+            <h3 class="font-semibold text-purple-900 text-sm">John Davis</h3>
+            <p class="text-xs text-gray-500">Head Coach - Baseball Majors</p>
+          </div>
+        </div>
+        <!-- Coach 2 -->
+        <div class="bg-white rounded-lg p-3 shadow-sm border border-gray-200 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-red-600 text-white flex items-center justify-center font-bold text-sm">MS</div>
+          <div>
+            <h3 class="font-semibold text-purple-900 text-sm">Maria Sanchez</h3>
+            <p class="text-xs text-gray-500">Head Coach - Softball Minors</p>
+          </div>
+        </div>
+        <!-- Coach 3 -->
+        <div class="bg-white rounded-lg p-3 shadow-sm border border-gray-200 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-sm">RJ</div>
+          <div>
+            <h3 class="font-semibold text-purple-900 text-sm">Robert Johnson</h3>
+            <p class="text-xs text-gray-500">Asst. Coach - Baseball Minors</p>
+          </div>
+        </div>
+        <!-- Coach 4 -->
+        <div class="bg-white rounded-lg p-3 shadow-sm border border-gray-200 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-yellow-400 text-purple-900 flex items-center justify-center font-bold text-sm">KW</div>
+          <div>
+            <h3 class="font-semibold text-purple-900 text-sm">Karen Wilson</h3>
+            <p class="text-xs text-gray-500">Head Coach - Softball Majors</p>
+          </div>
+        </div>
+      </div>
+      <div class="text-center mt-4">
+        <a href="coach-dashboard.html" class="text-purple-800 text-sm font-semibold hover:text-yellow-500 transition-colors">
+          View All Coaches <i class="fas fa-arrow-right text-xs ml-1"></i>
+        </a>
+      </div>
+    </div>
+
+    
+  </div>
+  </div>
+  </div>
+
+  
+</body>
+</html>

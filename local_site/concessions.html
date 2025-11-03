@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bucksport LL - Concessions</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    body {
+      background-color: #4b2d72;
+      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.5;
+      margin: 0;
+      padding: 0;
+    }
+    .sidebar {
+      width: 250px;
+      background-color: #4b2d72;
+      color: white;
+      padding: 1.5rem 1rem;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 1000;
+    }
+    .sidebar-header { padding: 0 0.5rem 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 1rem; }
+    .sidebar h2 { color: #ffc72c; font-size: 1.25rem; font-weight: 700; margin: 0; }
+    .sidebar-nav { display: flex; flex-direction: column; gap: 0.25rem; }
+    .sidebar a { color: white; text-decoration: none; padding: 0.75rem 1rem; border-radius: 0.375rem; display: flex; align-items: center; gap: 0.75rem; transition: all 0.2s; font-size: 0.9375rem; }
+    .sidebar a:hover { background-color: rgba(255, 255, 255, 0.1); color: #ffc72c; }
+    .sidebar a.active { background-color: #ffc72c; color: #4b2d72; font-weight: 500; }
+    .sidebar i { width: 1.25rem; text-align: center; font-size: 1rem; }
+    .sidebar-section { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+    .sidebar-section-title { color: rgba(255, 255, 255, 0.6); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 0 1rem; margin-bottom: 0.5rem; }
+    .sidebar-subitem { padding-left: 2.25rem !important; font-size: 0.875rem !important; color: rgba(255, 255, 255, 0.8) !important; }
+    .sidebar-subitem:hover { color: #ffc72c !important; background-color: rgba(255, 255, 255, 0.05) !important; }
+    .main-content { margin-left: 250px; flex-grow: 1; padding: 2rem; }
+  </style>
+</head>
+<body class="min-h-screen">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header"><h2>Bucksport LL</h2></div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section"><p class="sidebar-section-title">Public</p><a href="index.html"><i class="fas fa-home"></i> Home</a><a href="teams.html"><i class="fas fa-users"></i> Teams</a></div>
+      <div class="sidebar-section"><p class="sidebar-section-title">Admin</p><a href="coach-dashboard.html"><i class="fas fa-tachometer-alt"></i> Coach Dashboard</a><a href="inventory.html"><i class="fas fa-tshirt"></i> Equipment Inventory</a><a href="schedule.html"><i class="fas fa-calendar-alt"></i> Schedule</a>
+        </div><div class="sidebar-section"><p class="sidebar-section-title">Marketing & Fundraising</p>
+        <a href="concessions.html" class="active sidebar-subitem"><i class="fas fa-hamburger"></i> Concessions</a>
+        <a href="event_concessions.html" class="sidebar-subitem"><i class="fas fa-clipboard-list"></i> Event Concessions</a>
+        <a href="fundraising.html" class="sidebar-subitem"><i class="fas fa-hand-holding-usd"></i> Fundraising & Donations</a>
+      </div>
+    </nav>
+  </div>
+  
+  <div class="main-content">
+    <header class="text-center py-8">
+        <div class="flex flex-col items-center">
+            <img src="images/logo.png" alt="Bucksport Little League" class="h-20 mb-4" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
+            <h1 class="text-3xl font-extrabold" style="color: #ffc72c; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">Concessions Inventory</h1>
+        </div>
+    </header>
+
+    <!-- Concessions Inventory Section -->
+    <div class="bg-white text-gray-800 p-6 sm:p-8 rounded-lg shadow-xl">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-purple-900 text-2xl font-bold">Inventory</h2>
+        <button id="add-item-btn" class="bg-purple-800 hover:bg-purple-900 text-white font-bold py-2 px-4 rounded-lg shadow-lg transform transition-transform duration-200 hover:scale-105"><i class="fas fa-plus mr-2"></i>Add Item</button>
+      </div>
+      
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-white">
+          <thead class="bg-purple-800 text-white">
+            <tr>
+              <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Item</th>
+              <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Category</th>
+              <th class="text-center py-3 px-4 uppercase font-semibold text-sm">Quantity</th>
+              <th class="text-right py-3 px-4 uppercase font-semibold text-sm">Cost Per Item</th>
+              <th class="text-right py-3 px-4 uppercase font-semibold text-sm">Total Value</th>
+              <th class="text-center py-3 px-4 uppercase font-semibold text-sm">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="text-gray-700" id="inventory-body"></tbody>
+          <tfoot class="font-semibold">
+            <tr class="bg-purple-200">
+                <td colspan="4" class="text-right py-3 px-4 font-bold">Total Inventory Value:</td>
+                <td id="total-value" class="text-right py-3 px-4 font-bold">$0.00</td>
+                <td class="py-3 px-4"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-12 text-center">
+      <p class="text-white font-medium">Bucksport Little League &copy; 2025</p>
+    </footer>
+  </div>
+
+  <!-- Add/Edit Item Modal -->
+  <div id="item-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
+      <div class="mt-3 text-center">
+        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Add New Item</h3>
+        <div class="mt-2 px-7 py-3">
+          <form id="item-form" class="text-left">
+            <input type="hidden" id="item-id">
+            <div class="mb-4"><label class="block text-gray-700 text-sm font-bold mb-2" for="item-name">Item Name</label><input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" type="text" id="item-name" required></div>
+            <div class="mb-4">
+              <label class="block text-gray-700 text-sm font-bold mb-2" for="item-category-select">Category</label>
+              <select id="item-category-select" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                <!-- Options will be populated by JS -->
+              </select>
+              <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mt-2 hidden" type="text" id="item-category-new" placeholder="Enter new category">
+            </div>
+            <div class="mb-4"><label class="block text-gray-700 text-sm font-bold mb-2" for="item-quantity">Quantity</label><input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" type="number" id="item-quantity" required></div>
+            <div class="mb-4"><label class="block text-gray-700 text-sm font-bold mb-2" for="item-cost">Cost Per Item</label><input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" type="number" step="0.01" id="item-cost" required></div>
+          </form>
+        </div>
+        <div class="items-center px-4 py-3">
+          <button id="save-item-btn" class="px-4 py-2 bg-purple-800 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-purple-900 focus:outline-none focus:ring-2 focus:ring-purple-500">Save</button>
+          <button id="close-modal-btn" class="mt-2 px-4 py-2 bg-gray-300 text-gray-800 text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let inventoryData = [];
+    let nextId = 1;
+
+    function getInventory() {
+        const storedInventory = localStorage.getItem('concessionsInventory');
+        if (storedInventory) {
+            inventoryData = JSON.parse(storedInventory);
+            nextId = inventoryData.length > 0 ? Math.max(...inventoryData.map(i => i.id)) + 1 : 1;
+        } else {
+            // No data in local storage, start with an empty inventory
+            inventoryData = [];
+            nextId = 1;
+            saveInventory();
+        }
+    }
+
+    function saveInventory() {
+        localStorage.setItem('concessionsInventory', JSON.stringify(inventoryData));
+    }
+
+    const tableBody = document.getElementById('inventory-body');
+    const totalValueCell = document.getElementById('total-value');
+    const modal = document.getElementById('item-modal');
+    const addItemBtn = document.getElementById('add-item-btn');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const saveItemBtn = document.getElementById('save-item-btn');
+    const modalTitle = document.getElementById('modal-title');
+    const itemForm = document.getElementById('item-form');
+    const itemIdInput = document.getElementById('item-id');
+    const itemNameInput = document.getElementById('item-name');
+    const itemCategorySelect = document.getElementById('item-category-select');
+    const itemCategoryNewInput = document.getElementById('item-category-new');
+    const itemQuantityInput = document.getElementById('item-quantity');
+    const itemCostInput = document.getElementById('item-cost');
+
+    function calculateTotalValue() {
+        const total = inventoryData.reduce((sum, d) => sum + (d.quantity * d.cost), 0);
+        totalValueCell.textContent = `$${total.toFixed(2)}`;
+    }
+
+    function renderTable() {
+        tableBody.innerHTML = '';
+        inventoryData.forEach(d => {
+            const row = tableBody.insertRow();
+            const totalValue = d.quantity * d.cost;
+            row.innerHTML = `
+                <td class="border-t-2 border-gray-200 px-4 py-3">${d.item}</td>
+                <td class="border-t-2 border-gray-200 px-4 py-3">${d.category}</td>
+                <td class="border-t-2 border-gray-200 px-4 py-3 text-center">${d.quantity}</td>
+                <td class="border-t-2 border-gray-200 px-4 py-3 text-right">$${d.cost.toFixed(2)}</td>
+                <td class="border-t-2 border-gray-200 px-4 py-3 text-right">$${totalValue.toFixed(2)}</td>
+                <td class="border-t-2 border-gray-200 px-4 py-3 text-center">
+                    <button class="text-blue-600 hover:text-blue-800" onclick="editItem(${d.id})"><i class="fas fa-edit"></i></button>
+                    <button class="text-red-600 hover:text-red-800 ml-3" onclick="deleteItem(${d.id})"><i class="fas fa-trash"></i></button>
+                </td>
+            `;
+        });
+        calculateTotalValue();
+    }
+    
+    function populateCategoryDropdown() {
+        const categories = [...new Set(inventoryData.map(item => item.category))];
+        itemCategorySelect.innerHTML = '<option value="">Select a category</option>';
+        categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category;
+            option.textContent = category;
+            itemCategorySelect.appendChild(option);
+        });
+        itemCategorySelect.innerHTML += '<option value="other">Other...</option>';
+    }
+
+    function openModal(id = null) {
+        itemForm.reset();
+        populateCategoryDropdown();
+        itemCategoryNewInput.classList.add('hidden');
+
+        if (id) {
+            modalTitle.textContent = 'Edit Item';
+            const item = inventoryData.find(d => d.id === id);
+            itemIdInput.value = item.id;
+            itemNameInput.value = item.item;
+            itemCategorySelect.value = item.category;
+            // If category is not in standard list, select 'other' and show input
+            if (![...itemCategorySelect.options].map(o => o.value).includes(item.category)) {
+                itemCategorySelect.value = 'other';
+                itemCategoryNewInput.classList.remove('hidden');
+                itemCategoryNewInput.value = item.category;
+            }
+            itemQuantityInput.value = item.quantity;
+            itemCostInput.value = item.cost;
+        } else {
+            modalTitle.textContent = 'Add New Item';
+            itemIdInput.value = '';
+        }
+        modal.classList.remove('hidden');
+    }
+
+    function closeModal() {
+        modal.classList.add('hidden');
+    }
+
+    function saveItem(event) {
+        event.preventDefault();
+        const id = itemIdInput.value;
+        let category = itemCategorySelect.value;
+        if (category === 'other') {
+            category = itemCategoryNewInput.value.trim();
+        }
+
+        if (!category) {
+            alert('Please select or enter a category.');
+            return;
+        }
+
+        const newItemData = {
+            item: itemNameInput.value,
+            category: category,
+            quantity: parseInt(itemQuantityInput.value) || 0,
+            cost: parseFloat(itemCostInput.value) || 0,
+        };
+
+        if (!newItemData.item || !newItemData.category) {
+            alert('Please fill out all fields.');
+            return;
+        }
+
+        if (id) { // Update
+            const index = inventoryData.findIndex(d => d.id == id);
+            inventoryData[index] = { ...inventoryData[index], ...newItemData };
+        } else { // Add
+            newItemData.id = nextId++;
+            inventoryData.push(newItemData);
+        }
+        saveInventory();
+        renderTable();
+        closeModal();
+    }
+
+    window.editItem = function(id) {
+        const item = inventoryData.find(d => d.id === id);
+        openModal(item.id);
+    }
+
+    window.deleteItem = function(id) {
+        if (confirm('Are you sure you want to delete this item?')) {
+            inventoryData = inventoryData.filter(d => d.id !== id);
+            saveInventory();
+            renderTable();
+        }
+    }
+
+    addItemBtn.addEventListener('click', () => openModal());
+    closeModalBtn.addEventListener('click', closeModal);
+    itemForm.addEventListener('submit', saveItem);
+    saveItemBtn.addEventListener('click', (e) => itemForm.requestSubmit());
+
+    itemCategorySelect.addEventListener('change', () => {
+        if (itemCategorySelect.value === 'other') {
+            itemCategoryNewInput.classList.remove('hidden');
+            itemCategoryNewInput.focus();
+        } else {
+            itemCategoryNewInput.classList.add('hidden');
+        }
+    });
+    
+    getInventory();
+    renderTable();
+  </script>
+</body>
+</html>

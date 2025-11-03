@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bucksport Little League - Coach Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    body {
+      background-color: #4b2d72;
+      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.5;
+      display: flex;
+      min-height: 100vh;
+    }
+    
+    /* Sidebar Styles */
+    .sidebar {
+      width: 250px;
+      background-color: #4b2d72;
+      color: white;
+      padding: 1.5rem 1rem;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 1000;
+    }
+    
+    .sidebar h2 {
+      color: #ffc72c;
+      margin-bottom: 2rem;
+      padding: 0 0.5rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+    
+    .sidebar nav {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      padding: 0.75rem 1rem;
+      border-radius: 0.375rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: all 0.2s;
+    }
+    
+    .sidebar a:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #ffc72c;
+    }
+    
+    .sidebar a.active {
+      background-color: #ffc72c;
+      color: #4b2d72;
+      font-weight: 500;
+    }
+    
+    .sidebar i {
+      width: 1.5rem;
+      text-align: center;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    .dashboard-container {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 30px;
+      border-radius: 8px;
+      margin: 20px 0;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .player-card {
+      background: white;
+      border-radius: 6px;
+      padding: 20px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      border-left: 4px solid #4b2d72;
+    }
+    .status-pending {
+      color: #f59e0b;
+      font-weight: 600;
+    }
+    .status-approved {
+      color: #10b981;
+      font-weight: 600;
+    }
+    .btn-approve {
+      background-color: #10b981;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      margin-right: 8px;
+    }
+    .btn-reject {
+      background-color: #ef4444;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .filter-bar {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .filter-select {
+      padding: 8px 12px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      background: white;
+      color: #333;
+    }
+    :root {
+      --primary: #4b2d72;
+      --secondary: #ffc72c;
+      --light: #f8f9fa;
+      --dark: #343a40;
+      --success: #28a745;
+      --danger: #dc3545;
+      --warning: #ffc107;
+      --info: #17a2b8;
+    }
+    .section {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+    .coaches-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+    .coach-card {
+      background: white;
+      border-radius: 6px;
+      padding: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 1px solid #eee;
+    }
+    .coach-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .coach-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: bold;
+      margin-right: 10px;
+    }
+    .coach-card h3 {
+      color: var(--primary);
+      margin: 0 0 2px 0;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+    }
+    .coach-role {
+      color: #666;
+      font-size: 0.8rem;
+      margin: 0 0 5px 0;
+    }
+    .coach-contact {
+      color: #555;
+      font-size: 0.8rem;
+      margin: 0 0 8px 0;
+      line-height: 1.4;
+    }
+    .coach-contact i {
+      width: 16px;
+      color: var(--primary);
+      margin-right: 6px;
+      font-size: 0.8rem;
+    }
+    .coach-teams {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .team-tag {
+      background-color: #e9ecef;
+      color: #495057;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 0.7rem;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body style="display: flex;">
+  <!-- Activity Log Modal -->
+  <div id="activityLogModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b p-4">
+        <h3 class="text-lg font-semibold">Activity Log</h3>
+        <button id="closeActivityLog" class="text-gray-500 hover:text-gray-700">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="p-6">
+        <div id="activityLogContent" class="space-y-4">
+          <!-- Activity log entries will be added here -->
+          <p class="text-gray-500 text-center py-4">No activity to display</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>Bucksport LL</h2>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">
+        <p class="sidebar-section-title">Public</p>
+        <a href="index.html"><i class="fas fa-home"></i> Home</a>
+        <a href="teams.html"><i class="fas fa-users"></i> Teams</a>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-section-title">Admin</p>
+        <a href="coach-dashboard.html" class="active"><i class="fas fa-tachometer-alt"></i> Coach Dashboard</a>
+        <a href="inventory.html"><i class="fas fa-tshirt"></i> Equipment Inventory</a>
+        <a href="schedule.html"><i class="fas fa-calendar-alt"></i> Schedule</a>
+        </div><div class="sidebar-section"><p class="sidebar-section-title">Marketing & Fundraising</p>
+        <a href="concessions.html" class="sidebar-subitem"><i class="fas fa-hamburger"></i> Concessions</a>
+        <a href="event_concessions.html" class="sidebar-subitem"><i class="fas fa-clipboard-list"></i> Event Concessions</a>
+        <a href="fundraising.html" class="sidebar-subitem"><i class="fas fa-hand-holding-usd"></i> Fundraising & Donations</a>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Main Content -->
+    <div class="main-content" style="flex-grow: 1;">
+    <div class="container mx-auto px-4">
+      <header class="text-center py-8 relative">
+        <div class="flex flex-col items-center">
+          <img src="images/logo.png" alt="Bucksport Little League" class="h-20 mb-4" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
+          <h1 class="text-3xl font-extrabold" style="color: #ffc72c; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">Coach Dashboard</h1>
+        </div>
+        <!-- Activity Log Button (positioned top-right) -->
+        <button id="viewActivityLog" class="btn-approve absolute top-10 right-5">
+          <i class="fas fa-history"></i> Activity Log
+        </button>
+      </header>
+
+      <!-- Coaches Section -->
+      <div class="bg-gray-100 border border-gray-200 p-4 rounded-lg shadow-inner max-w-6xl mx-auto relative">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-purple-900 text-xl font-bold pb-2 border-b-2 border-yellow-400 inline-block">
+                <i class="fas fa-user-tie mr-2"></i>Coaching Staff
+            </h2>
+            <button id="addCoachBtn" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 flex items-center gap-2 text-sm">
+                <i class="fas fa-plus"></i> Add Coach
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4" id="coachesGrid">
+              <p class="text-gray-500 text-center col-span-full py-4">No coaches listed.</p>
+            </div>
+        <div class="text-center mt-4">
+            <a href="#" class="text-purple-900 text-sm font-semibold hover:underline">
+                View All Coaches <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+      </div>
+
+        <div class="filter-bar" style="margin: 20px 0;">
+        <button id="viewRosterBtn" class="btn-approve" style="margin-right: 10px;">
+          <i class="fas fa-users"></i> View Roster
+        </button>
+        <button id="viewAllBtn" class="btn-reject" style="margin-right: 10px; display: none;">
+          <i class="fas fa-list"></i> View All Registrations
+        </button>
+        <select class="filter-select">
+          <option>All Teams</option>
+          <option>Baseball</option>
+          <option>Softball</option>
+        </select>
+        <select class="filter-select">
+          <option>All Age Groups</option>
+          <option>4-6</option>
+          <option>7-9</option>
+          <option>10-12</option>
+          <option>13+</option>
+        </select>
+        <select class="filter-select">
+          <option>All Statuses</option>
+          <option>Pending</option>
+          <option>Approved</option>
+          <option>Rejected</option>
+        </select>
+        <input type="text" placeholder="Search players..." class="filter-select" style="flex-grow: 1; max-width: 300px;">
+      </div>
+
+      <!-- Player List -->
+      <div id="playerList">
+        <!-- Player cards will be dynamically inserted here -->
+      </div>
+      </div> <!-- End of white background -->
+    </div> <!-- End of dashboard container -->
+  </div> <!-- End of main content container -->
+
+  <!-- Add/Edit Coach Modal -->
+  <div id="coachModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg w-full max-w-md p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold text-gray-800" id="coachModalTitle">Add New Coach</h3>
+        <button id="closeCoachModal" class="text-gray-500 hover:text-gray-700">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <form id="coachForm">
+        <input type="hidden" id="coachId">
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="coachName">
+            Full Name *
+          </label>
+          <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                 id="coachName" type="text" required>
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="coachEmail">
+            Email *
+          </label>
+          <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                 id="coachEmail" type="email" required>
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="coachPhone">
+            Phone
+          </label>
+          <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                 id="coachPhone" type="tel">
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="coachRole">
+            Role *
+          </label>
+          <select class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                  id="coachRole" required>
+            <option value="Head Coach">Head Coach</option>
+            <option value="Assistant Coach">Assistant Coach</option>
+            <option value="Pitching Coach">Pitching Coach</option>
+            <option value="Hitting Coach">Hitting Coach</option>
+          </select>
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="coachTeam">
+            Team *
+          </label>
+          <select class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                  id="coachTeam" required>
+            <option value="Baseball Majors">Baseball Majors</option>
+            <option value="Baseball Minors">Baseball Minors</option>
+            <option value="Baseball Rookies">Baseball Rookies</option>
+            <option value="Softball Majors">Softball Majors</option>
+            <option value="Softball Minors">Softball Minors</option>
+            <option value="Softball Rookies">Softball Rookies</option>
+          </select>
+        </div>
+        <div class="flex justify-end gap-3 mt-6">
+          <button type="button" id="cancelCoachBtn" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50">
+            Cancel
+          </button>
+          <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-purple-700 hover:bg-purple-800">
+            Save Coach
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Activity log to track all changes
+    let activityLog = [];
+    
+    // Current user (in a real app, this would come from authentication)
+    const currentUser = 'Coach'; // TODO: Replace with actual user from authentication
+    
+    // Function to add a log entry
+    function logActivity(action, details = {}) {
+      const timestamp = new Date().toISOString();
+      const logEntry = {
+        timestamp,
+        user: currentUser,
+        action,
+        details
+      };
+      
+      activityLog.unshift(logEntry);
+      console.log(`[${timestamp}] ${currentUser} ${action}`, details);
+      
+      // In a real app, you would also save this to your backend
+      // saveActivityLog(logEntry);
+      
+      return logEntry;
+    }
+    
+    // Function to render activity log
+    function renderActivityLog() {
+      const container = document.getElementById('activityLogContent');
+      if (!container) return;
+      
+      if (activityLog.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-center py-4">No activity to display</p>';
+        return;
+      }
+      
+      const logHTML = activityLog.map(entry => {
+        const time = new Date(entry.timestamp).toLocaleString();
+        let actionText = entry.action;
+        let detailsText = '';
+        
+        // Format different action types
+        if (entry.details.playerName) {
+          detailsText = `Player: ${entry.details.playerName}`;
+          if (entry.details.team) detailsText += `, Team: ${entry.details.team}`;
+          if (entry.details.status) detailsText += `, Status: ${entry.details.status}`;
+        } else if (entry.details.coachName) {
+          detailsText = `Coach: ${entry.details.coachName}`;
+          if (entry.details.team) detailsText += `, Team: ${entry.details.team}`;
+        }
+        
+        return `
+          <div class="border-b pb-3 mb-3">
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="font-medium">${entry.user}</span> ${actionText}
+                ${detailsText ? `<div class="text-sm text-gray-500">${detailsText}</div>` : ''}
+              </div>
+              <div class="text-sm text-gray-500">${time}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      container.innerHTML = logHTML;
+    }
+    
+    // Initialize activity log modal
+    document.addEventListener('DOMContentLoaded', function() {
+      const modal = document.getElementById('activityLogModal');
+      const openBtn = document.getElementById('viewActivityLog');
+      const closeBtn = document.getElementById('closeActivityLog');
+      
+      if (openBtn) {
+        openBtn.addEventListener('click', function() {
+          renderActivityLog();
+          modal.classList.remove('hidden');
+        });
+      }
+      
+      if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+          modal.classList.add('hidden');
+        });
+      }
+      
+      window.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.add('hidden');
+        }
+      });
+    });
+
+    let coaches = JSON.parse(localStorage.getItem('coaches')) || [];
+    let players = JSON.parse(localStorage.getItem('players')) || [];
+
+    // Filter to only show approved players by default
+    function getApprovedPlayers(playersList = players) {
+      return playersList.filter(player => player.status === 'approved');
+    }
+
+    // Render player cards
+    function renderPlayers(playersToRender = players) {
+      const container = document.getElementById('playerList');
+      if (!container) return;
+      container.innerHTML = '';
+      
+      const approvedPlayers = getApprovedPlayers(playersToRender);
+      
+      if (approvedPlayers.length === 0) {
+        container.innerHTML = '<p style="color: #4b2d72; text-align: center; padding: 20px;">No approved players found.</p>';
+        return;
+      }
+
+      approvedPlayers.forEach(player => {
+        const card = document.createElement('div');
+        card.className = 'player-card';
+        
+        const parentInfo = `
+          <details style="margin: 10px 0;">
+            <summary style="color: #4b2d72; cursor: pointer; font-weight: 500;">View Contact & Address</summary>
+            <div style="margin-top: 8px; padding: 12px; background: #f8f9fa; border-radius: 4px;">
+              <p><strong>Parent:</strong> ${player.parentName} (${player.parentEmail}, ${player.parentPhone})</p>
+              <p><strong>Emergency:</strong> ${player.emergencyContact} (${player.emergencyPhone})</p>
+              <p><strong>Address:</strong> ${player.address}, ${player.city}, ${player.state} ${player.zip}</p>
+            </div>
+          </details>`;
+        
+        const formatSize = (size) => ({'YXS':'YXS','YS':'YS','YM':'YM','YL':'YL','AS':'AS','AM':'AM','AL':'AL','AXL':'AXL','A2XL':'A2XL'}[size] || size);
+        
+        card.innerHTML = `
+          <div style="display: flex; justify-content: space-between;">
+            <div>
+              <h3 style="color: #4b2d72; font-size: 1.25rem;">${player.name}</h3>
+              <p><strong>Team:</strong> ${player.team} | <strong>Grade:</strong> ${player.grade} | <strong>Gender:</strong> ${player.gender}</p>
+              <p><strong>Uniform:</strong> Jersey ${formatSize(player.jerseySize)}, Pants ${formatSize(player.pantsSize)}, Shoes ${player.shoeSize}</p>
+              ${parentInfo}
+            </div>
+            <div class="status-${player.status}" style="text-transform: capitalize;">${player.team}</div>
+          </div>`;
+        container.appendChild(card);
+      });
+    }
+
+    // Update player status
+    function updateStatus(playerId, status) {
+      const player = players.find(p => p.id === playerId);
+      if (player) {
+        player.status = status;
+        localStorage.setItem('players', JSON.stringify(players));
+        logActivity('updated player status', { playerName: player.name, newStatus: status });
+        renderPlayers();
+      }
+    }
+
+    // Toggle roster view
+    function toggleRosterView() {
+      // This function can be simplified or adapted based on coach-specific views
+      renderPlayers(players);
+    }
+
+    // Generate a random color based on coach's name
+    function getInitialsColor(name) {
+      const colors = ['#4b2d72', '#e63946', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51'];
+      const index = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
+      return colors[index];
+    }
+    
+    // Get initials from name
+    function getInitials(name) {
+      return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    }
+    
+    // Render coaches
+    function renderCoaches() {
+      const coachesGrid = document.getElementById('coachesGrid');
+      if (!coachesGrid) return;
+
+      if (coaches.length === 0) {
+          coachesGrid.innerHTML = '<p class="text-gray-500 text-center col-span-full py-4">No coaches listed.</p>';
+          return;
+      }
+      
+      coachesGrid.innerHTML = coaches.map(coach => `
+        <div class="coach-card" data-coach-id="${coach.id}">
+          <div style="display: flex; align-items: center; margin-bottom: 8px;">
+            <div class="coach-avatar" style="background-color: ${getInitialsColor(coach.name)};">${getInitials(coach.name)}</div>
+            <div>
+                <h3 class="font-bold text-purple-900">${coach.name}</h3>
+                <p class="text-sm text-gray-600">${coach.role} - ${coach.team}</p>
+            </div>
+          </div>
+          <div class="text-sm text-gray-700 space-y-1 mt-auto">
+            <p><i class="fas fa-phone w-4 mr-2 text-purple-700"></i>${coach.phone || 'N/A'}</p>
+            <p><i class="fas fa-envelope w-4 mr-2 text-purple-700"></i>${coach.email}</p>
+          </div>
+          <button class="delete-coach-btn absolute top-2 right-2 text-red-500 hover:text-red-700" data-coach-id="${coach.id}"><i class="fas fa-times"></i></button>
+        </div>
+      `).join('');
+      
+      document.querySelectorAll('.delete-coach-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const coachId = btn.dataset.coachId;
+          deleteCoach(coachId);
+        });
+      });
+    }
+    
+    // Add or Update a new coach
+    function saveCoach(coachData) {
+      const existingIndex = coaches.findIndex(c => c.id === coachData.id);
+
+      if (existingIndex > -1) {
+        // Update existing coach
+        coaches[existingIndex] = {...coaches[existingIndex], ...coachData};
+        logActivity('updated coach', { name: coachData.name });
+      } else {
+        // Add new coach
+        const newCoach = {
+          id: 'coach-' + Date.now(),
+          ...coachData
+        };
+        coaches.unshift(newCoach);
+        logActivity('added coach', { name: coachData.name });
+      }
+
+      localStorage.setItem('coaches', JSON.stringify(coaches));
+      renderCoaches();
+    }
+    
+    // Delete a coach
+    function deleteCoach(coachId) {
+      const coachName = coaches.find(c => c.id === coachId)?.name || 'Unknown';
+      if (confirm(`Are you sure you want to remove ${coachName}?`)) {
+        coaches = coaches.filter(c => c.id !== coachId);
+        localStorage.setItem('coaches', JSON.stringify(coaches));
+        renderCoaches();
+        logActivity('deleted coach', { name: coachName });
+      }
+    }
+    
+    // Modal functions
+    function openCoachModal() {
+      document.getElementById('coachModal').classList.remove('hidden');
+      document.getElementById('coachForm').reset();
+      document.getElementById('coachModalTitle').textContent = 'Add New Coach';
+      document.getElementById('coachId').value = '';
+    }
+    
+    function closeCoachModal() {
+      document.getElementById('coachModal').classList.add('hidden');
+    }
+    
+    // Initial render
+    document.addEventListener('DOMContentLoaded', () => {
+      logActivity('viewed coach dashboard');
+      initializeCoaches();
+      // Only show approved players by default
+      renderPlayers(getApprovedPlayers());
+      
+      // Add event listeners for roster view toggle
+      document.getElementById('viewRosterBtn').addEventListener('click', () => {
+        toggleRosterView();
+        logActivity('toggled roster view');
+      });
+      
+      document.getElementById('viewAllBtn').addEventListener('click', () => {
+        toggleRosterView();
+        logActivity('toggled roster view');
+      });
+      
+      // Add event listeners for filters
+      document.querySelectorAll('.filter-select').forEach(select => {
+        select.addEventListener('change', filterPlayers);
+      });
+      
+      // Coach modal event listeners
+      document.getElementById('addCoachBtn').addEventListener('click', openCoachModal);
+      document.getElementById('closeCoachModal').addEventListener('click', closeCoachModal);
+      document.getElementById('cancelCoachBtn').addEventListener('click', closeCoachModal);
+      
+      // Handle form submission
+      document.getElementById('coachForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const coachData = {
+          name: document.getElementById('coachName').value.trim(),
+          email: document.getElementById('coachEmail').value.trim(),
+          phone: document.getElementById('coachPhone').value.trim(),
+          role: document.getElementById('coachRole').value,
+          team: document.getElementById('coachTeam').value
+        };
+        
+        addCoach(coachData);
+        closeCoachModal();
+      });
+      
+      // Close modal when clicking outside
+      document.getElementById('coachModal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('coachModal')) {
+          closeCoachModal();
+        }
+      });
+    });
+
+    // Filter players based on selected filters
+    function filterPlayers() {
+      const teamFilter = document.querySelector('.filter-select').value.toLowerCase();
+      const searchTerm = document.querySelector('input[type="text"]').value.toLowerCase();
+      
+      const filtered = players.filter(player => {
+        const matchesTeam = teamFilter === 'all teams' || 
+                          player.team.toLowerCase().includes(teamFilter);
+        
+        const matchesSearch = !searchTerm || 
+                            player.name.toLowerCase().includes(searchTerm) ||
+                            player.parentName.toLowerCase().includes(searchTerm) ||
+                            player.parentEmail.toLowerCase().includes(searchTerm);
+        
+        return matchesTeam && matchesSearch;
+      });
+      
+      renderPlayers(filtered);
+    }
+  </script>
+</body>
+</html>

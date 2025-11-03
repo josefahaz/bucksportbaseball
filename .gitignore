@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.python-version
+.env
+.env.*
+venv/
+.venv/
+
+# OS/IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Node/Yarn caches (if any)
+node_modules/
+
+# Project-specific
+bucksport_api/database.db
