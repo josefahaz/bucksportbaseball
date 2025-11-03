@@ -117,3 +117,39 @@ async function fetchData(endpoint) {
         return [];
     }
 }
+
+async function updateBoardMember(id, data) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/board-members/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        });
+        if (!response.ok) {
+            const errorBody = await response.text();
+            throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error(`Could not update board member ${id}:`, error);
+        throw error;
+    }
+}
+
+async function updateCoach(id, data) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/coaches/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        });
+        if (!response.ok) {
+            const errorBody = await response.text();
+            throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error(`Could not update coach ${id}:`, error);
+        throw error;
+    }
+}

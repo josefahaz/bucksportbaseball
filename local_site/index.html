@@ -305,11 +305,14 @@
             const bgColor = colors[index % colors.length];
             
             const memberCard = document.createElement('div');
-            memberCard.className = 'bg-white rounded-lg p-4 shadow-sm border border-gray-200';
+            memberCard.className = 'bg-white rounded-lg p-4 shadow-sm border border-gray-200 relative hover:shadow-md transition-shadow';
             memberCard.innerHTML = `
+              <button class="absolute top-2 right-2 text-gray-400 hover:text-purple-700 transition-colors" onclick="editBoardMember(${member.id})" title="Edit">
+                <i class="fas fa-edit text-sm"></i>
+              </button>
               <div class="flex items-start gap-3 mb-2">
                 <div class="w-12 h-12 rounded-full ${bgColor} text-white flex items-center justify-center font-bold text-sm flex-shrink-0">${initials}</div>
-                <div class="flex-1 min-w-0">
+                <div class="flex-1 min-w-0 pr-6">
                   <h3 class="font-semibold text-purple-900 text-sm">${member.name}</h3>
                   <p class="text-xs text-gray-600 font-medium">${member.position}</p>
                   ${member.division ? `<p class="text-xs text-gray-500 italic">${member.division}</p>` : ''}
@@ -345,12 +348,17 @@
           const textColor = bgColor === 'bg-yellow-400' ? 'text-purple-900' : 'text-white';
           
           const coachCard = document.createElement('div');
-          coachCard.className = 'bg-white rounded-lg p-3 shadow-sm border border-gray-200 flex items-center gap-3';
+          coachCard.className = 'bg-white rounded-lg p-3 shadow-sm border border-gray-200 flex items-center gap-3 relative hover:shadow-md transition-shadow';
           coachCard.innerHTML = `
+            <button class="absolute top-2 right-2 text-gray-400 hover:text-purple-700 transition-colors" onclick="editCoach(${coach.id})" title="Edit">
+              <i class="fas fa-edit text-sm"></i>
+            </button>
             <div class="w-10 h-10 rounded-full ${bgColor} ${textColor} flex items-center justify-center font-bold text-sm">${initials}</div>
-            <div>
+            <div class="flex-1 pr-6">
               <h3 class="font-semibold text-purple-900 text-sm">${coach.name}</h3>
               <p class="text-xs text-gray-500">Head Coach</p>
+              ${coach.email && coach.email !== 'N/A' ? `<p class="text-xs text-gray-600 mt-1"><i class="fas fa-envelope w-3"></i> ${coach.email}</p>` : ''}
+              ${coach.phone && coach.phone !== 'N/A' ? `<p class="text-xs text-gray-600"><i class="fas fa-phone w-3"></i> ${coach.phone}</p>` : ''}
             </div>
           `;
           coachesGrid.appendChild(coachCard);
@@ -360,6 +368,164 @@
         coachesGrid.innerHTML = '<p class="text-red-500 col-span-full text-center py-4">Failed to load coaches.</p>';
       }
     });
+
+    // Store board members and coaches globally for editing
+    let allBoardMembers = [];
+    let allCoaches = [];
+
+    // Edit board member function
+    window.editBoardMember = function(id) {
+      const member = allBoardMembers.find(m => m.id === id);
+      if (!member) return;
+      
+      document.getElementById('editBoardMemberId').value = member.id;
+      document.getElementById('editBoardMemberName').value = member.name;
+      document.getElementById('editBoardMemberPosition').value = member.position;
+      document.getElementById('editBoardMemberDivision').value = member.division || '';
+      document.getElementById('editBoardMemberEmail').value = member.email === 'N/A' ? '' : member.email;
+      document.getElementById('editBoardMemberPhone').value = member.phone === 'N/A' ? '' : member.phone;
+      
+      document.getElementById('boardMemberModal').classList.remove('hidden');
+    };
+
+    // Edit coach function
+    window.editCoach = function(id) {
+      const coach = allCoaches.find(c => c.id === id);
+      if (!coach) return;
+      
+      document.getElementById('editCoachId').value = coach.id;
+      document.getElementById('editCoachName').value = coach.name;
+      document.getElementById('editCoachEmail').value = coach.email === 'N/A' ? '' : coach.email;
+      document.getElementById('editCoachPhone').value = coach.phone === 'N/A' ? '' : coach.phone;
+      
+      document.getElementById('coachModal').classList.remove('hidden');
+    };
+
+    // Close modals
+    window.closeBoardMemberModal = function() {
+      document.getElementById('boardMemberModal').classList.add('hidden');
+    };
+
+    window.closeCoachModal = function() {
+      document.getElementById('coachModal').classList.add('hidden');
+    };
+
+    // Save board member
+    window.saveBoardMember = async function(event) {
+      event.preventDefault();
+      const id = parseInt(document.getElementById('editBoardMemberId').value);
+      const data = {
+        name: document.getElementById('editBoardMemberName').value,
+        position: document.getElementById('editBoardMemberPosition').value,
+        division: document.getElementById('editBoardMemberDivision').value || null,
+        email: document.getElementById('editBoardMemberEmail').value || 'N/A',
+        phone: document.getElementById('editBoardMemberPhone').value || 'N/A'
+      };
+
+      try {
+        await updateBoardMember(id, data);
+        alert('Board member updated successfully!');
+        closeBoardMemberModal();
+        location.reload(); // Reload to show updated data
+      } catch (error) {
+        alert('Failed to update board member: ' + error.message);
+      }
+    };
+
+    // Save coach
+    window.saveCoach = async function(event) {
+      event.preventDefault();
+      const id = parseInt(document.getElementById('editCoachId').value);
+      const data = {
+        name: document.getElementById('editCoachName').value,
+        email: document.getElementById('editCoachEmail').value || 'N/A',
+        phone: document.getElementById('editCoachPhone').value || 'N/A'
+      };
+
+      try {
+        await updateCoach(id, data);
+        alert('Coach updated successfully!');
+        closeCoachModal();
+        location.reload(); // Reload to show updated data
+      } catch (error) {
+        alert('Failed to update coach: ' + error.message);
+      }
+    };
+
+    // Update the DOMContentLoaded to store data globally
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        allBoardMembers = await fetchBoardMembers();
+        allCoaches = await fetchCoaches();
+      } catch (error) {
+        console.error('Error loading data for editing:', error);
+      }
+    });
   </script>
+
+  <!-- Board Member Edit Modal -->
+  <div id="boardMemberModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+      <h3 class="text-xl font-bold text-purple-900 mb-4">Edit Board Member</h3>
+      <form onsubmit="saveBoardMember(event)">
+        <input type="hidden" id="editBoardMemberId">
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2">Name</label>
+          <input type="text" id="editBoardMemberName" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2">Position</label>
+          <input type="text" id="editBoardMemberPosition" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2">Division (optional)</label>
+          <select id="editBoardMemberDivision" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+            <option value="">None</option>
+            <option value="Baseball">Baseball</option>
+            <option value="Softball">Softball</option>
+          </select>
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+          <input type="email" id="editBoardMemberEmail" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2">Phone</label>
+          <input type="tel" id="editBoardMemberPhone" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+        <div class="flex justify-end gap-3">
+          <button type="button" onclick="closeBoardMemberModal()" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-purple-700 text-white rounded-md hover:bg-purple-800">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Coach Edit Modal -->
+  <div id="coachModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+      <h3 class="text-xl font-bold text-purple-900 mb-4">Edit Coach</h3>
+      <form onsubmit="saveCoach(event)">
+        <input type="hidden" id="editCoachId">
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2">Name</label>
+          <input type="text" id="editCoachName" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+          <input type="email" id="editCoachEmail" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2">Phone</label>
+          <input type="tel" id="editCoachPhone" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+        <div class="flex justify-end gap-3">
+          <button type="button" onclick="closeCoachModal()" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-purple-700 text-white rounded-md hover:bg-purple-800">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
 </body>
 </html>
