@@ -131,106 +131,70 @@
             <p class="text-gray-300 mt-2">Meet the teams and coaches for the season.</p>
         </header>
 
-        <div class="space-y-12">
-            <!-- Boys Baseball Team -->
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-2xl font-bold text-purple-900 mb-4 border-b-2 border-yellow-400 pb-2">Boys Baseball</h2>
-                
-                <h3 class="text-xl font-semibold text-gray-800 mb-3">Coaches</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                    <!-- Coach 1 -->
-                    <div class="coach-card bg-gray-50 rounded-lg p-4 shadow-md border border-gray-200 flex flex-col">
-                        <div class="flex items-center mb-3">
-                            <div class="w-10 h-10 rounded-full bg-purple-900 text-white flex items-center justify-center text-lg font-bold mr-3">JD</div>
-                            <div>
-                                <h4 class="font-bold text-purple-900">John Davis</h4>
-                                <p class="text-sm text-gray-600">Head Coach</p>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Coach 2 -->
-                    <div class="coach-card bg-gray-50 rounded-lg p-4 shadow-md border border-gray-200 flex flex-col">
-                        <div class="flex items-center mb-3">
-                            <div class="w-10 h-10 rounded-full bg-purple-900 text-white flex items-center justify-center text-lg font-bold mr-3">MS</div>
-                            <div>
-                                <h4 class="font-bold text-purple-900">Mike Smith</h4>
-                                <p class="text-sm text-gray-600">Assistant Coach</p>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Coach 3 -->
-                    <div class="coach-card bg-gray-50 rounded-lg p-4 shadow-md border border-gray-200 flex flex-col">
-                        <div class="flex items-center mb-3">
-                            <div class="w-10 h-10 rounded-full bg-purple-900 text-white flex items-center justify-center text-lg font-bold mr-3">RB</div>
-                            <div>
-                                <h4 class="font-bold text-purple-900">Robert Brown</h4>
-                                <p class="text-sm text-gray-600">Assistant Coach</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <h3 class="text-xl font-semibold text-gray-800 mb-3">Players</h3>
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                    <div class="player-card"><span class="player-number">#1</span> Liam Johnson</div>
-                    <div class="player-card"><span class="player-number">#5</span> Noah Williams</div>
-                    <div class="player-card"><span class="player-number">#8</span> Oliver Brown</div>
-                    <div class="player-card"><span class="player-number">#12</span> Elijah Jones</div>
-                    <div class="player-card"><span class="player-number">#23</span> James Garcia</div>
-                </div>
-            </div>
-
-            <!-- Girls Softball Team -->
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-2xl font-bold text-purple-900 mb-4 border-b-2 border-yellow-400 pb-2">Girls Softball</h2>
-                
-                <h3 class="text-xl font-semibold text-gray-800 mb-3">Coaches</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                    <!-- Coach 1 -->
-                    <div class="coach-card bg-gray-50 rounded-lg p-4 shadow-md border border-gray-200 flex flex-col">
-                        <div class="flex items-center mb-3">
-                            <div class="w-10 h-10 rounded-full bg-red-700 text-white flex items-center justify-center text-lg font-bold mr-3">JD</div>
-                            <div>
-                                <h4 class="font-bold text-purple-900">Jane Doe</h4>
-                                <p class="text-sm text-gray-600">Head Coach</p>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Coach 2 -->
-                    <div class="coach-card bg-gray-50 rounded-lg p-4 shadow-md border border-gray-200 flex flex-col">
-                        <div class="flex items-center mb-3">
-                            <div class="w-10 h-10 rounded-full bg-red-700 text-white flex items-center justify-center text-lg font-bold mr-3">EW</div>
-                            <div>
-                                <h4 class="font-bold text-purple-900">Emily White</h4>
-                                <p class="text-sm text-gray-600">Assistant Coach</p>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Coach 3 -->
-                    <div class="coach-card bg-gray-50 rounded-lg p-4 shadow-md border border-gray-200 flex flex-col">
-                        <div class="flex items-center mb-3">
-                            <div class="w-10 h-10 rounded-full bg-red-700 text-white flex items-center justify-center text-lg font-bold mr-3">SG</div>
-                            <div>
-                                <h4 class="font-bold text-purple-900">Sarah Green</h4>
-                                <p class="text-sm text-gray-600">Assistant Coach</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <h3 class="text-xl font-semibold text-gray-800 mb-3">Players</h3>
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                    <div class="player-card"><span class="player-number">#2</span> Olivia Smith</div>
-                    <div class="player-card"><span class="player-number">#4</span> Emma Martinez</div>
-                    <div class="player-card"><span class="player-number">#7</span> Ava Robinson</div>
-                    <div class="player-card"><span class="player-number">#11</span> Sophia Clark</div>
-                    <div class="player-card"><span class="player-number">#15</span> Isabella Rodriguez</div>
-                </div>
-            </div>
+        <div id="teams-container" class="space-y-12">
+            <!-- Teams will be loaded dynamically -->
+            <p class="text-center text-gray-300">Loading teams...</p>
         </div>
 
     </div>
   </div>
 
+  <script src="js/api.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const container = document.getElementById('teams-container');
+      
+      try {
+        const [teams, coaches] = await Promise.all([fetchTeams(), fetchCoaches()]);
+        
+        if (!teams || teams.length === 0) {
+          container.innerHTML = '<p class="text-center text-gray-300 py-8">No teams available at this time.</p>';
+          return;
+        }
+        
+        const colors = ['bg-purple-900', 'bg-red-700', 'bg-green-600', 'bg-blue-600'];
+        
+        container.innerHTML = teams.map((team, index) => {
+          const bgColor = colors[index % colors.length];
+          
+          // For now, show all coaches for each team since we don't have team assignments
+          const coachesHTML = coaches.map(coach => {
+            const initials = coach.name.split(' ').map(n => n[0]).join('').toUpperCase();
+            return `
+              <div class="coach-card bg-gray-50 rounded-lg p-4 shadow-md border border-gray-200 flex flex-col">
+                <div class="flex items-center mb-3">
+                  <div class="w-10 h-10 rounded-full ${bgColor} text-white flex items-center justify-center text-lg font-bold mr-3">${initials}</div>
+                  <div>
+                    <h4 class="font-bold text-purple-900">${coach.name}</h4>
+                    <p class="text-sm text-gray-600">Head Coach</p>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('');
+          
+          return `
+            <div class="bg-white rounded-lg shadow-lg p-6">
+              <h2 class="text-2xl font-bold text-purple-900 mb-4 border-b-2 border-yellow-400 pb-2">${team.name}</h2>
+              
+              <h3 class="text-xl font-semibold text-gray-800 mb-3">Coaches</h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                ${coachesHTML || '<p class="text-gray-500 col-span-full">No coaches assigned yet.</p>'}
+              </div>
+
+              <h3 class="text-xl font-semibold text-gray-800 mb-3">Players</h3>
+              <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <p class="text-gray-500 col-span-full text-center py-4">No players registered yet.</p>
+              </div>
+            </div>
+          `;
+        }).join('');
+        
+      } catch (error) {
+        console.error('Error loading teams:', error);
+        container.innerHTML = '<p class="text-center text-red-500 py-8">Failed to load teams.</p>';
+      }
+    });
+  </script>
 </body>
 </html>
