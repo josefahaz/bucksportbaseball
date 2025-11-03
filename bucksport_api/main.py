@@ -2,6 +2,7 @@
 from datetime import datetime
 from typing import List
 import logging
+from pathlib import Path
 
 from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI, HTTPException, status
@@ -40,10 +41,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Resolve static directory path
+BASE_DIR = Path(__file__).resolve().parent
+STATIC_DIR = BASE_DIR.parent / "local_site"
+
 # Serve the main page
 @app.get("/", response_class=FileResponse, include_in_schema=False)
 async def read_index():
-    return "../local_site/index.html"
+    return str(STATIC_DIR / "index.html")
 
 # ----------------- Team endpoints -----------------
 @app.post("/api/teams", response_model=Team, status_code=status.HTTP_201_CREATED)
@@ -146,5 +151,5 @@ def request_new_event(request: EventRequest):
 
 
 # Mount the static directory to serve frontend files. This should be last.
-app.mount("/", StaticFiles(directory="../local_site", html=True), name="static")
+app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
 
