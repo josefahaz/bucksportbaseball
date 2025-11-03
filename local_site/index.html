@@ -259,39 +259,8 @@
       <h2 class="text-xl font-bold text-purple-900 mb-4 pb-2 border-b-2 border-yellow-400 flex items-center gap-3">
         <i class="fas fa-user-tie"></i> Coaching Staff
       </h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Coach 1 -->
-        <div class="bg-white rounded-lg p-3 shadow-sm border border-gray-200 flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-purple-800 text-white flex items-center justify-center font-bold text-sm">JD</div>
-          <div>
-            <h3 class="font-semibold text-purple-900 text-sm">John Davis</h3>
-            <p class="text-xs text-gray-500">Head Coach - Baseball Majors</p>
-          </div>
-        </div>
-        <!-- Coach 2 -->
-        <div class="bg-white rounded-lg p-3 shadow-sm border border-gray-200 flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-red-600 text-white flex items-center justify-center font-bold text-sm">MS</div>
-          <div>
-            <h3 class="font-semibold text-purple-900 text-sm">Maria Sanchez</h3>
-            <p class="text-xs text-gray-500">Head Coach - Softball Minors</p>
-          </div>
-        </div>
-        <!-- Coach 3 -->
-        <div class="bg-white rounded-lg p-3 shadow-sm border border-gray-200 flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-sm">RJ</div>
-          <div>
-            <h3 class="font-semibold text-purple-900 text-sm">Robert Johnson</h3>
-            <p class="text-xs text-gray-500">Asst. Coach - Baseball Minors</p>
-          </div>
-        </div>
-        <!-- Coach 4 -->
-        <div class="bg-white rounded-lg p-3 shadow-sm border border-gray-200 flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-yellow-400 text-purple-900 flex items-center justify-center font-bold text-sm">KW</div>
-          <div>
-            <h3 class="font-semibold text-purple-900 text-sm">Karen Wilson</h3>
-            <p class="text-xs text-gray-500">Head Coach - Softball Majors</p>
-          </div>
-        </div>
+      <div id="coaches-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Coaches will be loaded dynamically -->
       </div>
       <div class="text-center mt-4">
         <a href="coach-dashboard.html" class="text-purple-800 text-sm font-semibold hover:text-yellow-500 transition-colors">
@@ -305,6 +274,43 @@
   </div>
   </div>
 
-  
+  <script src="js/api.js"></script>
+  <script>
+    // Load coaches dynamically
+    document.addEventListener('DOMContentLoaded', async () => {
+      const coachesGrid = document.getElementById('coaches-grid');
+      
+      try {
+        const coaches = await fetchCoaches();
+        
+        if (!coaches || coaches.length === 0) {
+          coachesGrid.innerHTML = '<p class="text-gray-500 col-span-full text-center py-4">No coaches available at this time.</p>';
+          return;
+        }
+        
+        const colors = ['bg-purple-800', 'bg-red-600', 'bg-green-600', 'bg-yellow-400', 'bg-blue-600', 'bg-pink-600'];
+        
+        coaches.forEach((coach, index) => {
+          const initials = coach.name.split(' ').map(n => n[0]).join('').toUpperCase();
+          const bgColor = colors[index % colors.length];
+          const textColor = bgColor === 'bg-yellow-400' ? 'text-purple-900' : 'text-white';
+          
+          const coachCard = document.createElement('div');
+          coachCard.className = 'bg-white rounded-lg p-3 shadow-sm border border-gray-200 flex items-center gap-3';
+          coachCard.innerHTML = `
+            <div class="w-10 h-10 rounded-full ${bgColor} ${textColor} flex items-center justify-center font-bold text-sm">${initials}</div>
+            <div>
+              <h3 class="font-semibold text-purple-900 text-sm">${coach.name}</h3>
+              <p class="text-xs text-gray-500">Head Coach</p>
+            </div>
+          `;
+          coachesGrid.appendChild(coachCard);
+        });
+      } catch (error) {
+        console.error('Error loading coaches:', error);
+        coachesGrid.innerHTML = '<p class="text-red-500 col-span-full text-center py-4">Failed to load coaches.</p>';
+      }
+    });
+  </script>
 </body>
 </html>
