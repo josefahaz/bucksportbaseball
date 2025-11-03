@@ -400,6 +400,7 @@
     </div>
   </div>
 
+  <script src="js/api.js"></script>
   <script>
     // Activity log to track all changes
     let activityLog = [];
@@ -493,8 +494,19 @@
       });
     });
 
-    let coaches = JSON.parse(localStorage.getItem('coaches')) || [];
+    let coaches = [];
     let players = JSON.parse(localStorage.getItem('players')) || [];
+    
+    // Initialize coaches from API
+    async function initializeCoaches() {
+      try {
+        coaches = await fetchCoaches();
+        renderCoaches();
+      } catch (error) {
+        console.error('Error loading coaches:', error);
+        document.getElementById('coachesGrid').innerHTML = '<p class="text-red-500 text-center col-span-full py-4">Failed to load coaches.</p>';
+      }
+    }
 
     // Filter to only show approved players by default
     function getApprovedPlayers(playersList = players) {
@@ -609,36 +621,27 @@
       });
     }
     
-    // Add or Update a new coach
+    // Add a new coach (Note: Backend doesn't support this yet, so store locally for now)
     function saveCoach(coachData) {
-      const existingIndex = coaches.findIndex(c => c.id === coachData.id);
-
-      if (existingIndex > -1) {
-        // Update existing coach
-        coaches[existingIndex] = {...coaches[existingIndex], ...coachData};
-        logActivity('updated coach', { name: coachData.name });
-      } else {
-        // Add new coach
-        const newCoach = {
-          id: 'coach-' + Date.now(),
-          ...coachData
-        };
-        coaches.unshift(newCoach);
-        logActivity('added coach', { name: coachData.name });
-      }
-
-      localStorage.setItem('coaches', JSON.stringify(coaches));
+      const newCoach = {
+        id: coaches.length + 1,
+        name: coachData.name,
+        ...coachData
+      };
+      coaches.push(newCoach);
+      logActivity('added coach', { name: coachData.name });
       renderCoaches();
+      // TODO: When backend supports POST /api/coaches, call it here
     }
     
-    // Delete a coach
+    // Delete a coach (Note: Backend doesn't support this yet)
     function deleteCoach(coachId) {
       const coachName = coaches.find(c => c.id === coachId)?.name || 'Unknown';
       if (confirm(`Are you sure you want to remove ${coachName}?`)) {
         coaches = coaches.filter(c => c.id !== coachId);
-        localStorage.setItem('coaches', JSON.stringify(coaches));
         renderCoaches();
         logActivity('deleted coach', { name: coachName });
+        // TODO: When backend supports DELETE /api/coaches/{id}, call it here
       }
     }
     
@@ -694,7 +697,7 @@
           team: document.getElementById('coachTeam').value
         };
         
-        addCoach(coachData);
+        saveCoach(coachData);
         closeCoachModal();
       });
       
