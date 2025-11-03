@@ -103,10 +103,30 @@
       color: #ffc72c !important;
       background-color: rgba(255, 255, 255, 0.05) !important;
     }
+    
+    /* Main content area */
+    .main-content {
+      margin-left: 250px;
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+    
     .container {
       max-width: 1000px;
       margin: 0 auto;
       padding: 0 20px;
+    }
+    
+    /* Responsive adjustments for smaller screens */
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+      
+      .main-content {
+        margin-left: 0;
+      }
     }
     .form-container {
       background: rgba(255, 255, 255, 0.9);
@@ -225,7 +245,7 @@
     </nav>
   </div>
   
-  <div class="main-content" style="flex-grow: 1;">
+  <div class="main-content">
   <div class="container mx-auto px-4">
     <header class="text-center py-8">
       <div class="flex flex-col items-center">
