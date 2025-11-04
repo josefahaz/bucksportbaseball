@@ -3,6 +3,7 @@ class ActivityLogger {
   constructor(pageName) {
     this.pageName = pageName;
     this.storageKey = `${pageName}_activity_log`;
+    this.masterLogKey = 'master_activity_log';
     this.activityLog = JSON.parse(localStorage.getItem(this.storageKey) || '[]');
   }
 
@@ -14,12 +15,43 @@ class ActivityLogger {
       user: 'Admin', // TODO: Replace with actual user from authentication
       page: this.pageName
     };
+    
+    // Add to page-specific log (keep last 100)
     this.activityLog.unshift(entry);
-    // Keep only last 100 entries per page
     if (this.activityLog.length > 100) {
       this.activityLog = this.activityLog.slice(0, 100);
     }
     localStorage.setItem(this.storageKey, JSON.stringify(this.activityLog));
+    
+    // Add to master log (unlimited history)
+    this.addToMasterLog(entry);
+  }
+
+  addToMasterLog(entry) {
+    const masterLog = JSON.parse(localStorage.getItem(this.masterLogKey) || '[]');
+    masterLog.unshift(entry);
+    localStorage.setItem(this.masterLogKey, JSON.stringify(masterLog));
+  }
+
+  static getMasterLog() {
+    return JSON.parse(localStorage.getItem('master_activity_log') || '[]');
+  }
+
+  static clearMasterLog() {
+    localStorage.setItem('master_activity_log', '[]');
+    console.log('Master activity log cleared');
+  }
+
+  static exportMasterLog() {
+    const masterLog = ActivityLogger.getMasterLog();
+    const dataStr = JSON.stringify(masterLog, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `activity_log_${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
   }
 
   renderActivityLog(containerId) {

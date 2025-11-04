@@ -106,10 +106,14 @@
   <div class="main-content">
     <div class="container mx-auto text-gray-800">
         
-        <header class="text-center mb-8">
+        <header class="text-center mb-8 relative">
             <img src="images/logo.png" alt="Bucksport Little League Logo" class="mx-auto h-24 mb-4">
             <h1 class="text-3xl font-extrabold" style="color: #ffc72c; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">League Schedule</h1>
             <p class="text-gray-300 mt-2">Use the filters to view specific schedules and click on a day to see details.</p>
+            <!-- Activity Log Button -->
+            <button id="viewActivityLog" class="absolute top-8 right-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-semibold transition-colors">
+              <i class="fas fa-history"></i> Activity Log
+            </button>
         </header>
 
         <!-- Filters and Color Guide -->
@@ -264,8 +268,15 @@
     </div>
 
 <script src="js/api.js"></script>
+<script src="js/activity-log.js"></script>
 <script>
+    // Initialize Activity Logger
+    const activityLogger = new ActivityLogger('schedule');
+    
     document.addEventListener('DOMContentLoaded', () => {
+      createActivityLogModal();
+      activityLogger.initializeModal();
+      activityLogger.logActivity('Page View', 'Schedule page loaded');
         // --- State ---
         let currentDate = new Date();
         let selectedDate = null;
