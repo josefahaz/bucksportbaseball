@@ -634,6 +634,119 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
+    // Add New Item button
+    const addItemBtn = document.getElementById('addItemBtn');
+    const itemModal = document.getElementById('itemModal');
+    const closeModalBtn = document.getElementById('closeModal');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const itemForm = document.getElementById('itemForm');
+    const itemTeamSelect = document.getElementById('itemTeam');
+    const assignedCoachSelect = document.getElementById('assignedCoach');
+    
+    // Populate modal dropdowns when opening
+    const populateModalDropdowns = async () => {
+        try {
+            const [teams, coaches] = await Promise.all([
+                fetchTeams(),
+                fetchCoaches()
+            ]);
+            
+            // Populate teams
+            if (itemTeamSelect) {
+                itemTeamSelect.innerHTML = '<option value="">Select Team</option><option value="Unassigned">Unassigned</option>';
+                teams.forEach(team => {
+                    const option = document.createElement('option');
+                    option.value = team.id;
+                    option.textContent = team.name;
+                    itemTeamSelect.appendChild(option);
+                });
+            }
+            
+            // Populate coaches
+            if (assignedCoachSelect) {
+                assignedCoachSelect.innerHTML = '<option value="unassigned">Unassigned</option>';
+                coaches.forEach(coach => {
+                    const option = document.createElement('option');
+                    option.value = coach.id;
+                    option.textContent = coach.name;
+                    assignedCoachSelect.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('Failed to populate modal dropdowns:', error);
+        }
+    };
+    
+    if (addItemBtn) {
+        addItemBtn.addEventListener('click', async () => {
+            if (itemModal) {
+                await populateModalDropdowns();
+                itemModal.style.display = 'flex';
+            }
+        });
+    }
+    
+    // Close modal
+    const closeModal = () => {
+        if (itemModal) {
+            itemModal.style.display = 'none';
+            if (itemForm) itemForm.reset();
+        }
+    };
+    
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', closeModal);
+    }
+    
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', closeModal);
+    }
+    
+    // Close modal when clicking outside
+    if (itemModal) {
+        itemModal.addEventListener('click', (e) => {
+            if (e.target === itemModal) {
+                closeModal();
+            }
+        });
+    }
+    
+    // Form submission
+    if (itemForm) {
+        itemForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(itemForm);
+            const newItem = {
+                name: formData.get('itemName'),
+                category: formData.get('category'),
+                size: formData.get('size') || null,
+                team_id: formData.get('team') || null,
+                assigned_coach_id: formData.get('assignedCoach') === 'unassigned' ? null : formData.get('assignedCoach'),
+                quantity: parseInt(formData.get('quantity')),
+                status: formData.get('status'),
+                notes: formData.get('notes') || ''
+            };
+            
+            try {
+                // TODO: Add API call to save item
+                console.log('New item to save:', newItem);
+                
+                // Log activity
+                activityLogger.logActivity('Item Added', `Added new item: ${newItem.name}`);
+                
+                alert('Item added successfully! (Note: Backend integration pending)');
+                closeModal();
+                
+                // Refresh the inventory
+                await initializePage();
+            } catch (error) {
+                console.error('Failed to save item:', error);
+                alert('Failed to save item. Please try again.');
+            }
+        });
+    }
+
     // --- Initial Load ---
     initializePage();
 });
