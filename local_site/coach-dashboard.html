@@ -249,21 +249,15 @@
       <h2>Bucksport LL</h2>
     </div>
     <nav class="sidebar-nav">
-      <div class="sidebar-section">
-        <p class="sidebar-section-title">Public</p>
-        <a href="index.html"><i class="fas fa-home"></i> Home</a>
-        <a href="teams.html"><i class="fas fa-users"></i> Teams</a>
-      </div>
-      <div class="sidebar-section">
-        <p class="sidebar-section-title">Admin</p>
-        <a href="coach-dashboard.html" class="active"><i class="fas fa-tachometer-alt"></i> Coach Dashboard</a>
-        <a href="inventory.html"><i class="fas fa-tshirt"></i> Equipment Inventory</a>
-        <a href="schedule.html"><i class="fas fa-calendar-alt"></i> Schedule</a>
-        </div><div class="sidebar-section"><p class="sidebar-section-title">Marketing & Fundraising</p>
-        <a href="concessions.html" class="sidebar-subitem"><i class="fas fa-hamburger"></i> Concessions</a>
-        <a href="event_concessions.html" class="sidebar-subitem"><i class="fas fa-clipboard-list"></i> Event Concessions</a>
-        <a href="fundraising.html" class="sidebar-subitem"><i class="fas fa-hand-holding-usd"></i> Fundraising & Donations</a>
-      </div>
+      <a href="index.html"><i class="fas fa-home"></i> Home</a>
+      <a href="teams.html"><i class="fas fa-users"></i> Teams</a>
+      <a href="coach-dashboard.html" class="active"><i class="fas fa-tachometer-alt"></i> Coach Dashboard</a>
+      <a href="inventory.html"><i class="fas fa-tshirt"></i> Equipment Inventory</a>
+      <a href="schedule.html"><i class="fas fa-calendar-alt"></i> Schedule</a>
+      <a href="concessions.html"><i class="fas fa-hamburger"></i> Concessions</a>
+      <a href="event_concessions.html"><i class="fas fa-clipboard-list"></i> Event Concessions</a>
+      <a href="fundraising.html"><i class="fas fa-hand-holding-usd"></i> Fundraising & Donations</a>
+      <a href="marketing.html"><i class="fas fa-bullhorn"></i> Marketing</a>
     </nav>
   </div>
 
@@ -299,6 +293,30 @@
             <a href="#" class="text-purple-900 text-sm font-semibold hover:underline">
                 View All Coaches <i class="fas fa-arrow-right ml-1"></i>
             </a>
+        </div>
+      </div>
+
+      <!-- Player Roster Upload Section -->
+      <div class="bg-white border border-gray-200 p-6 rounded-lg shadow-md mb-5">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-purple-900 text-xl font-bold">
+            <i class="fas fa-file-upload mr-2"></i>Player Roster
+          </h2>
+        </div>
+        <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+          <i class="fas fa-cloud-upload-alt text-5xl text-gray-400 mb-4"></i>
+          <p class="text-gray-600 mb-4">Upload a CSV file with your player roster</p>
+          <input type="file" id="csvFileInput" accept=".csv" class="hidden">
+          <button onclick="document.getElementById('csvFileInput').click()" class="bg-purple-700 text-white px-6 py-3 rounded-md hover:bg-purple-800 font-semibold">
+            <i class="fas fa-file-csv mr-2"></i>Choose CSV File
+          </button>
+          <p class="text-sm text-gray-500 mt-3">Supported format: CSV</p>
+        </div>
+        <div id="csvStatus" class="mt-4 hidden">
+          <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+            <p class="text-green-800 font-semibold"><i class="fas fa-check-circle mr-2"></i>File uploaded successfully!</p>
+            <p class="text-sm text-green-600 mt-1" id="csvFileName"></p>
+          </div>
         </div>
       </div>
 
@@ -551,14 +569,19 @@
         const formatSize = (size) => ({'YXS':'YXS','YS':'YS','YM':'YM','YL':'YL','AS':'AS','AM':'AM','AL':'AL','AXL':'AXL','A2XL':'A2XL'}[size] || size);
         
         card.innerHTML = `
-          <div style="display: flex; justify-content: space-between;">
-            <div>
+          <div style="display: flex; justify-between; position: relative;">
+            <div style="flex: 1;">
               <h3 style="color: #4b2d72; font-size: 1.25rem;">${player.name}</h3>
               <p><strong>Team:</strong> ${player.team} | <strong>Grade:</strong> ${player.grade} | <strong>Gender:</strong> ${player.gender}</p>
               <p><strong>Uniform:</strong> Jersey ${formatSize(player.jerseySize)}, Pants ${formatSize(player.pantsSize)}, Shoes ${player.shoeSize}</p>
               ${parentInfo}
             </div>
-            <div class="status-${player.status}" style="text-transform: capitalize;">${player.team}</div>
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+              <button class="edit-player-btn" data-player-id="${player.id}" style="background: #3b82f6; color: white; padding: 6px 12px; border-radius: 4px; border: none; cursor: pointer; font-size: 0.875rem;" title="Edit Player">
+                <i class="fas fa-edit"></i> Edit
+              </button>
+              <div class="status-${player.status}" style="text-transform: capitalize;">${player.team}</div>
+            </div>
           </div>`;
         container.appendChild(card);
       });
@@ -616,7 +639,8 @@
             <p><i class="fas fa-phone w-4 mr-2 text-purple-700"></i>${coach.phone || 'N/A'}</p>
             <p><i class="fas fa-envelope w-4 mr-2 text-purple-700"></i>${coach.email}</p>
           </div>
-          <button class="delete-coach-btn absolute top-2 right-2 text-red-500 hover:text-red-700" data-coach-id="${coach.id}"><i class="fas fa-times"></i></button>
+          <button class="edit-coach-btn absolute top-2 right-8 text-blue-500 hover:text-blue-700" data-coach-id="${coach.id}" title="Edit"><i class="fas fa-edit"></i></button>
+          <button class="delete-coach-btn absolute top-2 right-2 text-red-500 hover:text-red-700" data-coach-id="${coach.id}" title="Delete"><i class="fas fa-times"></i></button>
         </div>
       `).join('');
       
@@ -627,6 +651,32 @@
           deleteCoach(coachId);
         });
       });
+      
+      document.querySelectorAll('.edit-coach-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const coachId = parseInt(btn.dataset.coachId);
+          editCoach(coachId);
+        });
+      });
+    }
+    
+    // Edit coach function
+    function editCoach(coachId) {
+      const coach = coaches.find(c => c.id === coachId);
+      if (!coach) return;
+      
+      // Pre-fill the modal with coach data
+      document.getElementById('coachName').value = coach.name;
+      document.getElementById('coachEmail').value = coach.email || '';
+      document.getElementById('coachPhone').value = coach.phone || '';
+      document.getElementById('coachRole').value = coach.role || 'Head Coach';
+      document.getElementById('coachTeam').value = coach.team || '';
+      
+      // Store the coach ID for updating
+      document.getElementById('coachForm').dataset.editingCoachId = coachId;
+      
+      openCoachModal();
     }
     
     // Add a new coach (Note: Backend doesn't support this yet, so store locally for now)
@@ -707,6 +757,31 @@
         
         saveCoach(coachData);
         closeCoachModal();
+      });
+      
+      // CSV Upload handler
+      document.getElementById('csvFileInput').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const statusDiv = document.getElementById('csvStatus');
+          const fileNameEl = document.getElementById('csvFileName');
+          
+          fileNameEl.textContent = `File: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+          statusDiv.classList.remove('hidden');
+          
+          // TODO: Parse CSV and populate player roster
+          // For now, just show success message
+          logActivity('CSV file uploaded', `Uploaded file: ${file.name}`);
+          
+          // Read and parse CSV (basic implementation)
+          const reader = new FileReader();
+          reader.onload = function(event) {
+            const csvData = event.target.result;
+            console.log('CSV Data loaded:', csvData);
+            // TODO: Parse CSV and add to player roster
+          };
+          reader.readAsText(file);
+        }
       });
       
       // Close modal when clicking outside
