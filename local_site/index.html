@@ -247,11 +247,15 @@
   
   <div class="main-content">
   <div class="container mx-auto px-4">
-    <header class="text-center py-8">
+    <header class="text-center py-8 relative">
       <div class="flex flex-col items-center">
         <img src="images/logo.png" alt="Bucksport Little League" class="h-20 mb-4" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
         <h1 class="text-3xl font-extrabold" style="color: #ffc72c; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">Welcome to Bucksport Little League</h1>
       </div>
+      <!-- Activity Log Button -->
+      <button id="viewActivityLog" class="absolute top-8 right-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-semibold transition-colors">
+        <i class="fas fa-history"></i> Activity Log
+      </button>
     </header>
 
     <!-- Board Members Section -->
@@ -461,7 +465,87 @@
         console.error('Error loading data for editing:', error);
       }
     });
+
+    // Activity Log functionality
+    let activityLog = JSON.parse(localStorage.getItem('homepage_activity_log') || '[]');
+
+    function logActivity(action, details) {
+      const entry = {
+        timestamp: new Date().toISOString(),
+        action: action,
+        details: details,
+        user: 'Admin' // TODO: Replace with actual user from authentication
+      };
+      activityLog.unshift(entry);
+      // Keep only last 100 entries
+      if (activityLog.length > 100) activityLog = activityLog.slice(0, 100);
+      localStorage.setItem('homepage_activity_log', JSON.stringify(activityLog));
+    }
+
+    function renderActivityLog() {
+      const container = document.getElementById('activityLogContent');
+      if (activityLog.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-center py-8">No activity recorded yet.</p>';
+        return;
+      }
+
+      container.innerHTML = activityLog.map(entry => {
+        const date = new Date(entry.timestamp);
+        const timeStr = date.toLocaleString();
+        return `
+          <div class="border-b border-gray-200 py-3 px-4 hover:bg-gray-50">
+            <div class="flex justify-between items-start">
+              <div class="flex-1">
+                <p class="font-semibold text-purple-900">${entry.action}</p>
+                <p class="text-sm text-gray-600">${entry.details}</p>
+              </div>
+              <div class="text-xs text-gray-500 ml-4 whitespace-nowrap">${timeStr}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Activity Log Modal Controls
+    document.getElementById('viewActivityLog').addEventListener('click', () => {
+      renderActivityLog();
+      document.getElementById('activityLogModal').classList.remove('hidden');
+    });
+
+    document.getElementById('closeActivityLog').addEventListener('click', () => {
+      document.getElementById('activityLogModal').classList.add('hidden');
+    });
+
+    // Log activity when board members or coaches are edited
+    const originalSaveBoardMember = window.saveBoardMember;
+    window.saveBoardMember = async function(event) {
+      const name = document.getElementById('editBoardMemberName').value;
+      await originalSaveBoardMember(event);
+      logActivity('Board Member Updated', `Updated information for ${name}`);
+    };
+
+    const originalSaveCoach = window.saveCoach;
+    window.saveCoach = async function(event) {
+      const name = document.getElementById('editCoachName').value;
+      await originalSaveCoach(event);
+      logActivity('Coach Updated', `Updated information for ${name}`);
+    };
   </script>
+
+  <!-- Activity Log Modal -->
+  <div id="activityLogModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden mx-4">
+      <div class="flex justify-between items-center border-b p-4 bg-purple-700 text-white">
+        <h3 class="text-lg font-semibold"><i class="fas fa-history mr-2"></i>Activity Log</h3>
+        <button id="closeActivityLog" class="text-white hover:text-gray-200 text-xl">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div id="activityLogContent" class="overflow-y-auto max-h-[calc(90vh-4rem)]">
+        <!-- Activity entries will be inserted here -->
+      </div>
+    </div>
+  </div>
 
   <!-- Board Member Edit Modal -->
   <div id="boardMemberModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

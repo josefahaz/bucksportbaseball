@@ -121,12 +121,14 @@
       gap: 15px;
       margin-bottom: 20px;
       flex-wrap: wrap;
+      align-items: center;
     }
     .filter-select {
       padding: 8px 12px;
       border-radius: 4px;
       border: 1px solid #ddd;
       background: white;
+      min-width: 150px;
       color: #333;
     }
     :root {
@@ -294,11 +296,11 @@
         </div>
       </div>
 
-        <div class="filter-bar" style="margin: 20px 0;">
-        <button id="viewRosterBtn" class="btn-approve" style="margin-right: 10px;">
+        <div class="filter-bar">
+        <button id="viewRosterBtn" class="btn-approve">
           <i class="fas fa-users"></i> View Roster
         </button>
-        <button id="viewAllBtn" class="btn-reject" style="margin-right: 10px; display: none;">
+        <button id="viewAllBtn" class="btn-reject" style="display: none;">
           <i class="fas fa-list"></i> View All Registrations
         </button>
         <select class="filter-select">
@@ -319,7 +321,7 @@
           <option>Approved</option>
           <option>Rejected</option>
         </select>
-        <input type="text" placeholder="Search players..." class="filter-select" style="flex-grow: 1; max-width: 300px;">
+        <input type="text" placeholder="Search players..." class="filter-select" style="flex: 1; max-width: 300px;">
       </div>
 
       <!-- Player List -->
