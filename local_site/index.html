@@ -426,8 +426,14 @@
 
     // Edit board member function
     window.editBoardMember = function(id) {
+      console.log('Edit board member called with id:', id);
+      console.log('All board members:', allBoardMembers);
       const member = allBoardMembers.find(m => m.id === id);
-      if (!member) return;
+      console.log('Found member:', member);
+      if (!member) {
+        console.error('Member not found!');
+        return;
+      }
       
       document.getElementById('editBoardMemberId').value = member.id;
       document.getElementById('editBoardMemberName').value = member.name;
@@ -436,19 +442,27 @@
       document.getElementById('editBoardMemberEmail').value = member.email === 'N/A' ? '' : member.email;
       document.getElementById('editBoardMemberPhone').value = member.phone === 'N/A' ? '' : member.phone;
       
+      console.log('Opening modal...');
       document.getElementById('boardMemberModal').classList.remove('hidden');
     };
 
     // Edit coach function
     window.editCoach = function(id) {
+      console.log('Edit coach called with id:', id);
+      console.log('All coaches:', allCoaches);
       const coach = allCoaches.find(c => c.id === id);
-      if (!coach) return;
+      console.log('Found coach:', coach);
+      if (!coach) {
+        console.error('Coach not found!');
+        return;
+      }
       
       document.getElementById('editCoachId').value = coach.id;
       document.getElementById('editCoachName').value = coach.name;
       document.getElementById('editCoachEmail').value = coach.email === 'N/A' ? '' : coach.email;
       document.getElementById('editCoachPhone').value = coach.phone === 'N/A' ? '' : coach.phone;
       
+      console.log('Opening coach modal...');
       document.getElementById('coachModal').classList.remove('hidden');
     };
 
@@ -627,8 +641,8 @@
   </div>
 
   <!-- Board Member Edit Modal -->
-  <div id="boardMemberModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+  <div id="boardMemberModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 relative z-[10000]">
       <h3 class="text-xl font-bold text-purple-900 mb-4">Edit Board Member</h3>
       <form onsubmit="saveBoardMember(event)">
         <input type="hidden" id="editBoardMemberId">
@@ -665,8 +679,8 @@
   </div>
 
   <!-- Coach Edit Modal -->
-  <div id="coachModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+  <div id="coachModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 relative z-[10000]">
       <h3 class="text-xl font-bold text-purple-900 mb-4">Edit Coach</h3>
       <form onsubmit="saveCoach(event)">
         <input type="hidden" id="editCoachId">
