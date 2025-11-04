@@ -166,6 +166,7 @@
       box-shadow: 0 1px 4px rgba(0,0,0,0.08);
       transition: transform 0.2s, box-shadow 0.2s;
       border: 1px solid #eee;
+      position: relative;
     }
     .coach-card:hover {
       transform: translateY(-3px);
@@ -281,7 +282,7 @@
       </header>
 
       <!-- Coaches Section -->
-      <div class="bg-gray-100 border border-gray-200 p-4 rounded-lg shadow-inner max-w-6xl mx-auto relative">
+      <div class="bg-gray-100 border border-gray-200 p-4 rounded-lg shadow-inner relative mb-5">
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-purple-900 text-xl font-bold pb-2 border-b-2 border-yellow-400 inline-block">
                 <i class="fas fa-user-tie mr-2"></i>Coaching Staff
@@ -301,7 +302,7 @@
         </div>
       </div>
 
-        <div class="filter-bar">
+      <div class="filter-bar">
         <button id="viewRosterBtn" class="btn-approve">
           <i class="fas fa-users"></i> View Roster
         </button>
