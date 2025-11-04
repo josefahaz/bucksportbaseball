@@ -56,6 +56,12 @@
   </div>
   
   <div class="main-content">
+    <div class="relative mb-8">
+      <h1 class="text-4xl font-bold text-purple-900">Marketing & Social Media</h1>
+      <button id="viewActivityLog" class="absolute top-0 right-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-semibold transition-colors">
+        <i class="fas fa-history"></i> Activity Log
+      </button>
+    </div>
     <header class="text-center py-8">
         <div class="flex flex-col items-center">
             <img src="images/logo.png" alt="Bucksport Little League" class="h-20 mb-4" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
@@ -74,5 +80,14 @@
       <p class="text-white font-medium">Bucksport Little League &copy; 2025</p>
     </footer>
   </div>
+<script src="js/activity-log.js"></script>
+<script>
+const activityLogger = new ActivityLogger('marketing');
+document.addEventListener('DOMContentLoaded', () => {
+  createActivityLogModal();
+  activityLogger.initializeModal();
+  activityLogger.logActivity('Page View', 'Marketing page loaded');
+});
+</script>
 </body>
 </html>

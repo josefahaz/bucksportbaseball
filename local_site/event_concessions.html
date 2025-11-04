@@ -39,8 +39,11 @@
   </div>
   
   <div class="main-content">
-    <header class="flex justify-between items-center mb-8">
+    <header class="flex justify-between items-center mb-8 relative">
         <h1 class="text-4xl font-bold text-purple-900">Event Concession Tracking</h1>
+        <button id="viewActivityLog" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-semibold transition-colors">
+          <i class="fas fa-history"></i> Activity Log
+        </button>
         <button id="sync-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transform transition-transform duration-200 hover:scale-105 hidden"><i class="fas fa-sync-alt mr-2"></i>Sync to Main Inventory</button>
     </header>
 
@@ -317,5 +320,14 @@
         initializePage();
     });
   </script>
+<script src="js/activity-log.js"></script>
+<script>
+const activityLogger = new ActivityLogger('event_concessions');
+document.addEventListener('DOMContentLoaded', () => {
+  createActivityLogModal();
+  activityLogger.initializeModal();
+  activityLogger.logActivity('Page View', 'Event Concessions page loaded');
+});
+</script>
 </body>
 </html>
