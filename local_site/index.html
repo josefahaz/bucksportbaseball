@@ -290,6 +290,10 @@
 
   <script src="js/api.js"></script>
   <script>
+    // Store board members and coaches globally for editing
+    let allBoardMembers = [];
+    let allCoaches = [];
+
     // Load board members and coaches dynamically
     document.addEventListener('DOMContentLoaded', async () => {
       const boardMembersGrid = document.getElementById('board-members-grid');
@@ -298,6 +302,7 @@
       // Load board members
       try {
         const boardMembers = await fetchBoardMembers();
+        allBoardMembers = boardMembers; // Store globally for edit function
         
         if (!boardMembers || boardMembers.length === 0) {
           boardMembersGrid.innerHTML = '<p class="text-gray-500 col-span-full text-center py-4">No board members available at this time.</p>';
@@ -338,6 +343,7 @@
       // Load coaches
       try {
         const coaches = await fetchCoaches();
+        allCoaches = coaches; // Store globally for edit function
         
         if (!coaches || coaches.length === 0) {
           coachesGrid.innerHTML = '<p class="text-gray-500 col-span-full text-center py-4">No coaches available at this time.</p>';
@@ -372,10 +378,6 @@
         coachesGrid.innerHTML = '<p class="text-red-500 col-span-full text-center py-4">Failed to load coaches.</p>';
       }
     });
-
-    // Store board members and coaches globally for editing
-    let allBoardMembers = [];
-    let allCoaches = [];
 
     // Edit board member function
     window.editBoardMember = function(id) {
@@ -456,15 +458,8 @@
       }
     };
 
-    // Update the DOMContentLoaded to store data globally
-    document.addEventListener('DOMContentLoaded', async () => {
-      try {
-        allBoardMembers = await fetchBoardMembers();
-        allCoaches = await fetchCoaches();
-      } catch (error) {
-        console.error('Error loading data for editing:', error);
-      }
-
+    // Add backdrop click handlers for modals
+    document.addEventListener('DOMContentLoaded', () => {
       // Add backdrop click handlers for modals
       const boardMemberModal = document.getElementById('boardMemberModal');
       const coachModal = document.getElementById('coachModal');
