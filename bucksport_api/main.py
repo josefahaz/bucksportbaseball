@@ -132,12 +132,12 @@ coaches_data = [
 board_members_data = [
     # League-wide positions
     {"id": 1, "name": "Katie Littlefield", "position": "President", "division": None, "email": "N/A", "phone": "N/A"},
-    {"id": 2, "name": "Kim Burgess", "position": "Treasurer", "division": None, "email": "N/A", "phone": "N/A"},
-    {"id": 3, "name": "Joe Hazlett", "position": "Fundraising/Marketing Coordinator", "division": None, "email": "N/A", "phone": "N/A"},
-    {"id": 4, "name": "Jamie Bowden", "position": "Umpire in Chief", "division": None, "email": "N/A", "phone": "N/A"},
-    {"id": 5, "name": "John Robinson", "position": "Equipment Coordinator", "division": None, "email": "N/A", "phone": "N/A"},
+    {"id": 2, "name": "Erick Kennard", "position": "Vice President", "division": None, "email": "N/A", "phone": "N/A"},
+    {"id": 3, "name": "Kim Burgess", "position": "Treasurer", "division": None, "email": "N/A", "phone": "N/A"},
+    {"id": 4, "name": "Joe Hazlett", "position": "Fundraising/Marketing Coordinator", "division": None, "email": "N/A", "phone": "N/A"},
+    {"id": 5, "name": "Jamie Bowden", "position": "Umpire in Chief", "division": None, "email": "N/A", "phone": "N/A"},
+    {"id": 6, "name": "John Robinson", "position": "Equipment Coordinator", "division": None, "email": "N/A", "phone": "N/A"},
     # Baseball division
-    {"id": 6, "name": "Erick Kennard", "position": "Vice President", "division": "Baseball", "email": "N/A", "phone": "N/A"},
     {"id": 7, "name": "Ryan Lighthouse", "position": "Secretary", "division": "Baseball", "email": "N/A", "phone": "N/A"},
     {"id": 8, "name": "Harold Littlefield", "position": "Coaching Coordinator", "division": "Baseball", "email": "N/A", "phone": "N/A"},
     {"id": 9, "name": "Whitney Wentworth", "position": "Player Agent", "division": "Baseball", "email": "N/A", "phone": "N/A"},

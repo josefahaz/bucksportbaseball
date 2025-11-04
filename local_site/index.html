@@ -309,7 +309,16 @@
         } else {
           const colors = ['bg-purple-800', 'bg-red-600', 'bg-green-600', 'bg-blue-600', 'bg-indigo-600', 'bg-pink-600'];
           
-          boardMembers.forEach((member, index) => {
+          // Group members by division
+          const leagueWide = boardMembers.filter(m => !m.division);
+          const baseball = boardMembers.filter(m => m.division === 'Baseball');
+          const softball = boardMembers.filter(m => m.division === 'Softball');
+          
+          // Clear grid
+          boardMembersGrid.innerHTML = '';
+          
+          // Function to create member card
+          const createMemberCard = (member, index) => {
             const initials = member.name.split(' ').map(n => n[0]).join('').toUpperCase();
             const bgColor = colors[index % colors.length];
             
@@ -332,8 +341,44 @@
                 ${member.phone && member.phone !== 'N/A' ? `<p><i class="fas fa-phone w-4 text-purple-700"></i> ${member.phone}</p>` : '<p class="text-gray-400"><i class="fas fa-phone w-4"></i> Phone not available</p>'}
               </div>
             `;
-            boardMembersGrid.appendChild(memberCard);
-          });
+            return memberCard;
+          };
+          
+          // Add League-wide section
+          if (leagueWide.length > 0) {
+            const leagueHeader = document.createElement('div');
+            leagueHeader.className = 'col-span-full';
+            leagueHeader.innerHTML = '<h3 class="text-lg font-bold text-purple-900 mb-2 mt-2"><i class="fas fa-star mr-2"></i>League Leadership</h3>';
+            boardMembersGrid.appendChild(leagueHeader);
+            
+            leagueWide.forEach((member, index) => {
+              boardMembersGrid.appendChild(createMemberCard(member, index));
+            });
+          }
+          
+          // Add Baseball section
+          if (baseball.length > 0) {
+            const baseballHeader = document.createElement('div');
+            baseballHeader.className = 'col-span-full';
+            baseballHeader.innerHTML = '<h3 class="text-lg font-bold text-purple-900 mb-2 mt-4"><i class="fas fa-baseball-ball mr-2"></i>Baseball Division</h3>';
+            boardMembersGrid.appendChild(baseballHeader);
+            
+            baseball.forEach((member, index) => {
+              boardMembersGrid.appendChild(createMemberCard(member, index + leagueWide.length));
+            });
+          }
+          
+          // Add Softball section
+          if (softball.length > 0) {
+            const softballHeader = document.createElement('div');
+            softballHeader.className = 'col-span-full';
+            softballHeader.innerHTML = '<h3 class="text-lg font-bold text-purple-900 mb-2 mt-4"><i class="fas fa-baseball-ball mr-2"></i>Softball Division</h3>';
+            boardMembersGrid.appendChild(softballHeader);
+            
+            softball.forEach((member, index) => {
+              boardMembersGrid.appendChild(createMemberCard(member, index + leagueWide.length + baseball.length));
+            });
+          }
         }
       } catch (error) {
         console.error('Error loading board members:', error);
