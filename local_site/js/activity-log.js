@@ -27,6 +27,25 @@ class ActivityLogger {
     this.addToMasterLog(entry);
   }
 
+  // Helper method to log changes with before/after values
+  logChanges(itemName, originalData, newData, fieldsToCompare) {
+    const changes = [];
+    
+    fieldsToCompare.forEach(field => {
+      const oldValue = originalData[field] || 'N/A';
+      const newValue = newData[field] || 'N/A';
+      
+      if (oldValue !== newValue) {
+        const fieldLabel = field.charAt(0).toUpperCase() + field.slice(1);
+        changes.push(`${fieldLabel}: "${oldValue}" → "${newValue}"`);
+      }
+    });
+    
+    if (changes.length > 0) {
+      this.logActivity(`${itemName} Updated`, changes.join(', '));
+    }
+  }
+
   addToMasterLog(entry) {
     const masterLog = JSON.parse(localStorage.getItem(this.masterLogKey) || '[]');
     masterLog.unshift(entry);

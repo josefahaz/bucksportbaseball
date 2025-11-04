@@ -479,6 +479,10 @@
     window.saveBoardMember = async function(event) {
       event.preventDefault();
       const id = parseInt(document.getElementById('editBoardMemberId').value);
+      
+      // Get the original member data for comparison
+      const originalMember = allBoardMembers.find(m => m.id === id);
+      
       const data = {
         name: document.getElementById('editBoardMemberName').value,
         position: document.getElementById('editBoardMemberPosition').value,
@@ -489,6 +493,29 @@
 
       try {
         await updateBoardMember(id, data);
+        
+        // Log detailed changes
+        const changes = [];
+        if (originalMember.name !== data.name) {
+          changes.push(`Name: "${originalMember.name}" → "${data.name}"`);
+        }
+        if (originalMember.position !== data.position) {
+          changes.push(`Position: "${originalMember.position}" → "${data.position}"`);
+        }
+        if ((originalMember.division || null) !== data.division) {
+          changes.push(`Division: "${originalMember.division || 'None'}" → "${data.division || 'None'}"`);
+        }
+        if (originalMember.email !== data.email) {
+          changes.push(`Email: "${originalMember.email}" → "${data.email}"`);
+        }
+        if (originalMember.phone !== data.phone) {
+          changes.push(`Phone: "${originalMember.phone}" → "${data.phone}"`);
+        }
+        
+        if (changes.length > 0) {
+          logActivity('Board Member Updated', `${originalMember.name}: ${changes.join(', ')}`);
+        }
+        
         alert('Board member updated successfully!');
         closeBoardMemberModal();
         location.reload(); // Reload to show updated data
@@ -501,6 +528,10 @@
     window.saveCoach = async function(event) {
       event.preventDefault();
       const id = parseInt(document.getElementById('editCoachId').value);
+      
+      // Get the original coach data for comparison
+      const originalCoach = allCoaches.find(c => c.id === id);
+      
       const data = {
         name: document.getElementById('editCoachName').value,
         email: document.getElementById('editCoachEmail').value || 'N/A',
@@ -509,6 +540,23 @@
 
       try {
         await updateCoach(id, data);
+        
+        // Log detailed changes
+        const changes = [];
+        if (originalCoach.name !== data.name) {
+          changes.push(`Name: "${originalCoach.name}" → "${data.name}"`);
+        }
+        if (originalCoach.email !== data.email) {
+          changes.push(`Email: "${originalCoach.email}" → "${data.email}"`);
+        }
+        if (originalCoach.phone !== data.phone) {
+          changes.push(`Phone: "${originalCoach.phone}" → "${data.phone}"`);
+        }
+        
+        if (changes.length > 0) {
+          logActivity('Coach Updated', `${originalCoach.name}: ${changes.join(', ')}`);
+        }
+        
         alert('Coach updated successfully!');
         closeCoachModal();
         location.reload(); // Reload to show updated data
