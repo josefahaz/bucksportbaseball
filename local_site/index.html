@@ -464,6 +464,26 @@
       } catch (error) {
         console.error('Error loading data for editing:', error);
       }
+
+      // Add backdrop click handlers for modals
+      const boardMemberModal = document.getElementById('boardMemberModal');
+      const coachModal = document.getElementById('coachModal');
+
+      if (boardMemberModal) {
+        boardMemberModal.addEventListener('click', (e) => {
+          if (e.target === boardMemberModal) {
+            closeBoardMemberModal();
+          }
+        });
+      }
+
+      if (coachModal) {
+        coachModal.addEventListener('click', (e) => {
+          if (e.target === coachModal) {
+            closeCoachModal();
+          }
+        });
+      }
     });
 
     // Activity Log functionality
@@ -506,14 +526,33 @@
       }).join('');
     }
 
-    // Activity Log Modal Controls
-    document.getElementById('viewActivityLog').addEventListener('click', () => {
-      renderActivityLog();
-      document.getElementById('activityLogModal').classList.remove('hidden');
-    });
+    // Activity Log Modal Controls - wrapped in DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', () => {
+      const activityLogModal = document.getElementById('activityLogModal');
+      const viewActivityLogBtn = document.getElementById('viewActivityLog');
+      const closeActivityLogBtn = document.getElementById('closeActivityLog');
 
-    document.getElementById('closeActivityLog').addEventListener('click', () => {
-      document.getElementById('activityLogModal').classList.add('hidden');
+      if (viewActivityLogBtn) {
+        viewActivityLogBtn.addEventListener('click', () => {
+          renderActivityLog();
+          activityLogModal.classList.remove('hidden');
+        });
+      }
+
+      if (closeActivityLogBtn) {
+        closeActivityLogBtn.addEventListener('click', () => {
+          activityLogModal.classList.add('hidden');
+        });
+      }
+
+      // Close modal when clicking outside the content
+      if (activityLogModal) {
+        activityLogModal.addEventListener('click', (e) => {
+          if (e.target === activityLogModal) {
+            activityLogModal.classList.add('hidden');
+          }
+        });
+      }
     });
 
     // Log activity when board members or coaches are edited
