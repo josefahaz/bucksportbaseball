@@ -125,10 +125,14 @@
   <div class="main-content">
     <div class="container mx-auto text-gray-800">
         
-        <header class="text-center mb-8">
+        <header class="text-center mb-8 relative">
             <img src="images/logo.png" alt="Bucksport Little League Logo" class="mx-auto h-24 mb-4">
             <h1 class="text-3xl font-extrabold" style="color: #ffc72c; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">League Teams</h1>
             <p class="text-gray-300 mt-2">Meet the teams and coaches for the season.</p>
+            <!-- Activity Log Button -->
+            <button id="viewActivityLog" class="absolute top-8 right-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-semibold transition-colors">
+              <i class="fas fa-history"></i> Activity Log
+            </button>
         </header>
 
         <div id="teams-container" class="space-y-12">
@@ -140,8 +144,15 @@
   </div>
 
   <script src="js/api.js"></script>
+  <script src="js/activity-log.js"></script>
   <script>
+    // Initialize Activity Logger
+    const activityLogger = new ActivityLogger('teams');
+    
     document.addEventListener('DOMContentLoaded', async () => {
+      // Create and initialize activity log modal
+      createActivityLogModal();
+      activityLogger.initializeModal();
       const container = document.getElementById('teams-container');
       
       try {
@@ -193,7 +204,11 @@
       } catch (error) {
         console.error('Error loading teams:', error);
         container.innerHTML = '<p class="text-center text-red-500 py-8">Failed to load teams.</p>';
+        activityLogger.logActivity('Error', 'Failed to load teams: ' + error.message);
       }
+      
+      // Log page view
+      activityLogger.logActivity('Page View', 'Teams page loaded');
     });
   </script>
 </body>
