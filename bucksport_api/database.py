@@ -8,6 +8,7 @@ engine = create_engine(DATABASE_URL, echo=False, connect_args={"check_same_threa
 def init_db() -> None:
     """Create all tables."""
     import models  # noqa: F401  # ensure models are registered
+    import auth_models  # noqa: F401  # ensure auth models are registered
     SQLModel.metadata.create_all(engine)
 
 

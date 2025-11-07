@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Bucksport Little League</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #4b2d72 0%, #2d1b4e 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="w-full max-w-md px-4">
+    <!-- Login Card -->
+    <div class="bg-white rounded-lg shadow-2xl overflow-hidden">
+      <!-- Header -->
+      <div class="bg-gradient-to-r from-purple-700 to-purple-900 p-8 text-center">
+        <img src="images/logo.png" alt="Bucksport Little League" class="h-24 mx-auto mb-4">
+        <h1 class="text-2xl font-bold text-white">Bucksport Little League</h1>
+        <p class="text-purple-200 mt-2">Board Member Portal</p>
+      </div>
+
+      <!-- Login Content -->
+      <div class="p-8">
+        <div class="text-center mb-6">
+          <h2 class="text-2xl font-bold text-gray-800 mb-2">Welcome Back</h2>
+          <p class="text-gray-600">Sign in with your @bucksportll.org account</p>
+        </div>
+
+        <!-- Google Sign In Button -->
+        <div id="g_id_onload"
+             data-client_id="YOUR_GOOGLE_CLIENT_ID"
+             data-callback="handleCredentialResponse"
+             data-auto_prompt="false">
+        </div>
+        
+        <div class="flex justify-center mb-6">
+          <div id="g_id_signin"
+               data-type="standard"
+               data-size="large"
+               data-theme="outline"
+               data-text="sign_in_with"
+               data-shape="rectangular"
+               data-logo_alignment="left"
+               data-width="300">
+          </div>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+          <div class="flex items-center">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            <span id="errorText"></span>
+          </div>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="hidden text-center py-4">
+          <i class="fas fa-spinner fa-spin text-3xl text-purple-700"></i>
+          <p class="text-gray-600 mt-2">Signing you in...</p>
+        </div>
+
+        <!-- Info Box -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
+          <div class="flex items-start">
+            <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
+            <div class="text-sm text-blue-800">
+              <p class="font-semibold mb-1">Access Requirements:</p>
+              <ul class="list-disc list-inside space-y-1">
+                <li>Must use @bucksportll.org email</li>
+                <li>Account must be authorized by an administrator</li>
+                <li>Contact Joe Hazlett for access issues</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="bg-gray-50 px-8 py-4 text-center text-sm text-gray-600 border-t">
+        <p>© 2025 Bucksport Little League. All rights reserved.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Google OAuth callback
+    async function handleCredentialResponse(response) {
+      const errorDiv = document.getElementById('errorMessage');
+      const errorText = document.getElementById('errorText');
+      const loadingIndicator = document.getElementById('loadingIndicator');
+      
+      // Show loading
+      loadingIndicator.classList.remove('hidden');
+      errorDiv.classList.add('hidden');
+      
+      try {
+        // Send credential to backend
+        const res = await fetch('/auth/google', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            credential: response.credential
+          })
+        });
+        
+        const data = await res.json();
+        
+        if (!res.ok) {
+          throw new Error(data.detail || 'Authentication failed');
+        }
+        
+        // Store token and user info
+        localStorage.setItem('auth_token', data.access_token);
+        localStorage.setItem('user_info', JSON.stringify(data.user));
+        
+        // Redirect to home page
+        window.location.href = '/index.html';
+        
+      } catch (error) {
+        console.error('Authentication error:', error);
+        loadingIndicator.classList.add('hidden');
+        errorText.textContent = error.message;
+        errorDiv.classList.remove('hidden');
+      }
+    }
+    
+    // Check if already logged in
+    window.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        // Verify token is still valid
+        fetch('/auth/me', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        .then(res => {
+          if (res.ok) {
+            // Already logged in, redirect to home
+            window.location.href = '/index.html';
+          } else {
+            // Token invalid, clear storage
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('user_info');
+          }
+        })
+        .catch(() => {
+          // Error checking token, clear storage
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('user_info');
+        });
+      }
+    });
+  </script>
+</body>
+</html>

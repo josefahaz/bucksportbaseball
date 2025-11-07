@@ -8,11 +8,18 @@ class ActivityLogger {
   }
 
   logActivity(action, details) {
+    // Get user from auth manager if available
+    let userName = 'Admin';
+    if (typeof authManager !== 'undefined' && authManager.getCurrentUser()) {
+      const user = authManager.getCurrentUser();
+      userName = `${user.first_name} ${user.last_name}`;
+    }
+    
     const entry = {
       timestamp: new Date().toISOString(),
       action: action,
       details: details,
-      user: 'Admin', // TODO: Replace with actual user from authentication
+      user: userName,
       page: this.pageName
     };
     

@@ -14,6 +14,7 @@ from fastapi.responses import FileResponse
 
 from database import get_session, init_db
 from models import Event, Player, PlayerBase, Team
+from auth_routes import router as auth_router
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -40,6 +41,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include routers
+app.include_router(auth_router)
 
 # Resolve static directory path
 BASE_DIR = Path(__file__).resolve().parent
