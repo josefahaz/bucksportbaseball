@@ -54,6 +54,13 @@ class AuthManager {
       return false;
     }
 
+    // Check if in development mode
+    const isDevMode = localStorage.getItem('dev_mode') === 'true';
+    if (isDevMode && this.token.startsWith('dev_token_')) {
+      // In dev mode, just verify we have user info
+      return !!this.userInfo;
+    }
+
     try {
       const response = await fetch('/auth/me', {
         headers: this.getAuthHeader()
@@ -70,6 +77,10 @@ class AuthManager {
       }
     } catch (error) {
       console.error('Token verification failed:', error);
+      // In dev mode, don't logout on network errors
+      if (isDevMode) {
+        return !!this.userInfo;
+      }
       this.logout();
       return false;
     }
@@ -81,6 +92,7 @@ class AuthManager {
   logout() {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user_info');
+    localStorage.removeItem('dev_mode');
     this.token = null;
     this.userInfo = null;
     window.location.href = '/login.html';
