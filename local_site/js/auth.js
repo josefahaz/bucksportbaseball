@@ -155,6 +155,20 @@ class AuthManager {
   initializeUI() {
     if (!this.userInfo) return;
 
+    // Update sidebar user section
+    const sidebarUserSection = document.getElementById('sidebarUserSection');
+    const sidebarUserName = document.getElementById('sidebarUserName');
+    const sidebarLogoutBtn = document.getElementById('sidebarLogoutBtn');
+    
+    if (sidebarUserSection && sidebarUserName) {
+      sidebarUserName.textContent = `Welcome, ${this.userInfo.first_name}`;
+      sidebarUserSection.style.display = 'block';
+    }
+    
+    if (sidebarLogoutBtn) {
+      sidebarLogoutBtn.addEventListener('click', () => this.logout());
+    }
+
     // Update user info in header if element exists
     const userInfoEl = document.getElementById('userInfo');
     if (userInfoEl) {
