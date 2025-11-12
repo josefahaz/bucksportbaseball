@@ -106,7 +106,7 @@ uvicorn main:app --reload --port 8000
 - Katie Littlefield (klittlefield@bucksportll.org)
 - Kim Burgess (kburgess@bucksportll.org)
 
-### Board Members (Limited Access)
+### Board Members (Full Access)
 - Ashley Kennard (akennard@bucksportll.org)
 - Christopher Rennick (crennick@bucksportll.org)
 - Harold Littlefield (hlittlefield@bucksportll.org)
@@ -125,7 +125,7 @@ uvicorn main:app --reload --port 8000
 
 ### Access Control
 - All pages require authentication
-- Board members have read-only access to Fundraising page
+- Both admins and board members have full access to all pages
 - Admins can add new users via admin panel
 
 ### Activity Logging
