@@ -137,12 +137,8 @@ class AuthManager {
       return { read: true, write: true };
     }
 
-    // Board members have read-only access to fundraising
+    // Board members have full access to all pages
     if (this.isBoardMember()) {
-      if (pageName === 'fundraising') {
-        return { read: true, write: false };
-      }
-      // Full access to other pages
       return { read: true, write: true };
     }
 
@@ -228,12 +224,6 @@ if (!window.location.pathname.includes('login.html')) {
     const isAuthenticated = await authManager.requireAuth();
     if (isAuthenticated) {
       authManager.initializeUI();
-      
-      // Determine current page and apply permissions
-      const pageName = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
-      if (pageName === 'fundraising') {
-        authManager.applyPagePermissions('fundraising');
-      }
     }
   });
 }
