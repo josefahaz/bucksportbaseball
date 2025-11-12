@@ -253,7 +253,7 @@
       
       // Check if Google OAuth is configured
       const clientId = document.querySelector('[data-client_id]')?.getAttribute('data-client_id');
-      const isGoogleConfigured = clientId && clientId !== '880101265433-3ef04k59hfr794hmqptf6iro7758v8ug.apps.googleusercontent.com' && !clientId.includes('880101265433');
+      const isGoogleConfigured = clientId && clientId !== 'YOUR_GOOGLE_CLIENT_ID' && clientId.includes('.apps.googleusercontent.com');
       
       // Show appropriate login method
       if (!isGoogleConfigured) {
