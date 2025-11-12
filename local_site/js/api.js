@@ -1,4 +1,7 @@
-const API_BASE_URL = '/api';
+// API Base URL - automatically detects environment
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:8000'  // Local development
+  : '/api';  // Production (proxied through same domain)
 
 async function fetchInventory() {
     try {
