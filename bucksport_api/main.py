@@ -2,6 +2,7 @@
 from datetime import datetime
 from typing import List
 import logging
+import os
 from pathlib import Path
 
 from contextlib import asynccontextmanager
@@ -11,13 +12,24 @@ from pydantic import BaseModel
 from sqlmodel import Session, select
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from dotenv import load_dotenv
 
 from database import get_session, init_db
 from models import Event, Player, PlayerBase, Team
 from auth_routes import router as auth_router
 
+# Load environment-specific .env file
+# Set ENVIRONMENT=production on production server
+environment = os.getenv('ENVIRONMENT', 'development')
+if environment == 'production':
+    load_dotenv('.env.production')
+else:
+    load_dotenv('.env')
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+logger.info(f"Running in {environment} mode")
 logger = logging.getLogger(__name__)
 
 @asynccontextmanager
