@@ -268,7 +268,8 @@
       
       // For now, always use dev login mode
       // TODO: Enable Google OAuth when fully configured and tested
-      const USE_DEV_MODE = false;
+      // Set to false once Google Sign-In button renders properly in production
+      const USE_DEV_MODE = true;
       
       if (USE_DEV_MODE) {
         // Show dev login
@@ -290,6 +291,18 @@
           
           handleDevLogin(email);
         });
+      } else {
+        // Google OAuth mode - check if button renders, show fallback if not
+        setTimeout(() => {
+          const googleButton = document.getElementById('g_id_signin');
+          const hasRendered = googleButton && (googleButton.querySelector('iframe') || googleButton.querySelector('div[role="button"]'));
+          
+          if (!hasRendered) {
+            // Google button didn't render, show fallback
+            console.warn('Google Sign-In button did not render, showing fallback button');
+            document.getElementById('googleButtonFallback').classList.remove('hidden');
+          }
+        }, 2000); // Wait 2 seconds for Google library to render
       }
     });
   </script>
