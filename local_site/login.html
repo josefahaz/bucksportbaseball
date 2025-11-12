@@ -169,16 +169,38 @@
       errorDiv.classList.add('hidden');
       
       try {
+        // Map emails to proper names
+        const userMap = {
+          'jhazlett@bucksportll.org': { first: 'Joseph', last: 'Hazlett', role: 'admin' },
+          'ekennard@bucksportll.org': { first: 'Erick', last: 'Kennard', role: 'admin' },
+          'jbowden@bucksportll.org': { first: 'Jamie', last: 'Bowden', role: 'admin' },
+          'jrobinson@bucksportll.org': { first: 'Joby', last: 'Robinson', role: 'admin' },
+          'klittlefield@bucksportll.org': { first: 'Katie', last: 'Littlefield', role: 'admin' },
+          'kburgess@bucksportll.org': { first: 'Kim', last: 'Burgess', role: 'admin' },
+          'akennard@bucksportll.org': { first: 'Ashley', last: 'Kennard', role: 'board_member' },
+          'crennick@bucksportll.org': { first: 'Christopher', last: 'Rennick', role: 'board_member' },
+          'hlittlefield@bucksportll.org': { first: 'Harold', last: 'Littlefield', role: 'board_member' },
+          'lhazlett@bucksportll.org': { first: 'Lisa', last: 'Hazlett', role: 'board_member' },
+          'rlightbody@bucksportll.org': { first: 'Ryan', last: 'Lightbody', role: 'board_member' },
+          'semery@bucksportll.org': { first: 'Shelby', last: 'Emery', role: 'board_member' },
+          'tbeaulieu@bucksportll.org': { first: 'Taylor', last: 'Beaulieu', role: 'board_member' },
+          'wwentworth@bucksportll.org': { first: 'Whitney', last: 'Wentworth', role: 'board_member' }
+        };
+        
+        const userData = userMap[email.toLowerCase()] || {
+          first: email.split('@')[0].split('.')[0],
+          last: email.split('@')[0].split('.')[1] || 'User',
+          role: 'board_member'
+        };
+        
         // Create a mock token for development
         // In production, this would go through proper OAuth
         const mockUser = {
           id: 1,
           email: email,
-          first_name: email.split('@')[0].split('.')[0],
-          last_name: email.split('@')[0].split('.')[1] || 'User',
-          role: email.includes('jhazlett') || email.includes('ekennard') || 
-                email.includes('jbowden') || email.includes('jrobinson') ||
-                email.includes('klittlefield') || email.includes('kburgess') ? 'admin' : 'board_member',
+          first_name: userData.first,
+          last_name: userData.last,
+          role: userData.role,
           created_at: new Date().toISOString(),
           last_login: new Date().toISOString()
         };
