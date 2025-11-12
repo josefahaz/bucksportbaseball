@@ -266,10 +266,9 @@
         });
       }
       
-      // For now, always use dev login mode
-      // TODO: Enable Google OAuth when fully configured and tested
-      // Set to false once Google Sign-In button renders properly in production
-      const USE_DEV_MODE = true;
+      // Production mode - use Google OAuth
+      // Set to true for local development/testing
+      const USE_DEV_MODE = false;
       
       if (USE_DEV_MODE) {
         // Show dev login
