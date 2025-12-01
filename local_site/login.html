@@ -38,7 +38,17 @@
         <!-- Google Sign In Button -->
         <div id="googleSignInSection">
           <div class="flex justify-center mb-6">
-            <div id="googleButtonContainer"></div>
+            <div id="googleButtonContainer">
+              <!-- Fallback while loading -->
+              <div id="googleButtonLoading" class="text-center text-gray-500">
+                <i class="fas fa-spinner fa-spin mr-2"></i> Loading sign-in...
+              </div>
+            </div>
+          </div>
+          <!-- Error message if Google fails to load -->
+          <div id="googleLoadError" class="hidden bg-yellow-50 border border-yellow-300 rounded-lg p-3 mb-4 text-sm">
+            <p class="text-yellow-800 font-semibold mb-1">⚠️ Sign-in button not loading</p>
+            <p class="text-yellow-700">Please try refreshing the page or contact Joe Hazlett for assistance.</p>
           </div>
         </div>
 
@@ -270,26 +280,40 @@
 
     // Explicitly initialize and render Google Sign-In button
     window.addEventListener('load', () => {
+      const loadingEl = document.getElementById('googleButtonLoading');
+      const errorEl = document.getElementById('googleLoadError');
+      
       if (window.google && google.accounts && google.accounts.id) {
-        google.accounts.id.initialize({
-          client_id: '880101265433-3ef04k59hfr794hmqptf6iro7758v8ug.apps.googleusercontent.com',
-          callback: handleCredentialResponse,
-        });
-
-        const container = document.getElementById('googleButtonContainer');
-        if (container) {
-          google.accounts.id.renderButton(container, {
-            type: 'standard',
-            theme: 'outline',
-            size: 'large',
-            text: 'sign_in_with',
-            shape: 'rectangular',
-            logo_alignment: 'left',
-            width: 300,
+        try {
+          google.accounts.id.initialize({
+            client_id: '880101265433-3ef04k59hfr794hmqptf6iro7758v8ug.apps.googleusercontent.com',
+            callback: handleCredentialResponse,
           });
+
+          const container = document.getElementById('googleButtonContainer');
+          if (container) {
+            // Remove loading indicator
+            if (loadingEl) loadingEl.remove();
+            
+            google.accounts.id.renderButton(container, {
+              type: 'standard',
+              theme: 'outline',
+              size: 'large',
+              text: 'sign_in_with',
+              shape: 'rectangular',
+              logo_alignment: 'left',
+              width: 300,
+            });
+          }
+        } catch (err) {
+          console.error('Google Sign-In initialization error:', err);
+          if (loadingEl) loadingEl.remove();
+          if (errorEl) errorEl.classList.remove('hidden');
         }
       } else {
         console.error('Google Identity Services not loaded');
+        if (loadingEl) loadingEl.remove();
+        if (errorEl) errorEl.classList.remove('hidden');
       }
     });
   </script>
