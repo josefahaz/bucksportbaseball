@@ -37,22 +37,8 @@
 
         <!-- Google Sign In Button -->
         <div id="googleSignInSection">
-          <div id="g_id_onload"
-               data-client_id="880101265433-3ef04k59hfr794hmqptf6iro7758v8ug.apps.googleusercontent.com"
-               data-callback="handleCredentialResponse"
-               data-auto_prompt="false">
-          </div>
-          
           <div class="flex justify-center mb-6">
-            <div id="g_id_signin"
-                 data-type="standard"
-                 data-size="large"
-                 data-theme="outline"
-                 data-text="sign_in_with"
-                 data-shape="rectangular"
-                 data-logo_alignment="left"
-                 data-width="300">
-            </div>
+            <div id="googleButtonContainer"></div>
           </div>
         </div>
 
@@ -115,6 +101,10 @@
   </div>
 
   <script>
+    const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://localhost:8000'
+      : 'https://bucksport-api.onrender.com';
+    
     // Google OAuth callback
     async function handleCredentialResponse(response) {
       const errorDiv = document.getElementById('errorMessage');
@@ -127,7 +117,7 @@
       
       try {
         // Send credential to backend
-        const res = await fetch('/auth/google', {
+        const res = await fetch(`${API_BASE_URL}/auth/google`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -147,8 +137,8 @@
         localStorage.setItem('auth_token', data.access_token);
         localStorage.setItem('user_info', JSON.stringify(data.user));
         
-        // Redirect to home page
-        window.location.href = '/index.html';
+        // Redirect to home page (relative so it works under /board/ and locally)
+        window.location.href = 'index.html';
         
       } catch (error) {
         console.error('Authentication error:', error);
@@ -213,8 +203,8 @@
         localStorage.setItem('user_info', JSON.stringify(mockUser));
         localStorage.setItem('dev_mode', 'true');
         
-        // Redirect to home page
-        window.location.href = '/index.html';
+        // Redirect to home page (relative so it works under /board/ and locally)
+        window.location.href = 'index.html';
         
       } catch (error) {
         console.error('Dev login error:', error);
@@ -229,15 +219,15 @@
       const token = localStorage.getItem('auth_token');
       if (token) {
         // Verify token is still valid
-        fetch('/auth/me', {
+        fetch(`${API_BASE_URL}/auth/me`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         })
         .then(res => {
           if (res.ok) {
-            // Already logged in, redirect to home
-            window.location.href = '/index.html';
+            // Already logged in, redirect to home (relative so it works under /board/ and locally)
+            window.location.href = 'index.html';
           } else {
             // Token invalid, clear storage
             localStorage.removeItem('auth_token');
@@ -275,6 +265,31 @@
           
           handleDevLogin(email);
         });
+      }
+    });
+
+    // Explicitly initialize and render Google Sign-In button
+    window.addEventListener('load', () => {
+      if (window.google && google.accounts && google.accounts.id) {
+        google.accounts.id.initialize({
+          client_id: '880101265433-3ef04k59hfr794hmqptf6iro7758v8ug.apps.googleusercontent.com',
+          callback: handleCredentialResponse,
+        });
+
+        const container = document.getElementById('googleButtonContainer');
+        if (container) {
+          google.accounts.id.renderButton(container, {
+            type: 'standard',
+            theme: 'outline',
+            size: 'large',
+            text: 'sign_in_with',
+            shape: 'rectangular',
+            logo_alignment: 'left',
+            width: 300,
+          });
+        }
+      } else {
+        console.error('Google Identity Services not loaded');
       }
     });
   </script>
