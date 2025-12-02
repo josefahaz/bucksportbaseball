@@ -3,6 +3,11 @@
  * Handles user authentication, authorization, and session management
  */
 
+// API Base URL - automatically detects environment
+const AUTH_API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:8000'
+  : 'https://bucksport-api.onrender.com';
+
 class AuthManager {
   constructor() {
     this.token = localStorage.getItem('auth_token');
@@ -62,7 +67,7 @@ class AuthManager {
     }
 
     try {
-      const response = await fetch('/auth/me', {
+      const response = await fetch(`${AUTH_API_BASE_URL}/auth/me`, {
         headers: this.getAuthHeader()
       });
 
