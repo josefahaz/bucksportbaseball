@@ -17,6 +17,7 @@ from dotenv import load_dotenv
 from database import get_session, init_db
 from models import Event, Player, PlayerBase, Team
 from auth_routes import router as auth_router
+from seed_users import seed_users
 
 # Load environment-specific .env file
 # Set ENVIRONMENT=production on production server
@@ -35,6 +36,8 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
+    # Seed users on startup (will skip if already seeded)
+    seed_users()
     yield
 
 # Create the FastAPI app
