@@ -196,6 +196,35 @@ def update_board_member(member_id: int, member: dict):
             return board_members_data[i]
     raise HTTPException(status_code=404, detail="Board member not found")
 
+# Sample schedule data - in a real app this would come from a database
+schedule_data = [
+    {"id": 1, "title": "Opening Day", "date": "2025-04-05", "time": "10:00 AM", "type": "event", "location": "Bucksport Field 1", "team_id": None, "coach_id": None, "notes": "Season opener - all teams"},
+    {"id": 2, "title": "Majors Practice", "date": "2025-04-07", "time": "5:30 PM", "type": "practice", "location": "Bucksport Field 1", "team_id": 1, "coach_id": 1, "notes": ""},
+    {"id": 3, "title": "Minors Practice", "date": "2025-04-08", "time": "5:30 PM", "type": "practice", "location": "Bucksport Field 2", "team_id": 2, "coach_id": 1, "notes": ""},
+    {"id": 4, "title": "Majors vs Ellsworth", "date": "2025-04-12", "time": "1:00 PM", "type": "game", "location": "Bucksport Field 1", "team_id": 1, "coach_id": 1, "notes": "Home game"},
+    {"id": 5, "title": "Tee Ball Practice", "date": "2025-04-09", "time": "5:00 PM", "type": "practice", "location": "Bucksport Field 2", "team_id": 3, "coach_id": 1, "notes": ""},
+]
+
+locations_data = [
+    "Bucksport Field 1",
+    "Bucksport Field 2", 
+    "Bucksport Softball Field",
+    "Miles Lane Complex",
+    "Away - Ellsworth",
+    "Away - Brewer",
+    "Away - Bangor"
+]
+
+@app.get("/api/schedule")
+def get_schedule():
+    """Get all scheduled events."""
+    return schedule_data
+
+@app.get("/api/locations")
+def get_locations():
+    """Get all available locations."""
+    return locations_data
+
 class EventRequest(BaseModel):
     event_title: str
     event_date: str
