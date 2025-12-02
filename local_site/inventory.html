@@ -528,11 +528,22 @@
 <script src="js/api.js"></script>
 <script src="js/activity-log.js"></script>
 <script>
-const activityLogger = new ActivityLogger('inventory');
+// Initialize Activity Logger (with fallback if script didn't load)
+let activityLogger = null;
+try {
+    if (typeof ActivityLogger !== 'undefined') {
+        activityLogger = new ActivityLogger('inventory');
+    }
+} catch (e) {
+    console.warn('ActivityLogger not available:', e);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  createActivityLogModal();
-  activityLogger.initializeModal();
-  activityLogger.logActivity('Page View', 'Inventory page loaded');
+  if (activityLogger && typeof createActivityLogModal === 'function') {
+      createActivityLogModal();
+      activityLogger.initializeModal();
+      activityLogger.logActivity('Page View', 'Inventory page loaded');
+  }
 });
 </script>
 <script>
@@ -775,8 +786,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // TODO: Add API call to save item
                 console.log('New item to save:', newItem);
                 
-                // Log activity
-                activityLogger.logActivity('Item Added', `Added new item: ${newItem.name}`);
+                // Log activity (if available)
+                if (activityLogger) {
+                    activityLogger.logActivity('Item Added', `Added new item: ${newItem.name}`);
+                }
                 
                 alert('Item added successfully! (Note: Backend integration pending)');
                 closeModal();

@@ -1,4 +1,5 @@
 // Activity Log functionality - shared across all pages
+// Version 1.1 - Dec 2025
 class ActivityLogger {
   constructor(pageName) {
     this.pageName = pageName;

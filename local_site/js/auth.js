@@ -191,7 +191,7 @@ class AuthManager {
     }
 
     // Update activity logger user
-    if (typeof activityLogger !== 'undefined') {
+    if (typeof activityLogger !== 'undefined' && activityLogger !== null) {
       activityLogger.user = `${this.userInfo.first_name} ${this.userInfo.last_name}`;
     }
   }
