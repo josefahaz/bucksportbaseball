@@ -5,7 +5,7 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
 
 async function fetchInventory() {
     try {
-        const response = await fetch(`${API_BASE_URL}/inventory`);
+        const response = await fetch(`${API_BASE_URL}/api/inventory`);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return await response.json();
     } catch (error) {
@@ -16,7 +16,7 @@ async function fetchInventory() {
 
 async function fetchInventorySummary() {
     try {
-        const response = await fetch(`${API_BASE_URL}/inventory/summary`);
+        const response = await fetch(`${API_BASE_URL}/api/inventory/summary`);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return await response.json();
     } catch (error) {
@@ -27,7 +27,7 @@ async function fetchInventorySummary() {
 
 async function fetchCoaches() {
     try {
-        const response = await fetch(`${API_BASE_URL}/coaches`);
+        const response = await fetch(`${API_BASE_URL}/api/coaches`);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return await response.json();
     } catch (error) {
@@ -38,7 +38,7 @@ async function fetchCoaches() {
 
 async function fetchBoardMembers() {
     try {
-        const response = await fetch(`${API_BASE_URL}/board-members`);
+        const response = await fetch(`${API_BASE_URL}/api/board-members`);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return await response.json();
     } catch (error) {
@@ -49,7 +49,7 @@ async function fetchBoardMembers() {
 
 async function fetchTeams() {
     try {
-        const response = await fetch(`${API_BASE_URL}/teams`);
+        const response = await fetch(`${API_BASE_URL}/api/teams`);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return await response.json();
     } catch (error) {
@@ -60,7 +60,7 @@ async function fetchTeams() {
 
 async function fetchCategories() {
     try {
-        const response = await fetch(`${API_BASE_URL}/inventory/categories`);
+        const response = await fetch(`${API_BASE_URL}/api/inventory/categories`);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return await response.json();
     } catch (error) {
@@ -71,7 +71,7 @@ async function fetchCategories() {
 
 async function fetchStatuses() {
     try {
-        const response = await fetch(`${API_BASE_URL}/inventory/statuses`);
+        const response = await fetch(`${API_BASE_URL}/api/inventory/statuses`);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return await response.json();
     } catch (error) {
@@ -80,9 +80,9 @@ async function fetchStatuses() {
     }
 }
 
-const fetchEvents = () => fetchData('/events');
-const fetchConcessions = () => fetchData('/concessions');
-const fetchEventUsage = (eventId) => fetchData(`/events/${eventId}/usage`);
+const fetchEvents = () => fetchData('/api/events');
+const fetchConcessions = () => fetchData('/api/concessions');
+const fetchEventUsage = (eventId) => fetchData(`/api/events/${eventId}/usage`);
 
 async function postData(endpoint, data, method = 'POST') {
     try {
@@ -102,13 +102,13 @@ async function postData(endpoint, data, method = 'POST') {
     }
 }
 
-const saveEventUsage = (eventId, usageData) => postData(`/events/${eventId}/usage`, usageData);
-const syncEventInventory = (eventId) => postData(`/events/${eventId}/sync`, {});
-const addConcessionItem = (itemData) => postData('/concessions', itemData);
+const saveEventUsage = (eventId, usageData) => postData(`/api/events/${eventId}/usage`, usageData);
+const syncEventInventory = (eventId) => postData(`/api/events/${eventId}/sync`, {});
+const addConcessionItem = (itemData) => postData('/api/concessions', itemData);
 
-const fetchSchedule = () => fetchData('/schedule');
-const fetchLocations = () => fetchData('/locations');
-const requestNewEvent = (eventData) => postData('/schedule/request', eventData);
+const fetchSchedule = () => fetchData('/api/schedule');
+const fetchLocations = () => fetchData('/api/locations');
+const requestNewEvent = (eventData) => postData('/api/schedule/request', eventData);
 
 async function fetchData(endpoint) {
     try {
@@ -123,7 +123,7 @@ async function fetchData(endpoint) {
 
 async function updateBoardMember(id, data) {
     try {
-        const response = await fetch(`${API_BASE_URL}/board-members/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/api/board-members/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
@@ -141,7 +141,7 @@ async function updateBoardMember(id, data) {
 
 async function updateCoach(id, data) {
     try {
-        const response = await fetch(`${API_BASE_URL}/coaches/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/api/coaches/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
