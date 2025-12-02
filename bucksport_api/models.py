@@ -47,3 +47,17 @@ class Event(SQLModel, table=True):
 
     team_id: Optional[int] = Field(default=None, foreign_key="team.id")
     team: Optional[Team] = Relationship(back_populates="events")
+
+
+class InventoryItem(SQLModel, table=True):
+    """Equipment inventory item."""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    item_name: str = Field(index=True)
+    category: str = Field(index=True)  # jersey, pants, hat, cleats, bat, ball, glove, helmet, other
+    size: Optional[str] = None
+    team: Optional[str] = None
+    assigned_coach: Optional[str] = "Unassigned"
+    quantity: int = Field(default=1)
+    status: str = Field(default="Available")  # Available, Checked Out, Needs Repair, Retired
+    notes: Optional[str] = None
+    last_updated: datetime = Field(default_factory=datetime.utcnow)

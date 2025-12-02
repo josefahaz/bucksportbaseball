@@ -15,9 +15,10 @@ from fastapi.responses import FileResponse
 from dotenv import load_dotenv
 
 from database import get_session, init_db
-from models import Event, Player, PlayerBase, Team
+from models import Event, Player, PlayerBase, Team, InventoryItem
 from auth_routes import router as auth_router
 from seed_users import seed_users
+from seed_inventory import seed_inventory
 
 # Load environment-specific .env file
 # Set ENVIRONMENT=production on production server
@@ -38,6 +39,8 @@ async def lifespan(app: FastAPI):
     init_db()
     # Seed users on startup (will skip if already seeded)
     seed_users()
+    # Seed inventory on startup (will skip if already seeded)
+    seed_inventory()
     yield
 
 # Create the FastAPI app
@@ -211,18 +214,42 @@ def request_new_event(request: EventRequest):
 
 # ----------------- Inventory endpoints -----------------
 @app.get("/api/inventory")
-def get_inventory():
-    # Dummy data for now. In a real app, this would come from an 'inventory' table.
-    return []
+def get_inventory(session: Session = Depends(get_session)):
+    """Get all inventory items."""
+    statement = select(InventoryItem)
+    items = session.exec(statement).all()
+    return [
+        {
+            "id": item.id,
+            "item_name": item.item_name,
+            "category": item.category,
+            "size": item.size,
+            "team": item.team,
+            "assigned_coach": item.assigned_coach,
+            "quantity": item.quantity,
+            "status": item.status,
+            "notes": item.notes,
+            "last_updated": item.last_updated.isoformat() if item.last_updated else None
+        }
+        for item in items
+    ]
 
 @app.get("/api/inventory/summary")
-def get_inventory_summary():
-    # Dummy data for now. In a real app, calculate from inventory table.
+def get_inventory_summary(session: Session = Depends(get_session)):
+    """Get inventory summary statistics."""
+    statement = select(InventoryItem)
+    items = session.exec(statement).all()
+    
+    total_quantity = sum(item.quantity for item in items)
+    available = sum(item.quantity for item in items if item.status == "Available")
+    checked_out = sum(item.quantity for item in items if item.status == "Checked Out")
+    needs_repair = sum(item.quantity for item in items if item.status == "Needs Repair")
+    
     return {
-        "total_items": 0,
-        "available": 0,
-        "checked_out": 0,
-        "needs_repair": 0
+        "total_items": total_quantity,
+        "available": available,
+        "checked_out": checked_out,
+        "needs_repair": needs_repair
     }
 
 @app.get("/api/inventory/categories")
@@ -233,7 +260,7 @@ def get_inventory_categories():
 @app.get("/api/inventory/statuses")
 def get_inventory_statuses():
     # Return standard inventory statuses
-    return ["in-stock", "checked-out", "low-stock", "needs-repair", "retired"]
+    return ["Available", "Checked Out", "Needs Repair", "Retired"]
 
 # Mount the static directory to serve frontend files. This should be last.
 app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
