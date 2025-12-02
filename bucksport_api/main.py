@@ -221,13 +221,13 @@ def get_inventory(session: Session = Depends(get_session)):
     return [
         {
             "id": item.id,
-            "item_name": item.item_name,
+            "name": item.item_name,  # Frontend expects 'name'
             "category": item.category,
             "size": item.size,
-            "team": item.team,
-            "assigned_coach": item.assigned_coach,
+            "team": {"id": None, "name": item.team} if item.team else None,
+            "assigned_coach": {"id": None, "name": item.assigned_coach} if item.assigned_coach else None,
             "quantity": item.quantity,
-            "status": item.status,
+            "status": item.status.lower().replace(" ", "-"),  # Convert to lowercase with dashes for badge styling
             "notes": item.notes,
             "last_updated": item.last_updated.isoformat() if item.last_updated else None
         }
