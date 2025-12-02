@@ -307,13 +307,23 @@
 <script src="js/api.js"></script>
 <script src="js/activity-log.js"></script>
 <script>
-    // Initialize Activity Logger
-    const activityLogger = new ActivityLogger('schedule');
+    // Initialize Activity Logger (with fallback if script didn't load)
+    let activityLogger = null;
+    try {
+        if (typeof ActivityLogger !== 'undefined') {
+            activityLogger = new ActivityLogger('schedule');
+        }
+    } catch (e) {
+        console.warn('ActivityLogger not available:', e);
+    }
     
     document.addEventListener('DOMContentLoaded', () => {
-      createActivityLogModal();
-      activityLogger.initializeModal();
-      activityLogger.logActivity('Page View', 'Schedule page loaded');
+      // Only initialize activity log if available
+      if (activityLogger && typeof createActivityLogModal === 'function') {
+          createActivityLogModal();
+          activityLogger.initializeModal();
+          activityLogger.logActivity('Page View', 'Schedule page loaded');
+      }
         // --- State ---
         let currentDate = new Date();
         let selectedDate = null;
