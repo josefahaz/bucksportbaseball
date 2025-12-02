@@ -15,10 +15,11 @@ from fastapi.responses import FileResponse
 from dotenv import load_dotenv
 
 from database import get_session, init_db
-from models import Event, Player, PlayerBase, Team, InventoryItem
+from models import Event, Player, PlayerBase, Team, InventoryItem, BoardMember, Coach, Location, ScheduleEvent
 from auth_routes import router as auth_router
 from seed_users import seed_users
 from seed_inventory import seed_inventory
+from seed_board_coaches import seed_all as seed_board_coaches
 
 # Load environment-specific .env file
 # Set ENVIRONMENT=production on production server
@@ -32,21 +33,20 @@ else:
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 logger.info(f"Running in {environment} mode")
-logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
-    # Seed users on startup (will skip if already seeded)
+    # Seed data on startup (will skip if already seeded)
     seed_users()
-    # Seed inventory on startup (will skip if already seeded)
     seed_inventory()
+    seed_board_coaches()
     yield
 
 # Create the FastAPI app
 app = FastAPI(
     title="Bucksport Baseball/Softball API",
-    version="0.1.0",
+    version="0.2.0",
     lifespan=lifespan,
 )
 
@@ -131,99 +131,188 @@ def read_events(team_id: int | None = None, session: Session = Depends(get_sessi
         query = query.where(Event.team_id == team_id)
     return session.exec(query.order_by(Event.start_time)).all()
 
-# ----------------- Schedule Page endpoints (NEW) -----------------
-@app.get("/api/schedule")
-def get_schedule():
-    # Dummy data for demonstration. Replace with database queries.
+# ----------------- Board Members endpoints (DATABASE) -----------------
+@app.get("/api/board-members")
+def get_board_members(session: Session = Depends(get_session)):
+    """Get all board members from database."""
+    statement = select(BoardMember)
+    members = session.exec(statement).all()
     return [
-        {"id": 1, "date": "2025-07-20", "time": "18:00", "type": "game", "title": "Bucksport Blue Jays vs. Orland Orcas", "location": "Field A", "team_id": 1, "coach_id": 1, "notes": "Championship game!"},
-        {"id": 2, "date": "2025-07-21", "time": "17:30", "type": "practice", "title": "Softball Team Practice", "location": "Field B", "team_id": 2, "coach_id": 2, "notes": "Focus on fielding drills."},
-        {"id": 3, "date": "2025-07-20", "time": "16:00", "type": "game", "title": "Minor League All-Stars", "location": "Field C", "team_id": 3, "coach_id": 3, "notes": ""},
+        {
+            "id": m.id,
+            "name": m.name,
+            "position": m.position,
+            "division": m.division,
+            "email": m.email,
+            "phone": m.phone
+        }
+        for m in members
+    ]
+
+@app.put("/api/board-members/{member_id}")
+def update_board_member(member_id: int, member_data: dict, session: Session = Depends(get_session)):
+    """Update a board member in the database."""
+    member = session.get(BoardMember, member_id)
+    if not member:
+        raise HTTPException(status_code=404, detail="Board member not found")
+    
+    # Update fields
+    if "name" in member_data:
+        member.name = member_data["name"]
+    if "position" in member_data:
+        member.position = member_data["position"]
+    if "division" in member_data:
+        member.division = member_data["division"]
+    if "email" in member_data:
+        member.email = member_data["email"]
+    if "phone" in member_data:
+        member.phone = member_data["phone"]
+    
+    member.updated_at = datetime.utcnow()
+    session.add(member)
+    session.commit()
+    session.refresh(member)
+    
+    logger.info(f"Updated board member {member_id}: {member.name}")
+    
+    return {
+        "id": member.id,
+        "name": member.name,
+        "position": member.position,
+        "division": member.division,
+        "email": member.email,
+        "phone": member.phone
+    }
+
+# ----------------- Coaches endpoints (DATABASE) -----------------
+@app.get("/api/coaches")
+def get_coaches(session: Session = Depends(get_session)):
+    """Get all coaches from database."""
+    statement = select(Coach)
+    coaches = session.exec(statement).all()
+    return [
+        {
+            "id": c.id,
+            "name": c.name,
+            "email": c.email,
+            "phone": c.phone,
+            "team_name": c.team_name,
+            "division": c.division
+        }
+        for c in coaches
+    ]
+
+@app.put("/api/coaches/{coach_id}")
+def update_coach(coach_id: int, coach_data: dict, session: Session = Depends(get_session)):
+    """Update a coach in the database."""
+    coach = session.get(Coach, coach_id)
+    if not coach:
+        raise HTTPException(status_code=404, detail="Coach not found")
+    
+    # Update fields
+    if "name" in coach_data:
+        coach.name = coach_data["name"]
+    if "email" in coach_data:
+        coach.email = coach_data["email"]
+    if "phone" in coach_data:
+        coach.phone = coach_data["phone"]
+    if "team_name" in coach_data:
+        coach.team_name = coach_data["team_name"]
+    if "division" in coach_data:
+        coach.division = coach_data["division"]
+    
+    coach.updated_at = datetime.utcnow()
+    session.add(coach)
+    session.commit()
+    session.refresh(coach)
+    
+    logger.info(f"Updated coach {coach_id}: {coach.name}")
+    
+    return {
+        "id": coach.id,
+        "name": coach.name,
+        "email": coach.email,
+        "phone": coach.phone,
+        "team_name": coach.team_name,
+        "division": coach.division
+    }
+
+@app.post("/api/coaches")
+def create_coach(coach_data: dict, session: Session = Depends(get_session)):
+    """Create a new coach."""
+    coach = Coach(
+        name=coach_data.get("name", ""),
+        email=coach_data.get("email", "N/A"),
+        phone=coach_data.get("phone", "N/A"),
+        team_name=coach_data.get("team_name"),
+        division=coach_data.get("division")
+    )
+    session.add(coach)
+    session.commit()
+    session.refresh(coach)
+    
+    logger.info(f"Created coach: {coach.name}")
+    
+    return {
+        "id": coach.id,
+        "name": coach.name,
+        "email": coach.email,
+        "phone": coach.phone,
+        "team_name": coach.team_name,
+        "division": coach.division
+    }
+
+# ----------------- Schedule endpoints (DATABASE) -----------------
+@app.get("/api/schedule")
+def get_schedule(session: Session = Depends(get_session)):
+    """Get all scheduled events from database."""
+    statement = select(ScheduleEvent)
+    events = session.exec(statement).all()
+    
+    # If no events in DB, return sample data for now
+    if not events:
+        return [
+            {"id": 1, "title": "Opening Day", "date": "2025-04-05", "time": "10:00 AM", "type": "event", "location": "Bucksport Field 1", "team_id": None, "coach_id": None, "notes": "Season opener - all teams"},
+            {"id": 2, "title": "Majors Practice", "date": "2025-04-07", "time": "5:30 PM", "type": "practice", "location": "Bucksport Field 1", "team_id": 1, "coach_id": 1, "notes": ""},
+            {"id": 3, "title": "Minors Practice", "date": "2025-04-08", "time": "5:30 PM", "type": "practice", "location": "Bucksport Field 2", "team_id": 2, "coach_id": 1, "notes": ""},
+            {"id": 4, "title": "Majors vs Ellsworth", "date": "2025-04-12", "time": "1:00 PM", "type": "game", "location": "Bucksport Field 1", "team_id": 1, "coach_id": 1, "notes": "Home game"},
+            {"id": 5, "title": "Tee Ball Practice", "date": "2025-04-09", "time": "5:00 PM", "type": "practice", "location": "Bucksport Field 2", "team_id": 3, "coach_id": 1, "notes": ""},
+        ]
+    
+    return [
+        {
+            "id": e.id,
+            "title": e.title,
+            "date": e.date,
+            "time": e.time,
+            "type": e.event_type,
+            "location": e.location,
+            "team_id": e.team_id,
+            "coach_id": e.coach_id,
+            "notes": e.notes
+        }
+        for e in events
     ]
 
 @app.get("/api/locations")
-def get_locations():
-    # Dummy data. In a real app, query distinct locations from the events table.
-    return ["Field A", "Field B", "Field C", "Community Park"]
-
-# In-memory storage for coaches and board members (persists during server runtime)
-coaches_data = [
-    {"id": 1, "name": "Rob Wadleigh", "email": "N/A", "phone": "N/A"}
-]
-
-board_members_data = [
-    # League-wide positions
-    {"id": 1, "name": "Katie Littlefield", "position": "President", "division": None, "email": "N/A", "phone": "N/A"},
-    {"id": 2, "name": "Erick Kennard", "position": "Vice President", "division": None, "email": "N/A", "phone": "N/A"},
-    {"id": 3, "name": "Kim Burgess", "position": "Treasurer", "division": None, "email": "N/A", "phone": "N/A"},
-    {"id": 4, "name": "Joe Hazlett", "position": "Fundraising/Marketing Coordinator", "division": None, "email": "N/A", "phone": "N/A"},
-    {"id": 5, "name": "Jamie Bowden", "position": "Umpire in Chief", "division": None, "email": "N/A", "phone": "N/A"},
-    {"id": 6, "name": "John Robinson", "position": "Equipment Coordinator", "division": None, "email": "N/A", "phone": "N/A"},
-    # Baseball division
-    {"id": 7, "name": "Ryan Lighthouse", "position": "Secretary", "division": "Baseball", "email": "N/A", "phone": "N/A"},
-    {"id": 8, "name": "Harold Littlefield", "position": "Coaching Coordinator", "division": "Baseball", "email": "N/A", "phone": "N/A"},
-    {"id": 9, "name": "Whitney Wentworth", "position": "Player Agent", "division": "Baseball", "email": "N/A", "phone": "N/A"},
-    {"id": 10, "name": "Ashley Kennard", "position": "Concessions Manager", "division": "Baseball", "email": "N/A", "phone": "N/A"},
-    # Softball division
-    {"id": 11, "name": "Shelby Emery", "position": "Vice President", "division": "Softball", "email": "N/A", "phone": "N/A"},
-    {"id": 12, "name": "Lisa Hazlett", "position": "Secretary", "division": "Softball", "email": "N/A", "phone": "N/A"},
-    {"id": 13, "name": "Chris Remick", "position": "Coaching Coordinator", "division": "Softball", "email": "N/A", "phone": "N/A"},
-    {"id": 14, "name": "Taylor Beaulieu", "position": "Player Agent", "division": "Softball", "email": "N/A", "phone": "N/A"},
-    {"id": 15, "name": "VACANT", "position": "Concession Manager", "division": "Softball", "email": "N/A", "phone": "N/A"},
-]
-
-@app.get("/api/coaches")
-def get_coaches():
-    return coaches_data
-
-@app.put("/api/coaches/{coach_id}")
-def update_coach(coach_id: int, coach: dict):
-    for i, c in enumerate(coaches_data):
-        if c["id"] == coach_id:
-            coaches_data[i].update(coach)
-            return coaches_data[i]
-    raise HTTPException(status_code=404, detail="Coach not found")
-
-@app.get("/api/board-members")
-def get_board_members():
-    return board_members_data
-
-@app.put("/api/board-members/{member_id}")
-def update_board_member(member_id: int, member: dict):
-    for i, m in enumerate(board_members_data):
-        if m["id"] == member_id:
-            board_members_data[i].update(member)
-            return board_members_data[i]
-    raise HTTPException(status_code=404, detail="Board member not found")
-
-# Sample schedule data - in a real app this would come from a database
-schedule_data = [
-    {"id": 1, "title": "Opening Day", "date": "2025-04-05", "time": "10:00 AM", "type": "event", "location": "Bucksport Field 1", "team_id": None, "coach_id": None, "notes": "Season opener - all teams"},
-    {"id": 2, "title": "Majors Practice", "date": "2025-04-07", "time": "5:30 PM", "type": "practice", "location": "Bucksport Field 1", "team_id": 1, "coach_id": 1, "notes": ""},
-    {"id": 3, "title": "Minors Practice", "date": "2025-04-08", "time": "5:30 PM", "type": "practice", "location": "Bucksport Field 2", "team_id": 2, "coach_id": 1, "notes": ""},
-    {"id": 4, "title": "Majors vs Ellsworth", "date": "2025-04-12", "time": "1:00 PM", "type": "game", "location": "Bucksport Field 1", "team_id": 1, "coach_id": 1, "notes": "Home game"},
-    {"id": 5, "title": "Tee Ball Practice", "date": "2025-04-09", "time": "5:00 PM", "type": "practice", "location": "Bucksport Field 2", "team_id": 3, "coach_id": 1, "notes": ""},
-]
-
-locations_data = [
-    "Bucksport Field 1",
-    "Bucksport Field 2", 
-    "Bucksport Softball Field",
-    "Miles Lane Complex",
-    "Away - Ellsworth",
-    "Away - Brewer",
-    "Away - Bangor"
-]
-
-@app.get("/api/schedule")
-def get_schedule():
-    """Get all scheduled events."""
-    return schedule_data
-
-@app.get("/api/locations")
-def get_locations():
-    """Get all available locations."""
-    return locations_data
+def get_locations(session: Session = Depends(get_session)):
+    """Get all locations from database."""
+    statement = select(Location)
+    locations = session.exec(statement).all()
+    
+    # If no locations in DB, return default list
+    if not locations:
+        return [
+            "Bucksport Field 1",
+            "Bucksport Field 2", 
+            "Bucksport Softball Field",
+            "Miles Lane Complex",
+            "Away - Ellsworth",
+            "Away - Brewer",
+            "Away - Bangor"
+        ]
+    
+    return [loc.name for loc in locations]
 
 class EventRequest(BaseModel):
     event_title: str
@@ -236,10 +325,24 @@ class EventRequest(BaseModel):
     event_notes: str | None = None
 
 @app.post("/api/schedule/request")
-def request_new_event(request: EventRequest):
-    logger.info(f"Received new event request: {request.model_dump_json(indent=2)}")
-    # In a real app, you would save this request to the database for admin approval.
-    return {"status": "success", "message": "Event request received and logged."}
+def request_new_event(request: EventRequest, session: Session = Depends(get_session)):
+    """Create a new scheduled event."""
+    event = ScheduleEvent(
+        title=request.event_title,
+        date=request.event_date,
+        time=request.event_time,
+        location=request.event_location,
+        event_type=request.event_type,
+        team_id=int(request.event_team) if request.event_team and request.event_team.isdigit() else None,
+        coach_id=int(request.event_coach) if request.event_coach and request.event_coach.isdigit() else None,
+        notes=request.event_notes
+    )
+    session.add(event)
+    session.commit()
+    session.refresh(event)
+    
+    logger.info(f"Created new event: {event.title} on {event.date}")
+    return {"status": "success", "message": "Event created successfully.", "id": event.id}
 
 # ----------------- Inventory endpoints -----------------
 @app.get("/api/inventory")
@@ -293,4 +396,3 @@ def get_inventory_statuses():
 
 # Mount the static directory to serve frontend files. This should be last.
 app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
-

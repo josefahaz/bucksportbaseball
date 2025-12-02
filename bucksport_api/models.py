@@ -61,3 +61,47 @@ class InventoryItem(SQLModel, table=True):
     status: str = Field(default="Available")  # Available, Checked Out, Needs Repair, Retired
     notes: Optional[str] = None
     last_updated: datetime = Field(default_factory=datetime.utcnow)
+
+
+class BoardMember(SQLModel, table=True):
+    """Board member for the league."""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    position: str  # President, Vice President, Treasurer, etc.
+    division: Optional[str] = None  # Baseball, Softball, or None for league-wide
+    email: Optional[str] = "N/A"
+    phone: Optional[str] = "N/A"
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class Coach(SQLModel, table=True):
+    """Coach for the league."""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    email: Optional[str] = "N/A"
+    phone: Optional[str] = "N/A"
+    team_name: Optional[str] = None  # Team they coach
+    division: Optional[str] = None  # Baseball or Softball
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class ScheduleEvent(SQLModel, table=True):
+    """Scheduled event (game, practice, etc.)."""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    title: str
+    date: str  # YYYY-MM-DD format
+    time: str  # e.g., "5:30 PM"
+    event_type: str  # game, practice, event
+    location: str
+    team_id: Optional[int] = None
+    coach_id: Optional[int] = None
+    notes: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class Location(SQLModel, table=True):
+    """Available locations/fields."""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(unique=True, index=True)
