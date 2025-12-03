@@ -54,6 +54,7 @@ class InventoryItem(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     item_name: str = Field(index=True)
     category: str = Field(index=True)  # jersey, pants, hat, cleats, bat, ball, glove, helmet, other
+    division: Optional[str] = Field(default=None, index=True)  # Baseball, Softball, Shared
     size: Optional[str] = None
     team: Optional[str] = None
     assigned_coach: Optional[str] = "Unassigned"

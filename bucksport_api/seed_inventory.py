@@ -7,16 +7,16 @@ from models import InventoryItem
 
 # Baseball Inventory - Fall 2025
 INVENTORY_ITEMS = [
-    # Equipment
-    {"item_name": "Jugs pitch machine", "category": "other", "quantity": 1},
-    {"item_name": "Practice baseballs", "category": "ball", "quantity": 57},
-    {"item_name": "Practice tee balls", "category": "ball", "quantity": 56},
-    {"item_name": "Softball", "category": "ball", "quantity": 1},
-    {"item_name": "Wiffle / Pickleball balls", "category": "ball", "quantity": 63},
-    {"item_name": "Tennis balls", "category": "ball", "quantity": 33},
-    {"item_name": "Hard yellow practice balls", "category": "ball", "quantity": 20},
-    {"item_name": "Little League game balls", "category": "ball", "quantity": 38, "notes": "26 still wrapped"},
-    {"item_name": "Soft compression Wilson game balls", "category": "ball", "quantity": 11, "notes": "10 still wrapped"},
+    # Equipment - Baseball
+    {"item_name": "Jugs pitch machine", "category": "other", "division": "Shared", "quantity": 1},
+    {"item_name": "Practice baseballs", "category": "ball", "division": "Baseball", "quantity": 57},
+    {"item_name": "Practice tee balls", "category": "ball", "division": "Baseball", "quantity": 56},
+    {"item_name": "Softball", "category": "ball", "division": "Softball", "quantity": 1},
+    {"item_name": "Wiffle / Pickleball balls", "category": "ball", "division": "Shared", "quantity": 63},
+    {"item_name": "Tennis balls", "category": "ball", "division": "Shared", "quantity": 33},
+    {"item_name": "Hard yellow practice balls", "category": "ball", "division": "Baseball", "quantity": 20},
+    {"item_name": "Little League game balls", "category": "ball", "division": "Baseball", "quantity": 38, "notes": "26 still wrapped"},
+    {"item_name": "Soft compression Wilson game balls", "category": "ball", "division": "Baseball", "quantity": 11, "notes": "10 still wrapped"},
     
     # Batting Helmets
     {"item_name": "Batting helmet - Blue", "category": "helmet", "size": "One Size", "quantity": 10, "notes": "Some with face guards attached"},

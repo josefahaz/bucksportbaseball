@@ -20,6 +20,7 @@ from auth_routes import router as auth_router
 from seed_users import seed_users
 from seed_inventory import seed_inventory
 from seed_board_coaches import seed_all as seed_board_coaches
+from update_inventory_divisions import update_divisions
 
 # Load environment-specific .env file
 # Set ENVIRONMENT=production on production server
@@ -41,6 +42,8 @@ async def lifespan(app: FastAPI):
     seed_users()
     seed_inventory()
     seed_board_coaches()
+    # Update inventory items with division field
+    update_divisions()
     yield
 
 # Create the FastAPI app
@@ -355,6 +358,7 @@ def get_inventory(session: Session = Depends(get_session)):
             "id": item.id,
             "name": item.item_name,  # Frontend expects 'name'
             "category": item.category,
+            "division": item.division,  # Baseball, Softball, or Shared
             "size": item.size,
             "team": {"id": None, "name": item.team} if item.team else None,
             "assigned_coach": {"id": None, "name": item.assigned_coach} if item.assigned_coach else None,

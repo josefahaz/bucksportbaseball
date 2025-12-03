@@ -340,6 +340,16 @@
       <!-- Filter Section -->
       <div class="filter-bar" style="background: white; border-radius: 8px; padding: 16px; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
         <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end;">
+          <div style="flex: 1; min-width: 150px;">
+            <label style="display: block; font-size: 0.875rem; color: #4b5563; margin-bottom: 4px; font-weight: 500;">Division</label>
+            <select id="divisionFilter" class="filter-select" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; background-color: white; font-size: 0.875rem; color: #1f2937;">
+              <option value="">All Divisions</option>
+              <option value="Baseball">Baseball</option>
+              <option value="Softball">Softball</option>
+              <option value="Shared">Shared</option>
+            </select>
+          </div>
+          
           <div style="flex: 1; min-width: 200px;">
             <label style="display: block; font-size: 0.875rem; color: #4b5563; margin-bottom: 4px; font-weight: 500;">Category</label>
             <select id="categoryFilter" class="filter-select" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; background-color: white; font-size: 0.875rem; color: #1f2937;">
@@ -403,6 +413,7 @@
               <thead>
                 <tr style="background-color: #f9fafb; border-bottom: 2px solid #e5e7eb;">
                   <th style="padding: 12px 16px; text-align: left; font-size: 0.75rem; font-weight: 600; color: #4b5563; text-transform: uppercase; letter-spacing: 0.05em;">Item</th>
+                  <th style="padding: 12px 16px; text-align: left; font-size: 0.75rem; font-weight: 600; color: #4b5563; text-transform: uppercase; letter-spacing: 0.05em;">Division</th>
                   <th style="padding: 12px 16px; text-align: left; font-size: 0.75rem; font-weight: 600; color: #4b5563; text-transform: uppercase; letter-spacing: 0.05em;">Category</th>
                   <th style="padding: 12px 16px; text-align: left; font-size: 0.75rem; font-weight: 600; color: #4b5563; text-transform: uppercase; letter-spacing: 0.05em;">Size</th>
                   <th style="padding: 12px 16px; text-align: left; font-size: 0.75rem; font-weight: 600; color: #4b5563; text-transform: uppercase; letter-spacing: 0.05em;">Team</th>
@@ -555,6 +566,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const checkedOutItemsEl = document.getElementById('checked-out-items-value');
     const needsRepairItemsEl = document.getElementById('needs-repair-items-value');
 
+    const divisionFilterEl = document.getElementById('divisionFilter');
     const categoryFilterEl = document.getElementById('categoryFilter');
     const statusFilterEl = document.getElementById('statusFilter');
     const teamFilterEl = document.getElementById('teamFilter');
@@ -577,11 +589,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         return `<span class="badge ${statusClasses[status] || 'badge-secondary'} p-2 text-xs font-medium rounded-full">${statusText}</span>`;
     };
 
+    const getDivisionBadge = (division) => {
+        if (!division) return '<span class="text-gray-400">—</span>';
+        const colors = {
+            'Baseball': 'background-color: #1e40af; color: white;',
+            'Softball': 'background-color: #be185d; color: white;',
+            'Shared': 'background-color: #6b7280; color: white;'
+        };
+        return `<span style="${colors[division] || colors['Shared']} padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 500;">${division}</span>`;
+    };
+
     // --- Render Functions ---
     const renderInventoryTable = (items) => {
         inventoryTableBody.innerHTML = '';
         if (!items || items.length === 0) {
-            inventoryTableBody.innerHTML = '<tr><td colspan="9" class="text-center text-gray-500 py-8">No inventory items match the current filters.</td></tr>';
+            inventoryTableBody.innerHTML = '<tr><td colspan="10" class="text-center text-gray-500 py-8">No inventory items match the current filters.</td></tr>';
             return;
         }
 
@@ -589,11 +611,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             const coachName = item.assigned_coach ? item.assigned_coach.name : 'Unassigned';
             const teamName = item.team ? item.team.name : 'Unassigned';
             const lastUpdated = item.last_updated ? new Date(item.last_updated).toLocaleDateString() : 'N/A';
+            const divisionBadge = getDivisionBadge(item.division);
             
             const row = document.createElement('tr');
             row.className = 'border-b border-gray-200 hover:bg-gray-50';
             row.innerHTML = `
                 <td class="p-4"><div class="font-medium text-gray-800">${item.name}</div></td>
+                <td class="p-4">${divisionBadge}</td>
                 <td class="p-4 text-gray-600">${item.category}</td>
                 <td class="p-4 text-gray-600">${item.size || 'N/A'}</td>
                 <td class="p-4 text-gray-600">${teamName}</td>
@@ -663,25 +687,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- Filtering Logic ---
     const applyFilters = () => {
         const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+        const division = divisionFilterEl ? divisionFilterEl.value : '';
         const category = categoryFilterEl ? categoryFilterEl.value : '';
         const status = statusFilterEl ? statusFilterEl.value : '';
         const teamId = teamFilterEl ? teamFilterEl.value : '';
         const coachId = coachFilterEl ? coachFilterEl.value : '';
 
         let filteredInventory = allInventory.filter(item => {
+            const divisionMatch = !division || item.division === division;
             const teamMatch = !teamId || (item.team && item.team.id == teamId);
             const coachMatch = !coachId || (item.assigned_coach && item.assigned_coach.id == coachId);
             const categoryMatch = !category || item.category === category;
             const statusMatch = !status || item.status === status;
             const searchMatch = !searchTerm || item.name.toLowerCase().includes(searchTerm);
 
-            return teamMatch && coachMatch && categoryMatch && statusMatch && searchMatch;
+            return divisionMatch && teamMatch && coachMatch && categoryMatch && statusMatch && searchMatch;
         });
         renderInventoryTable(filteredInventory);
     };
 
     // --- Event Listeners ---
-    [searchInput, categoryFilterEl, statusFilterEl, teamFilterEl, coachFilterEl].forEach(el => {
+    [searchInput, divisionFilterEl, categoryFilterEl, statusFilterEl, teamFilterEl, coachFilterEl].forEach(el => {
         if (el) {
             const eventType = el.tagName === 'INPUT' ? 'keyup' : 'change';
             el.addEventListener(eventType, applyFilters);
