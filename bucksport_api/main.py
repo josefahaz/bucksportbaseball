@@ -81,6 +81,12 @@ app.include_router(auth_router)
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR.parent / "local_site"
 
+# Health check endpoint (for keeping server warm)
+@app.get("/api/health")
+def health_check():
+    """Simple health check endpoint to wake up the server."""
+    return {"status": "ok", "message": "Server is running"}
+
 # Serve the main page
 @app.get("/", response_class=FileResponse, include_in_schema=False)
 async def read_index():
