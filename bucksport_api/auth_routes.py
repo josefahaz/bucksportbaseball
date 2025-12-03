@@ -42,6 +42,13 @@ async def google_auth(
     session: Session = Depends(get_session)
 ):
     """Authenticate user with Google OAuth."""
+    # Check if Google Client ID is configured
+    if not GOOGLE_CLIENT_ID:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Google OAuth is not configured. Please set GOOGLE_CLIENT_ID environment variable."
+        )
+    
     try:
         # Verify the Google token
         idinfo = id_token.verify_oauth2_token(
