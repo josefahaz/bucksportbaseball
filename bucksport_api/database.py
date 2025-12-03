@@ -4,9 +4,12 @@ from sqlmodel import SQLModel, create_engine, Session
 # Use PostgreSQL in production (Render), SQLite for local development
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///database.db")
 
-# Render provides DATABASE_URL starting with "postgres://" but SQLAlchemy needs "postgresql://"
+# Render provides DATABASE_URL starting with "postgres://" but SQLAlchemy needs "postgresql+psycopg://"
+# for psycopg3 (the modern PostgreSQL driver)
 if DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg://", 1)
+elif DATABASE_URL.startswith("postgresql://") and "+psycopg" not in DATABASE_URL:
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg://", 1)
 
 # SQLite needs special connect_args, PostgreSQL doesn't
 if DATABASE_URL.startswith("sqlite"):
