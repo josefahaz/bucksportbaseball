@@ -387,10 +387,6 @@
 <script src="js/api.js"></script>
 <script src="js/activity-log.js"></script>
 <script>
-    // Pre-warm the API server immediately (don't wait for DOM)
-    // This helps reduce cold start delays on Render free tier
-    fetch('https://bucksport-api.onrender.com/api/health').catch(() => {});
-    
     // Initialize Activity Logger (with fallback if script didn't load)
     let activityLogger = null;
     try {
