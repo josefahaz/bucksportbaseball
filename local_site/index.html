@@ -327,6 +327,30 @@
   <script src="js/auth.js"></script>
 <script src="js/api.js"></script>
   <script>
+    // Activity Log functionality - must be defined first
+    let activityLog = JSON.parse(localStorage.getItem('homepage_activity_log') || '[]');
+
+    function logActivity(action, details) {
+      // Get user from auth manager if available
+      let userName = 'Admin';
+      if (typeof authManager !== 'undefined' && authManager.getCurrentUser()) {
+        const user = authManager.getCurrentUser();
+        userName = `${user.first_name} ${user.last_name}`;
+      }
+      
+      const entry = {
+        timestamp: new Date().toISOString(),
+        action: action,
+        details: details,
+        user: userName
+      };
+      activityLog.unshift(entry);
+      // Keep only last 100 entries
+      if (activityLog.length > 100) activityLog = activityLog.slice(0, 100);
+      localStorage.setItem('homepage_activity_log', JSON.stringify(activityLog));
+      console.log('Activity logged:', action, details);
+    }
+
     // Store board members and coaches globally for editing
     let allBoardMembers = [];
     let allCoaches = [];
@@ -625,22 +649,7 @@
       }
     });
 
-    // Activity Log functionality
-    let activityLog = JSON.parse(localStorage.getItem('homepage_activity_log') || '[]');
-
-    function logActivity(action, details) {
-      const entry = {
-        timestamp: new Date().toISOString(),
-        action: action,
-        details: details,
-        user: 'Admin' // TODO: Replace with actual user from authentication
-      };
-      activityLog.unshift(entry);
-      // Keep only last 100 entries
-      if (activityLog.length > 100) activityLog = activityLog.slice(0, 100);
-      localStorage.setItem('homepage_activity_log', JSON.stringify(activityLog));
-    }
-
+    // renderActivityLog function (activityLog and logActivity defined at top of script)
     function renderActivityLog() {
       const container = document.getElementById('activityLogContent');
       if (activityLog.length === 0) {
@@ -694,20 +703,7 @@
       }
     });
 
-    // Log activity when board members or coaches are edited
-    const originalSaveBoardMember = window.saveBoardMember;
-    window.saveBoardMember = async function(event) {
-      const name = document.getElementById('editBoardMemberName').value;
-      await originalSaveBoardMember(event);
-      logActivity('Board Member Updated', `Updated information for ${name}`);
-    };
-
-    const originalSaveCoach = window.saveCoach;
-    window.saveCoach = async function(event) {
-      const name = document.getElementById('editCoachName').value;
-      await originalSaveCoach(event);
-      logActivity('Coach Updated', `Updated information for ${name}`);
-    };
+    // Activity logging is now handled directly in saveBoardMember and saveCoach functions
   </script>
 
   <!-- Activity Log Modal -->
