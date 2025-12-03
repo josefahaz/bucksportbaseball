@@ -662,18 +662,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- Filtering Logic ---
     const applyFilters = () => {
-        const searchTerm = searchInput.value.toLowerCase();
-        const category = categoryFilterEl.value;
-        const status = statusFilterEl.value;
-        const teamId = teamFilterEl.value;
-        const coachId = coachFilterEl.value;
+        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+        const category = categoryFilterEl ? categoryFilterEl.value : '';
+        const status = statusFilterEl ? statusFilterEl.value : '';
+        const teamId = teamFilterEl ? teamFilterEl.value : '';
+        const coachId = coachFilterEl ? coachFilterEl.value : '';
 
         let filteredInventory = allInventory.filter(item => {
             const teamMatch = !teamId || (item.team && item.team.id == teamId);
             const coachMatch = !coachId || (item.assigned_coach && item.assigned_coach.id == coachId);
             const categoryMatch = !category || item.category === category;
             const statusMatch = !status || item.status === status;
-            const searchMatch = item.name.toLowerCase().includes(searchTerm) || (item.id && item.id.toLowerCase().includes(searchTerm));
+            const searchMatch = !searchTerm || item.name.toLowerCase().includes(searchTerm);
 
             return teamMatch && coachMatch && categoryMatch && statusMatch && searchMatch;
         });
