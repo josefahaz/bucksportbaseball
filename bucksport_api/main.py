@@ -342,27 +342,27 @@ def get_locations(session: Session = Depends(get_session)):
     return [loc.name for loc in locations]
 
 class EventRequest(BaseModel):
-    event_title: str
-    event_date: str
-    event_time: str
-    event_location: str
-    event_team: str
-    event_coach: str
-    event_type: str
-    event_notes: str | None = None
+    title: str
+    date: str
+    time: str
+    location: str
+    team_id: str | None = None
+    coach_id: str | None = None
+    type: str
+    notes: str | None = None
 
 @app.post("/api/schedule/request")
 def request_new_event(request: EventRequest, session: Session = Depends(get_session)):
     """Create a new scheduled event."""
     event = ScheduleEvent(
-        title=request.event_title,
-        date=request.event_date,
-        time=request.event_time,
-        location=request.event_location,
-        event_type=request.event_type,
-        team_id=int(request.event_team) if request.event_team and request.event_team.isdigit() else None,
-        coach_id=int(request.event_coach) if request.event_coach and request.event_coach.isdigit() else None,
-        notes=request.event_notes
+        title=request.title,
+        date=request.date,
+        time=request.time,
+        location=request.location,
+        event_type=request.type,
+        team_id=int(request.team_id) if request.team_id and request.team_id.isdigit() else None,
+        coach_id=int(request.coach_id) if request.coach_id and request.coach_id.isdigit() else None,
+        notes=request.notes
     )
     session.add(event)
     session.commit()
