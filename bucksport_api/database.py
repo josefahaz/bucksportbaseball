@@ -1,8 +1,18 @@
+import os
 from sqlmodel import SQLModel, create_engine, Session
 
-DATABASE_URL = "sqlite:///database.db"
+# Use PostgreSQL in production (Render), SQLite for local development
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///database.db")
 
-engine = create_engine(DATABASE_URL, echo=False, connect_args={"check_same_thread": False})
+# Render provides DATABASE_URL starting with "postgres://" but SQLAlchemy needs "postgresql://"
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+# SQLite needs special connect_args, PostgreSQL doesn't
+if DATABASE_URL.startswith("sqlite"):
+    engine = create_engine(DATABASE_URL, echo=False, connect_args={"check_same_thread": False})
+else:
+    engine = create_engine(DATABASE_URL, echo=False)
 
 
 def init_db() -> None:
