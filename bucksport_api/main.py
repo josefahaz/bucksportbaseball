@@ -37,13 +37,24 @@ logger.info(f"Running in {environment} mode")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    init_db()
-    # Seed data on startup (will skip if already seeded)
-    seed_users()
-    seed_inventory()
-    seed_board_coaches()
-    # Update inventory items with division field
-    update_divisions()
+    try:
+        logger.info("Initializing database...")
+        init_db()
+        logger.info("Database initialized successfully")
+        
+        # Seed data on startup (will skip if already seeded)
+        logger.info("Seeding users...")
+        seed_users()
+        logger.info("Seeding inventory...")
+        seed_inventory()
+        logger.info("Seeding board members and coaches...")
+        seed_board_coaches()
+        logger.info("Updating inventory divisions...")
+        update_divisions()
+        logger.info("Startup complete!")
+    except Exception as e:
+        logger.error(f"Error during startup: {e}")
+        # Don't re-raise - allow app to start even if seeding fails
     yield
 
 # Create the FastAPI app
@@ -269,33 +280,40 @@ def create_coach(coach_data: dict, session: Session = Depends(get_session)):
 @app.get("/api/schedule")
 def get_schedule(session: Session = Depends(get_session)):
     """Get all scheduled events from database."""
-    statement = select(ScheduleEvent)
-    events = session.exec(statement).all()
-    
-    # If no events in DB, return sample data for now
-    if not events:
+    try:
+        statement = select(ScheduleEvent)
+        events = session.exec(statement).all()
+        
+        # If no events in DB, return sample data for now
+        if not events:
+            return [
+                {"id": 1, "title": "Opening Day", "date": "2025-04-05", "time": "10:00 AM", "type": "event", "location": "Bucksport Field 1", "team_id": None, "coach_id": None, "notes": "Season opener - all teams"},
+                {"id": 2, "title": "Majors Practice", "date": "2025-04-07", "time": "5:30 PM", "type": "practice", "location": "Bucksport Field 1", "team_id": 1, "coach_id": 1, "notes": ""},
+                {"id": 3, "title": "Minors Practice", "date": "2025-04-08", "time": "5:30 PM", "type": "practice", "location": "Bucksport Field 2", "team_id": 2, "coach_id": 1, "notes": ""},
+                {"id": 4, "title": "Majors vs Ellsworth", "date": "2025-04-12", "time": "1:00 PM", "type": "game", "location": "Bucksport Field 1", "team_id": 1, "coach_id": 1, "notes": "Home game"},
+                {"id": 5, "title": "Tee Ball Practice", "date": "2025-04-09", "time": "5:00 PM", "type": "practice", "location": "Bucksport Field 2", "team_id": 3, "coach_id": 1, "notes": ""},
+            ]
+        
+        return [
+            {
+                "id": e.id,
+                "title": e.title,
+                "date": e.date,
+                "time": e.time,
+                "type": e.event_type,
+                "location": e.location,
+                "team_id": e.team_id,
+                "coach_id": e.coach_id,
+                "notes": e.notes
+            }
+            for e in events
+        ]
+    except Exception as e:
+        logger.error(f"Error fetching schedule: {e}")
+        # Return sample data on error
         return [
             {"id": 1, "title": "Opening Day", "date": "2025-04-05", "time": "10:00 AM", "type": "event", "location": "Bucksport Field 1", "team_id": None, "coach_id": None, "notes": "Season opener - all teams"},
-            {"id": 2, "title": "Majors Practice", "date": "2025-04-07", "time": "5:30 PM", "type": "practice", "location": "Bucksport Field 1", "team_id": 1, "coach_id": 1, "notes": ""},
-            {"id": 3, "title": "Minors Practice", "date": "2025-04-08", "time": "5:30 PM", "type": "practice", "location": "Bucksport Field 2", "team_id": 2, "coach_id": 1, "notes": ""},
-            {"id": 4, "title": "Majors vs Ellsworth", "date": "2025-04-12", "time": "1:00 PM", "type": "game", "location": "Bucksport Field 1", "team_id": 1, "coach_id": 1, "notes": "Home game"},
-            {"id": 5, "title": "Tee Ball Practice", "date": "2025-04-09", "time": "5:00 PM", "type": "practice", "location": "Bucksport Field 2", "team_id": 3, "coach_id": 1, "notes": ""},
         ]
-    
-    return [
-        {
-            "id": e.id,
-            "title": e.title,
-            "date": e.date,
-            "time": e.time,
-            "type": e.event_type,
-            "location": e.location,
-            "team_id": e.team_id,
-            "coach_id": e.coach_id,
-            "notes": e.notes
-        }
-        for e in events
-    ]
 
 @app.get("/api/locations")
 def get_locations(session: Session = Depends(get_session)):
