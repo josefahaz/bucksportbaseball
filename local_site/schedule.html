@@ -259,15 +259,15 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                         <label for="eventTitle" class="block text-sm font-medium text-gray-700 mb-1">Event Title</label>
-                        <input type="text" id="eventTitle" name="title" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500" required>
+                        <input type="text" id="eventTitle" name="title" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:ring-2 focus:ring-purple-500 focus:border-purple-500" required>
                     </div>
                     <div>
                         <label for="eventTime" class="block text-sm font-medium text-gray-700 mb-1">Time</label>
-                        <input type="time" id="eventTime" name="time" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500" required>
+                        <input type="time" id="eventTime" name="time" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:ring-2 focus:ring-purple-500 focus:border-purple-500" required>
                     </div>
                     <div>
                         <label for="eventType" class="block text-sm font-medium text-gray-700 mb-1">Event Type</label>
-                        <select id="eventType" name="type" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500">
+                        <select id="eventType" name="type" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
                             <option value="game">Game</option>
                             <option value="practice">Practice</option>
                             <option value="event">General Event</option>
@@ -275,25 +275,25 @@
                     </div>
                     <div>
                         <label for="eventRequestTeam" class="block text-sm font-medium text-gray-700 mb-1">Team</label>
-                        <select id="eventRequestTeam" name="team_id" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500" required>
-                            <option value="" disabled selected>Loading teams...</option>
+                        <select id="eventRequestTeam" name="team_id" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:ring-2 focus:ring-purple-500 focus:border-purple-500" required>
+                            <option value="" disabled selected>Select a team</option>
                         </select>
                     </div>
                      <div>
                         <label for="eventRequestCoach" class="block text-sm font-medium text-gray-700 mb-1">Coach</label>
-                        <select id="eventRequestCoach" name="coach_id" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500">
-                            <option value="" disabled selected>Loading coaches...</option>
+                        <select id="eventRequestCoach" name="coach_id" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                            <option value="" disabled selected>Select a coach</option>
                         </select>
                     </div>
                 </div>
                 <div class="mb-4">
                     <label for="eventLocation" class="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                    <input type="text" id="eventLocation" name="location" list="locations" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500" required>
+                    <input type="text" id="eventLocation" name="location" list="locations" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:ring-2 focus:ring-purple-500 focus:border-purple-500" required>
                     <datalist id="locations"></datalist>
                 </div>
                 <div class="mb-4">
                     <label for="eventNotes" class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
-                    <textarea id="eventNotes" name="notes" rows="3" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"></textarea>
+                    <textarea id="eventNotes" name="notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"></textarea>
                 </div>
                 <div class="flex justify-end gap-4">
                     <button type="button" id="cancelEventRequest" class="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300">Cancel</button>
