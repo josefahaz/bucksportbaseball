@@ -305,10 +305,19 @@
 
         if (id) { // Update
             const index = inventoryData.findIndex(d => d.id == id);
+            const oldItem = inventoryData[index];
             inventoryData[index] = { ...inventoryData[index], ...newItemData };
+            // Log the update
+            if (typeof activityLogger !== 'undefined') {
+                activityLogger.logActivity('Item Updated', `Updated "${newItemData.item}" - Qty: ${newItemData.quantity}, Cost: $${newItemData.cost.toFixed(2)}`);
+            }
         } else { // Add
             newItemData.id = nextId++;
             inventoryData.push(newItemData);
+            // Log the add
+            if (typeof activityLogger !== 'undefined') {
+                activityLogger.logActivity('Item Added', `Added "${newItemData.item}" - Category: ${newItemData.category}, Qty: ${newItemData.quantity}, Cost: $${newItemData.cost.toFixed(2)}`);
+            }
         }
         saveInventory();
         renderTable();
@@ -321,10 +330,15 @@
     }
 
     window.deleteItem = function(id) {
+        const item = inventoryData.find(d => d.id === id);
         if (confirm('Are you sure you want to delete this item?')) {
             inventoryData = inventoryData.filter(d => d.id !== id);
             saveInventory();
             renderTable();
+            // Log the delete
+            if (typeof activityLogger !== 'undefined') {
+                activityLogger.logActivity('Item Deleted', `Deleted "${item.item}" from ${item.category}`);
+            }
         }
     }
 

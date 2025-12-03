@@ -339,6 +339,10 @@
 
             try {
                 await addConcessionItem(newItem);
+                // Log activity
+                if (typeof activityLogger !== 'undefined') {
+                    activityLogger.logActivity('Item Added', `Added "${newItem.item}" - Category: ${newItem.category}, Qty: ${newItem.quantity}, Cost: $${newItem.cost.toFixed(2)}`);
+                }
                 alert('Item added successfully!');
                 modal.classList.add('hidden');
                 await loadEventData(currentEventId);

@@ -209,6 +209,10 @@
             donations.push(newDonation);
             donations.sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort by most recent
             saveAndRender();
+            // Log activity
+            if (typeof activityLogger !== 'undefined') {
+                activityLogger.logActivity('Donation Added', `Added ${newDonation.type}: $${parseFloat(newDonation.amount).toFixed(2)} from "${newDonation.name}"`);
+            }
             form.reset();
             document.getElementById('entry-date').valueAsDate = new Date(); // Set default date to today
         });
@@ -219,10 +223,15 @@
                     const indexToDelete = parseInt(e.target.dataset.index, 10);
                     const currentFilter = filterType.value;
                     const filteredDonations = donations.filter(d => currentFilter === 'all' || d.type === currentFilter);
-                    const originalIndex = donations.indexOf(filteredDonations[indexToDelete]);
+                    const deletedEntry = filteredDonations[indexToDelete];
+                    const originalIndex = donations.indexOf(deletedEntry);
 
                     donations.splice(originalIndex, 1);
                     saveAndRender();
+                    // Log activity
+                    if (typeof activityLogger !== 'undefined') {
+                        activityLogger.logActivity('Donation Deleted', `Deleted ${deletedEntry.type}: $${parseFloat(deletedEntry.amount).toFixed(2)} from "${deletedEntry.name}"`);
+                    }
                 }
             }
         });
