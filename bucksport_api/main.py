@@ -371,6 +371,29 @@ def request_new_event(request: EventRequest, session: Session = Depends(get_sess
     logger.info(f"Created new event: {event.title} on {event.date}")
     return {"status": "success", "message": "Event created successfully.", "id": event.id}
 
+@app.put("/api/schedule/{event_id}")
+def update_event(event_id: int, request: EventRequest, session: Session = Depends(get_session)):
+    """Update a scheduled event."""
+    event = session.get(ScheduleEvent, event_id)
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    event.title = request.title
+    event.date = request.date
+    event.time = request.time
+    event.location = request.location
+    event.event_type = request.type
+    event.team_id = int(request.team_id) if request.team_id and request.team_id.isdigit() else None
+    event.coach_id = int(request.coach_id) if request.coach_id and request.coach_id.isdigit() else None
+    event.notes = request.notes
+    
+    session.add(event)
+    session.commit()
+    session.refresh(event)
+    
+    logger.info(f"Updated event: {event.title} (ID: {event_id})")
+    return {"status": "success", "message": "Event updated successfully."}
+
 @app.delete("/api/schedule/{event_id}")
 def delete_event(event_id: int, session: Session = Depends(get_session)):
     """Delete a scheduled event."""

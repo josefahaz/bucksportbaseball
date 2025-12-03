@@ -324,6 +324,65 @@
         </div>
     </div>
 
+    <!-- Edit Event Modal -->
+    <div id="editEventModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 mx-4">
+            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                <h3 class="text-xl font-bold text-purple-900">Edit Event</h3>
+                <button id="closeEditModal" class="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
+            </div>
+            <form id="editEventForm">
+                <input type="hidden" id="editEventId" name="id">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="editEventTitle" class="block text-sm font-medium text-gray-700 mb-1">Event Title</label>
+                        <input type="text" id="editEventTitle" name="title" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:ring-2 focus:ring-purple-500 focus:border-purple-500" required>
+                    </div>
+                    <div>
+                        <label for="editEventDate" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                        <input type="date" id="editEventDate" name="date" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:ring-2 focus:ring-purple-500 focus:border-purple-500" required>
+                    </div>
+                    <div>
+                        <label for="editEventTime" class="block text-sm font-medium text-gray-700 mb-1">Time</label>
+                        <input type="time" id="editEventTime" name="time" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:ring-2 focus:ring-purple-500 focus:border-purple-500" required>
+                    </div>
+                    <div>
+                        <label for="editEventType" class="block text-sm font-medium text-gray-700 mb-1">Event Type</label>
+                        <select id="editEventType" name="type" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                            <option value="game">Game</option>
+                            <option value="practice">Practice</option>
+                            <option value="event">General Event</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="editEventTeam" class="block text-sm font-medium text-gray-700 mb-1">Team <span class="text-gray-400 font-normal">(optional)</span></label>
+                        <select id="editEventTeam" name="team_id" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                            <option value="">No team</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="editEventCoach" class="block text-sm font-medium text-gray-700 mb-1">Coach <span class="text-gray-400 font-normal">(optional)</span></label>
+                        <select id="editEventCoach" name="coach_id" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                            <option value="">No coach</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label for="editEventLocation" class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                    <input type="text" id="editEventLocation" name="location" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:ring-2 focus:ring-purple-500 focus:border-purple-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="editEventNotes" class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                    <textarea id="editEventNotes" name="notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"></textarea>
+                </div>
+                <div class="flex justify-end gap-4">
+                    <button type="button" id="cancelEditEvent" class="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300">Cancel</button>
+                    <button type="submit" class="px-4 py-2 text-white rounded-md bg-purple-800 hover:bg-purple-900">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 <script src="js/auth.js"></script>
 <script src="js/api.js"></script>
 <script src="js/activity-log.js"></script>
@@ -543,8 +602,16 @@
                 const safeNotes = escapeHtml(truncate(event.notes, 150));
 
                 dailyScheduleEl.innerHTML += `
-                    <div class="bg-gray-50 p-3 rounded-lg border-l-4 border-${event.type === 'game' ? 'blue' : event.type === 'practice' ? 'green' : 'orange'}-500">
-                        <p class="font-bold text-purple-800">${escapeHtml(event.title)}</p>
+                    <div class="bg-gray-50 p-3 rounded-lg border-l-4 border-${event.type === 'game' ? 'blue' : event.type === 'practice' ? 'green' : 'orange'}-500 relative group">
+                        <div class="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="openEditModal(${event.id})" class="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded" title="Edit">
+                                <i class="fas fa-edit text-sm"></i>
+                            </button>
+                            <button onclick="deleteEvent(${event.id}, '${escapeHtml(event.title).replace(/'/g, "\\'")}') " class="p-1 text-red-600 hover:text-red-800 hover:bg-red-100 rounded" title="Delete">
+                                <i class="fas fa-trash text-sm"></i>
+                            </button>
+                        </div>
+                        <p class="font-bold text-purple-800 pr-16">${escapeHtml(event.title)}</p>
                         <p class="text-sm text-gray-600"><i class="far fa-clock mr-2"></i>${escapeHtml(event.time)}</p>
                         <p class="text-sm text-gray-600"><i class="fas fa-map-marker-alt mr-2"></i>${safeLocation}</p>
                         <p class="text-sm text-gray-600"><i class="fas fa-users mr-2"></i>${escapeHtml(teamName)}</p>
@@ -678,6 +745,124 @@
             } catch (error) {
                 console.error('Failed to submit request:', error);
                 alert('Failed to submit request. Please try again.');
+            }
+        });
+
+        // --- Edit Modal Logic ---
+        const editModal = document.getElementById('editEventModal');
+        const editForm = document.getElementById('editEventForm');
+        const closeEditModalBtn = document.getElementById('closeEditModal');
+        const cancelEditBtn = document.getElementById('cancelEditEvent');
+        
+        // Make these functions global so onclick can access them
+        window.openEditModal = (eventId) => {
+            const event = allScheduleData.find(e => e.id === eventId);
+            if (!event) {
+                alert('Event not found');
+                return;
+            }
+            
+            // Populate form fields
+            document.getElementById('editEventId').value = event.id;
+            document.getElementById('editEventTitle').value = event.title;
+            document.getElementById('editEventDate').value = event.date;
+            // Convert time to 24hr format for input
+            const time24 = convertTo24Hour(event.time);
+            document.getElementById('editEventTime').value = time24;
+            document.getElementById('editEventType').value = event.type;
+            document.getElementById('editEventLocation').value = event.location;
+            document.getElementById('editEventNotes').value = event.notes || '';
+            
+            // Populate team dropdown
+            const teamSelect = document.getElementById('editEventTeam');
+            teamSelect.innerHTML = '<option value="">No team</option>';
+            allTeams.forEach(t => {
+                const selected = t.id == event.team_id ? 'selected' : '';
+                teamSelect.innerHTML += `<option value="${t.id}" ${selected}>${t.name}</option>`;
+            });
+            
+            // Populate coach dropdown
+            const coachSelect = document.getElementById('editEventCoach');
+            coachSelect.innerHTML = '<option value="">No coach</option>';
+            allCoaches.forEach(c => {
+                const selected = c.id == event.coach_id ? 'selected' : '';
+                coachSelect.innerHTML += `<option value="${c.id}" ${selected}>${c.name}</option>`;
+            });
+            
+            editModal.classList.remove('hidden');
+        };
+        
+        // Helper to convert 12hr time to 24hr for input field
+        const convertTo24Hour = (time12) => {
+            if (!time12) return '';
+            // If already in 24hr format (HH:MM), return as is
+            if (/^\d{2}:\d{2}$/.test(time12)) return time12;
+            
+            const match = time12.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
+            if (!match) return time12;
+            
+            let hours = parseInt(match[1]);
+            const minutes = match[2];
+            const period = match[3];
+            
+            if (period) {
+                if (period.toUpperCase() === 'PM' && hours !== 12) hours += 12;
+                if (period.toUpperCase() === 'AM' && hours === 12) hours = 0;
+            }
+            
+            return `${hours.toString().padStart(2, '0')}:${minutes}`;
+        };
+        
+        window.deleteEvent = async (eventId, eventTitle) => {
+            if (!confirm(`Are you sure you want to delete "${eventTitle}"?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/schedule/${eventId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to delete event');
+                }
+                
+                alert('Event deleted successfully!');
+                await initializeSchedulePage(); // Refresh data
+            } catch (error) {
+                console.error('Failed to delete event:', error);
+                alert('Failed to delete event. Please try again.');
+            }
+        };
+        
+        const closeEditModal = () => editModal.classList.add('hidden');
+        closeEditModalBtn.addEventListener('click', closeEditModal);
+        cancelEditBtn.addEventListener('click', closeEditModal);
+        
+        editForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(editForm);
+            const eventData = Object.fromEntries(formData.entries());
+            const eventId = eventData.id;
+            delete eventData.id; // Remove id from body, it's in the URL
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/schedule/${eventId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(eventData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to update event');
+                }
+                
+                alert('Event updated successfully!');
+                closeEditModal();
+                await initializeSchedulePage(); // Refresh data
+            } catch (error) {
+                console.error('Failed to update event:', error);
+                alert('Failed to update event. Please try again.');
             }
         });
 
