@@ -508,6 +508,20 @@
             }
         }
         
+        // Helper to escape HTML to prevent XSS and display issues
+        const escapeHtml = (text) => {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        };
+        
+        // Helper to truncate long text
+        const truncate = (text, maxLength = 100) => {
+            if (!text || text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        };
+
         function renderDailySchedule(dateStr) {
             dailyScheduleEl.innerHTML = '';
             if (!dateStr) {
@@ -525,15 +539,17 @@
                 const eventTypeClass = `bg-${event.type === 'game' ? 'blue' : event.type === 'practice' ? 'green' : 'orange'}-500`;
                 const coachName = allCoaches.find(c => c.id == event.coach_id)?.name || 'N/A';
                 const teamName = allTeams.find(t => t.id == event.team_id)?.name || 'N/A';
+                const safeLocation = escapeHtml(truncate(event.location, 50));
+                const safeNotes = escapeHtml(truncate(event.notes, 150));
 
                 dailyScheduleEl.innerHTML += `
                     <div class="bg-gray-50 p-3 rounded-lg border-l-4 border-${event.type === 'game' ? 'blue' : event.type === 'practice' ? 'green' : 'orange'}-500">
-                        <p class="font-bold text-purple-800">${event.title}</p>
-                        <p class="text-sm text-gray-600"><i class="far fa-clock mr-2"></i>${event.time}</p>
-                        <p class="text-sm text-gray-600"><i class="fas fa-map-marker-alt mr-2"></i>${event.location}</p>
-                        <p class="text-sm text-gray-600"><i class="fas fa-users mr-2"></i>${teamName}</p>
-                        <p class="text-sm text-gray-600"><i class="fas fa-user mr-2"></i>${coachName}</p>
-                        ${event.notes ? `<p class="text-xs text-gray-500 mt-2"><em>${event.notes}</em></p>` : ''}
+                        <p class="font-bold text-purple-800">${escapeHtml(event.title)}</p>
+                        <p class="text-sm text-gray-600"><i class="far fa-clock mr-2"></i>${escapeHtml(event.time)}</p>
+                        <p class="text-sm text-gray-600"><i class="fas fa-map-marker-alt mr-2"></i>${safeLocation}</p>
+                        <p class="text-sm text-gray-600"><i class="fas fa-users mr-2"></i>${escapeHtml(teamName)}</p>
+                        <p class="text-sm text-gray-600"><i class="fas fa-user mr-2"></i>${escapeHtml(coachName)}</p>
+                        ${safeNotes ? `<p class="text-xs text-gray-500 mt-2"><em>${safeNotes}</em></p>` : ''}
                     </div>
                 `;
             });
@@ -550,15 +566,17 @@
             }
             upcoming.forEach(event => {
                  upcomingEventsAccordionEl.innerHTML += `
-                    <div>
+                    <div class="mb-2">
                         <button class="accordion-toggle w-full text-left p-3 bg-gray-100 hover:bg-gray-200 rounded-md flex justify-between items-center">
-                            <span class="font-semibold">${event.title}</span>
-                            <i class="fas fa-chevron-down transition-transform"></i>
+                            <span class="font-semibold text-gray-800">${escapeHtml(event.title)}</span>
+                            <i class="fas fa-chevron-down transition-transform duration-200"></i>
                         </button>
-                        <div class="accordion-content p-3 bg-white border border-t-0 rounded-b-md">
-                            <p><strong>Date:</strong> ${new Date(event.date.replace(/-/g, '/')).toLocaleDateString()}</p>
-                            <p><strong>Time:</strong> ${event.time}</p>
-                            <p><strong>Location:</strong> ${event.location}</p>
+                        <div class="accordion-content overflow-hidden max-h-0 transition-all duration-200">
+                            <div class="p-3 bg-white border border-t-0 border-gray-200 rounded-b-md">
+                                <p class="text-sm text-gray-700"><strong>Date:</strong> ${new Date(event.date.replace(/-/g, '/')).toLocaleDateString()}</p>
+                                <p class="text-sm text-gray-700"><strong>Time:</strong> ${escapeHtml(event.time)}</p>
+                                <p class="text-sm text-gray-700"><strong>Location:</strong> ${escapeHtml(truncate(event.location, 40))}</p>
+                            </div>
                         </div>
                     </div>
                 `;

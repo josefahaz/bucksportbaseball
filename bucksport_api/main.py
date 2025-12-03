@@ -371,6 +371,18 @@ def request_new_event(request: EventRequest, session: Session = Depends(get_sess
     logger.info(f"Created new event: {event.title} on {event.date}")
     return {"status": "success", "message": "Event created successfully.", "id": event.id}
 
+@app.delete("/api/schedule/{event_id}")
+def delete_event(event_id: int, session: Session = Depends(get_session)):
+    """Delete a scheduled event."""
+    event = session.get(ScheduleEvent, event_id)
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    session.delete(event)
+    session.commit()
+    logger.info(f"Deleted event: {event.title} (ID: {event_id})")
+    return {"status": "success", "message": "Event deleted successfully."}
+
 # ----------------- Inventory endpoints -----------------
 @app.get("/api/inventory")
 def get_inventory(session: Session = Depends(get_session)):
