@@ -892,6 +892,167 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // --- Edit and Delete Handlers ---
+    let currentEditId = null;
+    
+    // Use event delegation for dynamically created buttons
+    if (inventoryTableBody) {
+        inventoryTableBody.addEventListener('click', async (e) => {
+            const editBtn = e.target.closest('.edit-btn');
+            const deleteBtn = e.target.closest('.delete-btn');
+            
+            if (editBtn) {
+                const itemId = editBtn.getAttribute('data-id');
+                await handleEdit(itemId);
+            } else if (deleteBtn) {
+                const itemId = deleteBtn.getAttribute('data-id');
+                await handleDelete(itemId);
+            }
+        });
+    }
+    
+    async function handleEdit(itemId) {
+        // Find the item in allInventory
+        const item = allInventory.find(i => i.id == itemId);
+        if (!item) {
+            alert('Item not found');
+            return;
+        }
+        
+        currentEditId = itemId;
+        
+        // Populate modal with item data
+        document.getElementById('itemName').value = item.name;
+        document.getElementById('category').value = item.category;
+        document.getElementById('size').value = item.size || '';
+        document.getElementById('quantity').value = item.quantity;
+        document.getElementById('status').value = item.status;
+        document.getElementById('notes').value = item.notes || '';
+        
+        // Populate dropdowns
+        await populateModalDropdowns();
+        
+        // Set team and coach if they exist
+        if (item.team && item.team.id) {
+            document.getElementById('itemTeam').value = item.team.id;
+        }
+        if (item.assigned_coach && item.assigned_coach.id) {
+            document.getElementById('assignedCoach').value = item.assigned_coach.id;
+        }
+        
+        // Change modal title
+        document.querySelector('#itemModal h2').textContent = 'Edit Inventory Item';
+        
+        // Show modal
+        itemModal.style.display = 'flex';
+    }
+    
+    async function handleDelete(itemId) {
+        const item = allInventory.find(i => i.id == itemId);
+        if (!item) {
+            alert('Item not found');
+            return;
+        }
+        
+        if (!confirm(`Are you sure you want to delete "${item.name}"?`)) {
+            return;
+        }
+        
+        try {
+            const response = await fetch(`${API_BASE_URL}/inventory/${itemId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to delete item');
+            }
+            
+            // Log activity
+            if (activityLogger) {
+                activityLogger.logActivity('Item Deleted', `Deleted item: ${item.name}`);
+            }
+            
+            alert('Item deleted successfully!');
+            await initializePage();
+        } catch (error) {
+            console.error('Failed to delete item:', error);
+            alert('Failed to delete item. Please try again.');
+        }
+    }
+    
+    // Update form submission to handle both create and update
+    if (itemForm) {
+        itemForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(itemForm);
+            const itemData = {
+                name: formData.get('itemName'),
+                category: formData.get('category'),
+                size: formData.get('size') || null,
+                team: formData.get('team') || null,
+                assigned_coach: formData.get('assignedCoach') === 'unassigned' ? null : formData.get('assignedCoach'),
+                quantity: parseInt(formData.get('quantity')),
+                status: formData.get('status'),
+                notes: formData.get('notes') || ''
+            };
+            
+            try {
+                let response;
+                if (currentEditId) {
+                    // Update existing item
+                    response = await fetch(`${API_BASE_URL}/inventory/${currentEditId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(itemData)
+                    });
+                } else {
+                    // Create new item (TODO: implement POST endpoint)
+                    console.log('New item to save:', itemData);
+                    alert('Create functionality not yet implemented');
+                    return;
+                }
+                
+                if (!response.ok) {
+                    throw new Error('Failed to save item');
+                }
+                
+                // Log activity
+                if (activityLogger) {
+                    const action = currentEditId ? 'Item Updated' : 'Item Added';
+                    const message = currentEditId ? `Updated item: ${itemData.name}` : `Added new item: ${itemData.name}`;
+                    activityLogger.logActivity(action, message);
+                }
+                
+                alert(currentEditId ? 'Item updated successfully!' : 'Item added successfully!');
+                closeModal();
+                currentEditId = null;
+                
+                // Reset modal title
+                document.querySelector('#itemModal h2').textContent = 'Add New Inventory Item';
+                
+                // Refresh the inventory
+                await initializePage();
+            } catch (error) {
+                console.error('Failed to save item:', error);
+                alert('Failed to save item. Please try again.');
+            }
+        });
+    }
+    
+    // Reset currentEditId when closing modal
+    const originalCloseModal = closeModal;
+    closeModal = () => {
+        currentEditId = null;
+        document.querySelector('#itemModal h2').textContent = 'Add New Inventory Item';
+        originalCloseModal();
+    };
+
     // --- Initial Load ---
     initializePage();
 });

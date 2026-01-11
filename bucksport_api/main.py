@@ -480,5 +480,54 @@ def get_inventory_statuses():
     # Return standard inventory statuses
     return ["Available", "Checked Out", "Needs Repair", "Retired"]
 
+@app.put("/api/inventory/{item_id}")
+def update_inventory_item(item_id: int, item_data: dict, session: Session = Depends(get_session)):
+    """Update an inventory item."""
+    item = session.get(InventoryItem, item_id)
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+    
+    # Update fields
+    if "name" in item_data:
+        item.item_name = item_data["name"]
+    if "category" in item_data:
+        item.category = item_data["category"]
+    if "division" in item_data:
+        item.division = item_data["division"]
+    if "size" in item_data:
+        item.size = item_data["size"]
+    if "team" in item_data:
+        item.team = item_data["team"]
+    if "assigned_coach" in item_data:
+        item.assigned_coach = item_data["assigned_coach"]
+    if "quantity" in item_data:
+        item.quantity = item_data["quantity"]
+    if "status" in item_data:
+        item.status = item_data["status"]
+    if "notes" in item_data:
+        item.notes = item_data["notes"]
+    
+    item.last_updated = datetime.utcnow()
+    session.add(item)
+    session.commit()
+    session.refresh(item)
+    
+    logger.info(f"Updated inventory item: {item.item_name} (ID: {item_id})")
+    return {"status": "success", "message": "Item updated successfully"}
+
+@app.delete("/api/inventory/{item_id}")
+def delete_inventory_item(item_id: int, session: Session = Depends(get_session)):
+    """Delete an inventory item."""
+    item = session.get(InventoryItem, item_id)
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+    
+    item_name = item.item_name
+    session.delete(item)
+    session.commit()
+    
+    logger.info(f"Deleted inventory item: {item_name} (ID: {item_id})")
+    return {"status": "success", "message": "Item deleted successfully"}
+
 # Mount the static directory to serve frontend files. This should be last.
 app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
