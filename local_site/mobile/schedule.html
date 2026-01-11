@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Bucksport Little League - Schedule</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background-color: #4b2d72;
+      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.5;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+    
+    .mobile-header {
+      background-color: #4b2d72;
+      padding: 1rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    
+    .mobile-header h1 {
+      color: #ffc72c;
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 0;
+    }
+    
+    .hamburger-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.5rem;
+    }
+    
+    .mobile-menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0,0,0,0.5);
+      z-index: 1001;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .mobile-menu-overlay.active {
+      display: block;
+      opacity: 1;
+    }
+    
+    .mobile-menu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 280px;
+      height: 100vh;
+      background-color: #4b2d72;
+      z-index: 1002;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+    
+    .mobile-menu.active {
+      transform: translateX(0);
+    }
+    
+    .mobile-menu-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 1rem;
+    }
+    
+    .mobile-menu-header h2 {
+      color: #ffc72c;
+      font-size: 1.25rem;
+      margin: 0;
+    }
+    
+    .close-menu-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    
+    .mobile-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .mobile-nav a {
+      color: white;
+      text-decoration: none;
+      padding: 0.875rem 1rem;
+      border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: all 0.2s;
+      font-size: 1rem;
+    }
+    
+    .mobile-nav a:hover, .mobile-nav a.active {
+      background-color: #ffc72c;
+      color: #4b2d72;
+    }
+    
+    .mobile-nav a i {
+      width: 1.5rem;
+      text-align: center;
+    }
+    
+    .mobile-content {
+      padding: 1rem;
+      padding-top: 5rem;
+      padding-bottom: 2rem;
+    }
+    
+    .mobile-card {
+      background: white;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .mobile-card h2 {
+      color: #4b2d72;
+      font-size: 1rem;
+      font-weight: 700;
+      margin: 0 0 0.75rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #ffc72c;
+    }
+    
+    /* Calendar */
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+    
+    .calendar-nav-btn {
+      background: #f3f4f6;
+      border: none;
+      padding: 0.5rem;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      color: #4b2d72;
+    }
+    
+    .calendar-month {
+      color: #4b2d72;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+    
+    .calendar-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.125rem;
+      margin-bottom: 0.25rem;
+    }
+    
+    .calendar-weekday {
+      text-align: center;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      color: #666;
+      padding: 0.25rem;
+    }
+    
+    .calendar-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.125rem;
+    }
+    
+    .calendar-day {
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      border-radius: 0.25rem;
+      cursor: pointer;
+      position: relative;
+      background: #f9fafb;
+    }
+    
+    .calendar-day.empty {
+      background: transparent;
+    }
+    
+    .calendar-day.today {
+      background: #e0e7ff;
+      font-weight: 700;
+    }
+    
+    .calendar-day.selected {
+      background: #fef3c7;
+      border: 2px solid #ffc72c;
+    }
+    
+    .calendar-day.has-events::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #4b2d72;
+    }
+    
+    /* Legend */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+      font-size: 0.75rem;
+      color: #666;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    
+    .dot-game { background: #3b82f6; }
+    .dot-practice { background: #22c55e; }
+    .dot-event { background: #f97316; }
+    
+    /* Events */
+    .event-card {
+      background: #f9fafb;
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+      border-left: 3px solid #4b2d72;
+    }
+    
+    .event-card.game { border-left-color: #3b82f6; }
+    .event-card.practice { border-left-color: #22c55e; }
+    .event-card.event { border-left-color: #f97316; }
+    
+    .event-title {
+      color: #4b2d72;
+      font-weight: 600;
+      font-size: 0.9375rem;
+      margin-bottom: 0.25rem;
+    }
+    
+    .event-detail {
+      color: #666;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-top: 0.125rem;
+    }
+    
+    .event-detail i {
+      color: #4b2d72;
+      width: 0.875rem;
+    }
+    
+    /* Buttons */
+    .btn-success {
+      background-color: #10b981;
+      color: white;
+      border: none;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .btn-primary {
+      background-color: #4b2d72;
+      color: white;
+      border: none;
+      padding: 0.625rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    
+    .filter-select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 0.375rem;
+      font-size: 0.8125rem;
+      color: #333;
+      background: white;
+      margin-bottom: 0.5rem;
+    }
+    
+    .mobile-logo {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    
+    .mobile-logo img {
+      height: 50px;
+    }
+    
+    .mobile-logo h1 {
+      color: #ffc72c;
+      font-size: 1.125rem;
+      margin-top: 0.5rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .mobile-logo p {
+      color: rgba(255,255,255,0.8);
+      font-size: 0.8125rem;
+      margin-top: 0.25rem;
+    }
+    
+    .desktop-link {
+      text-align: center;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .desktop-link a {
+      color: #ffc72c;
+      text-decoration: underline;
+      font-size: 0.875rem;
+    }
+    
+    .empty-message {
+      color: #666;
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Mobile Header -->
+  <header class="mobile-header">
+    <button class="hamburger-btn" id="openMenuBtn">
+      <i class="fas fa-bars"></i>
+    </button>
+    <h1>Schedule</h1>
+    <div style="width: 40px;"></div>
+  </header>
+  
+  <!-- Mobile Menu Overlay -->
+  <div class="mobile-menu-overlay" id="menuOverlay"></div>
+  
+  <!-- Mobile Slide-out Menu -->
+  <nav class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-header">
+      <h2>Menu</h2>
+      <button class="close-menu-btn" id="closeMenuBtn">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="mobile-nav">
+      <a href="index.html"><i class="fas fa-home"></i> Home</a>
+      <a href="teams.html"><i class="fas fa-users"></i> Teams</a>
+      <a href="coach-dashboard.html"><i class="fas fa-tachometer-alt"></i> Coach Dashboard</a>
+      <a href="inventory.html"><i class="fas fa-tshirt"></i> Equipment Inventory</a>
+      <a href="schedule.html" class="active"><i class="fas fa-calendar-alt"></i> Schedule</a>
+      <a href="concessions.html"><i class="fas fa-hamburger"></i> Concessions</a>
+      <a href="event_concessions.html"><i class="fas fa-clipboard-list"></i> Event Concessions</a>
+      <a href="fundraising.html"><i class="fas fa-hand-holding-usd"></i> Fundraising & Donations</a>
+    </div>
+  </nav>
+  
+  <!-- Main Content -->
+  <main class="mobile-content">
+    <!-- Logo -->
+    <div class="mobile-logo">
+      <img src="../images/logo.png" alt="Bucksport Little League">
+      <h1>League Schedule</h1>
+      <p>View games, practices, and events</p>
+    </div>
+    
+    <!-- Activity Log Button -->
+    <button id="viewActivityLog" class="btn-success">
+      <i class="fas fa-history"></i> Activity Log
+    </button>
+    
+    <!-- Filters -->
+    <div class="mobile-card">
+      <h2><i class="fas fa-filter"></i> Filters</h2>
+      <select class="filter-select" id="teamFilter">
+        <option value="all">All Teams</option>
+      </select>
+      <select class="filter-select" id="locationFilter">
+        <option value="all">All Locations</option>
+      </select>
+      <div class="legend">
+        <div class="legend-item"><span class="legend-dot dot-game"></span> Game</div>
+        <div class="legend-item"><span class="legend-dot dot-practice"></span> Practice</div>
+        <div class="legend-item"><span class="legend-dot dot-event"></span> Event</div>
+      </div>
+    </div>
+    
+    <!-- Calendar -->
+    <div class="mobile-card">
+      <div class="calendar-header">
+        <button class="calendar-nav-btn" id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+        <span class="calendar-month" id="currentMonth">December 2025</span>
+        <button class="calendar-nav-btn" id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+      </div>
+      <div class="calendar-weekdays">
+        <div class="calendar-weekday">Sun</div>
+        <div class="calendar-weekday">Mon</div>
+        <div class="calendar-weekday">Tue</div>
+        <div class="calendar-weekday">Wed</div>
+        <div class="calendar-weekday">Thu</div>
+        <div class="calendar-weekday">Fri</div>
+        <div class="calendar-weekday">Sat</div>
+      </div>
+      <div class="calendar-days" id="calendarDays">
+        <!-- Calendar days will be generated by JS -->
+      </div>
+    </div>
+    
+    <!-- Selected Day Events -->
+    <div class="mobile-card">
+      <h2 id="selectedDayTitle"><i class="fas fa-calendar-day"></i> Today's Events</h2>
+      <div id="dayEvents">
+        <p class="empty-message">Select a day to see events</p>
+      </div>
+    </div>
+    
+    <!-- Upcoming Events -->
+    <div class="mobile-card">
+      <h2><i class="fas fa-clock"></i> Upcoming Events</h2>
+      <div id="upcomingEvents">
+        <p class="empty-message">Loading events...</p>
+      </div>
+    </div>
+    
+    <!-- Desktop Version Link -->
+    <div class="desktop-link">
+      <a href="#" onclick="switchToDesktop(); return false;">
+        <i class="fas fa-desktop"></i> Switch to Desktop Version
+      </a>
+    </div>
+  </main>
+
+  <!-- Activity Log Modal -->
+  <div id="activityLogModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg w-full max-w-lg max-h-[90vh] overflow-hidden mx-4">
+      <div class="flex justify-between items-center border-b p-4 bg-purple-700 text-white">
+        <h3 class="text-lg font-semibold"><i class="fas fa-history mr-2"></i>Activity Log</h3>
+        <button id="closeActivityLog" class="text-white hover:text-gray-200 text-xl">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div id="activityLogContent" class="overflow-y-auto max-h-[calc(90vh-4rem)] p-4">
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/mobile-detect.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/api.js"></script>
+  <script>
+    // Mobile Menu Toggle
+    const openMenuBtn = document.getElementById('openMenuBtn');
+    const closeMenuBtn = document.getElementById('closeMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuOverlay = document.getElementById('menuOverlay');
+    
+    function openMenu() {
+      mobileMenu.classList.add('active');
+      menuOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closeMenu() {
+      mobileMenu.classList.remove('active');
+      menuOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+    
+    openMenuBtn.addEventListener('click', openMenu);
+    closeMenuBtn.addEventListener('click', closeMenu);
+    menuOverlay.addEventListener('click', closeMenu);
+    
+    // Activity Log
+    let activityLog = JSON.parse(localStorage.getItem('schedule_activity_log') || '[]');
+    
+    function logActivity(action, details) {
+      const entry = { timestamp: new Date().toISOString(), action, details };
+      activityLog.unshift(entry);
+      if (activityLog.length > 100) activityLog = activityLog.slice(0, 100);
+      localStorage.setItem('schedule_activity_log', JSON.stringify(activityLog));
+    }
+    
+    function renderActivityLog() {
+      const container = document.getElementById('activityLogContent');
+      if (activityLog.length === 0) {
+        container.innerHTML = '<p style="color: #666; text-align: center; padding: 2rem;">No activity recorded yet.</p>';
+        return;
+      }
+      
+      container.innerHTML = activityLog.map(entry => {
+        const time = new Date(entry.timestamp).toLocaleString();
+        return `
+          <div style="border-bottom: 1px solid #e5e7eb; padding: 0.75rem 0;">
+            <p style="font-weight: 600; color: #4b2d72;">${entry.action}</p>
+            <p style="font-size: 0.875rem; color: #666;">${entry.details || ''}</p>
+            <p style="font-size: 0.75rem; color: #999; margin-top: 0.25rem;">${time}</p>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    document.getElementById('viewActivityLog').addEventListener('click', () => {
+      renderActivityLog();
+      document.getElementById('activityLogModal').classList.remove('hidden');
+    });
+    
+    document.getElementById('closeActivityLog').addEventListener('click', () => {
+      document.getElementById('activityLogModal').classList.add('hidden');
+    });
+    
+    // Calendar State
+    let currentDate = new Date();
+    let selectedDate = null;
+    let allScheduleData = [];
+    
+    // Calendar Functions
+    function formatDate(date) {
+      const d = new Date(date);
+      d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
+      return d.toISOString().split('T')[0];
+    }
+    
+    function generateCalendar(year, month) {
+      const container = document.getElementById('calendarDays');
+      const monthLabel = document.getElementById('currentMonth');
+      
+      monthLabel.textContent = new Date(year, month).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const daysInMonth = lastDay.getDate();
+      const startDayOfWeek = firstDay.getDay();
+      
+      let html = '';
+      
+      // Empty cells for days before the 1st
+      for (let i = 0; i < startDayOfWeek; i++) {
+        html += '<div class="calendar-day empty"></div>';
+      }
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      for (let day = 1; day <= daysInMonth; day++) {
+        const fullDate = new Date(year, month, day);
+        const dateStr = formatDate(fullDate);
+        const events = allScheduleData.filter(e => e.date === dateStr);
+        
+        let classes = 'calendar-day';
+        if (fullDate.getTime() === today.getTime()) classes += ' today';
+        if (selectedDate === dateStr) classes += ' selected';
+        if (events.length > 0) classes += ' has-events';
+        
+        html += `<div class="${classes}" data-date="${dateStr}" onclick="selectDate('${dateStr}')">${day}</div>`;
+      }
+      
+      container.innerHTML = html;
+    }
+    
+    window.selectDate = function(dateStr) {
+      selectedDate = dateStr;
+      generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+      renderDayEvents(dateStr);
+    };
+    
+    function renderDayEvents(dateStr) {
+      const container = document.getElementById('dayEvents');
+      const title = document.getElementById('selectedDayTitle');
+      
+      const date = new Date(dateStr.replace(/-/g, '/'));
+      title.innerHTML = `<i class="fas fa-calendar-day"></i> ${date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}`;
+      
+      const events = allScheduleData.filter(e => e.date === dateStr);
+      
+      if (events.length === 0) {
+        container.innerHTML = '<p class="empty-message">No events scheduled for this day.</p>';
+        return;
+      }
+      
+      container.innerHTML = events.map(event => `
+        <div class="event-card ${event.type}">
+          <div class="event-title">${event.title}</div>
+          <div class="event-detail"><i class="far fa-clock"></i> ${event.time}</div>
+          <div class="event-detail"><i class="fas fa-map-marker-alt"></i> ${event.location}</div>
+        </div>
+      `).join('');
+    }
+    
+    function renderUpcomingEvents() {
+      const container = document.getElementById('upcomingEvents');
+      const today = formatDate(new Date());
+      
+      const upcoming = allScheduleData
+        .filter(e => e.date >= today)
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .slice(0, 5);
+      
+      if (upcoming.length === 0) {
+        container.innerHTML = '<p class="empty-message">No upcoming events.</p>';
+        return;
+      }
+      
+      container.innerHTML = upcoming.map(event => {
+        const date = new Date(event.date.replace(/-/g, '/'));
+        const dateStr = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        return `
+          <div class="event-card ${event.type}">
+            <div class="event-title">${event.title}</div>
+            <div class="event-detail"><i class="far fa-calendar"></i> ${dateStr}</div>
+            <div class="event-detail"><i class="far fa-clock"></i> ${event.time}</div>
+            <div class="event-detail"><i class="fas fa-map-marker-alt"></i> ${event.location}</div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    // Navigation
+    document.getElementById('prevMonth').addEventListener('click', () => {
+      currentDate.setMonth(currentDate.getMonth() - 1);
+      generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+    });
+    
+    document.getElementById('nextMonth').addEventListener('click', () => {
+      currentDate.setMonth(currentDate.getMonth() + 1);
+      generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+    });
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const [schedule, teams, locations] = await Promise.all([
+          fetchSchedule(),
+          fetchTeams(),
+          fetchLocations()
+        ]);
+        
+        allScheduleData = schedule;
+        
+        // Populate filters
+        const teamFilter = document.getElementById('teamFilter');
+        teams.forEach(team => {
+          const option = document.createElement('option');
+          option.value = team.id;
+          option.textContent = team.name;
+          teamFilter.appendChild(option);
+        });
+        
+        const locationFilter = document.getElementById('locationFilter');
+        locations.forEach(loc => {
+          const option = document.createElement('option');
+          option.value = loc;
+          option.textContent = loc;
+          locationFilter.appendChild(option);
+        });
+        
+        generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+        renderUpcomingEvents();
+        
+        // Select today by default
+        const today = formatDate(new Date());
+        selectDate(today);
+        
+        logActivity('Page View', 'Schedule page loaded');
+        
+      } catch (error) {
+        console.error('Error loading schedule:', error);
+        document.getElementById('upcomingEvents').innerHTML = '<p style="color: #ef4444; text-align: center;">Failed to load schedule.</p>';
+      }
+    });
+  </script>
+</body>
+</html>

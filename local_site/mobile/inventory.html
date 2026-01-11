@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Bucksport Little League - Equipment Inventory</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background-color: #4b2d72;
+      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.5;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+    
+    .mobile-header {
+      background-color: #4b2d72;
+      padding: 1rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    
+    .mobile-header h1 {
+      color: #ffc72c;
+      font-size: 1.125rem;
+      font-weight: 700;
+      margin: 0;
+    }
+    
+    .hamburger-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.5rem;
+    }
+    
+    .mobile-menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0,0,0,0.5);
+      z-index: 1001;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .mobile-menu-overlay.active {
+      display: block;
+      opacity: 1;
+    }
+    
+    .mobile-menu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 280px;
+      height: 100vh;
+      background-color: #4b2d72;
+      z-index: 1002;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+    
+    .mobile-menu.active {
+      transform: translateX(0);
+    }
+    
+    .mobile-menu-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 1rem;
+    }
+    
+    .mobile-menu-header h2 {
+      color: #ffc72c;
+      font-size: 1.25rem;
+      margin: 0;
+    }
+    
+    .close-menu-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    
+    .mobile-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .mobile-nav a {
+      color: white;
+      text-decoration: none;
+      padding: 0.875rem 1rem;
+      border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: all 0.2s;
+      font-size: 1rem;
+    }
+    
+    .mobile-nav a:hover, .mobile-nav a.active {
+      background-color: #ffc72c;
+      color: #4b2d72;
+    }
+    
+    .mobile-nav a i {
+      width: 1.5rem;
+      text-align: center;
+    }
+    
+    .mobile-content {
+      padding: 1rem;
+      padding-top: 5rem;
+      padding-bottom: 2rem;
+    }
+    
+    .mobile-card {
+      background: white;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .mobile-card h2 {
+      color: #4b2d72;
+      font-size: 1rem;
+      font-weight: 700;
+      margin: 0 0 0.75rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #ffc72c;
+    }
+    
+    /* Summary Cards */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    
+    .summary-card {
+      background: white;
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    
+    .summary-card .label {
+      color: #666;
+      font-size: 0.75rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      margin-bottom: 0.25rem;
+    }
+    
+    .summary-card .value {
+      color: #111;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+    
+    /* Filter Section */
+    .filter-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    .filter-select {
+      width: 100%;
+      padding: 0.625rem;
+      border: 1px solid #ddd;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+      color: #333;
+      background: white;
+    }
+    
+    /* Inventory Items */
+    .inventory-item {
+      background: #f9fafb;
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+      border-left: 3px solid #4b2d72;
+    }
+    
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.5rem;
+    }
+    
+    .item-name {
+      color: #4b2d72;
+      font-weight: 600;
+      font-size: 0.9375rem;
+    }
+    
+    .item-qty {
+      background: #4b2d72;
+      color: white;
+      padding: 0.125rem 0.5rem;
+      border-radius: 1rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    
+    .item-details {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.25rem;
+      font-size: 0.75rem;
+      color: #666;
+    }
+    
+    .item-detail {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    
+    .item-detail i {
+      color: #4b2d72;
+      width: 0.875rem;
+    }
+    
+    /* Status Badges */
+    .badge {
+      display: inline-block;
+      padding: 0.125rem 0.5rem;
+      border-radius: 1rem;
+      font-size: 0.6875rem;
+      font-weight: 600;
+    }
+    
+    .badge-success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    .badge-warning {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    
+    .badge-danger {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+    
+    /* Buttons */
+    .btn-success {
+      background-color: #10b981;
+      color: white;
+      border: none;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .btn-primary {
+      background-color: #4b2d72;
+      color: white;
+      border: none;
+      padding: 0.625rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    
+    .mobile-logo {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    
+    .mobile-logo img {
+      height: 50px;
+    }
+    
+    .mobile-logo h1 {
+      color: #ffc72c;
+      font-size: 1.125rem;
+      margin-top: 0.5rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .desktop-link {
+      text-align: center;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .desktop-link a {
+      color: #ffc72c;
+      text-decoration: underline;
+      font-size: 0.875rem;
+    }
+    
+    .empty-message {
+      color: #666;
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.875rem;
+    }
+    
+    /* Division Badge */
+    .division-badge {
+      display: inline-block;
+      padding: 0.125rem 0.375rem;
+      border-radius: 0.25rem;
+      font-size: 0.625rem;
+      font-weight: 600;
+      color: white;
+    }
+    
+    .division-baseball {
+      background-color: #1e40af;
+    }
+    
+    .division-softball {
+      background-color: #be185d;
+    }
+    
+    .division-shared {
+      background-color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <!-- Mobile Header -->
+  <header class="mobile-header">
+    <button class="hamburger-btn" id="openMenuBtn">
+      <i class="fas fa-bars"></i>
+    </button>
+    <h1>Equipment Inventory</h1>
+    <div style="width: 40px;"></div>
+  </header>
+  
+  <!-- Mobile Menu Overlay -->
+  <div class="mobile-menu-overlay" id="menuOverlay"></div>
+  
+  <!-- Mobile Slide-out Menu -->
+  <nav class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-header">
+      <h2>Menu</h2>
+      <button class="close-menu-btn" id="closeMenuBtn">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="mobile-nav">
+      <a href="index.html"><i class="fas fa-home"></i> Home</a>
+      <a href="teams.html"><i class="fas fa-users"></i> Teams</a>
+      <a href="coach-dashboard.html"><i class="fas fa-tachometer-alt"></i> Coach Dashboard</a>
+      <a href="inventory.html" class="active"><i class="fas fa-tshirt"></i> Equipment Inventory</a>
+      <a href="schedule.html"><i class="fas fa-calendar-alt"></i> Schedule</a>
+      <a href="concessions.html"><i class="fas fa-hamburger"></i> Concessions</a>
+      <a href="event_concessions.html"><i class="fas fa-clipboard-list"></i> Event Concessions</a>
+      <a href="fundraising.html"><i class="fas fa-hand-holding-usd"></i> Fundraising & Donations</a>
+    </div>
+  </nav>
+  
+  <!-- Main Content -->
+  <main class="mobile-content">
+    <!-- Logo -->
+    <div class="mobile-logo">
+      <img src="../images/logo.png" alt="Bucksport Little League">
+      <h1>Equipment & Uniform Inventory</h1>
+    </div>
+    
+    <!-- Activity Log Button -->
+    <button id="viewActivityLog" class="btn-success">
+      <i class="fas fa-history"></i> Activity Log
+    </button>
+    
+    <!-- Summary Cards -->
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="label"><i class="fas fa-boxes"></i> Total Items</div>
+        <div class="value" id="totalItems">...</div>
+      </div>
+      <div class="summary-card">
+        <div class="label"><i class="fas fa-check-circle" style="color: #10b981;"></i> Available</div>
+        <div class="value" id="availableItems">...</div>
+      </div>
+      <div class="summary-card">
+        <div class="label"><i class="fas fa-sign-out-alt" style="color: #3b82f6;"></i> Checked Out</div>
+        <div class="value" id="checkedOutItems">...</div>
+      </div>
+      <div class="summary-card">
+        <div class="label"><i class="fas fa-tools" style="color: #f59e0b;"></i> Needs Repair</div>
+        <div class="value" id="needsRepairItems">...</div>
+      </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="mobile-card">
+      <h2><i class="fas fa-filter"></i> Filters</h2>
+      <div class="filter-section">
+        <select class="filter-select" id="divisionFilter">
+          <option value="">All Divisions</option>
+          <option value="Baseball">Baseball</option>
+          <option value="Softball">Softball</option>
+          <option value="Shared">Shared</option>
+        </select>
+        <select class="filter-select" id="categoryFilter">
+          <option value="">All Categories</option>
+        </select>
+        <select class="filter-select" id="statusFilter">
+          <option value="">All Statuses</option>
+        </select>
+      </div>
+      <button class="btn-primary" id="addItemBtn">
+        <i class="fas fa-plus"></i> Add New Item
+      </button>
+    </div>
+    
+    <!-- Inventory List -->
+    <div class="mobile-card">
+      <h2><i class="fas fa-list"></i> Inventory Items</h2>
+      <div id="inventoryList">
+        <p class="empty-message">Loading inventory...</p>
+      </div>
+    </div>
+    
+    <!-- Desktop Version Link -->
+    <div class="desktop-link">
+      <a href="#" onclick="switchToDesktop(); return false;">
+        <i class="fas fa-desktop"></i> Switch to Desktop Version
+      </a>
+    </div>
+  </main>
+
+  <!-- Activity Log Modal -->
+  <div id="activityLogModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg w-full max-w-lg max-h-[90vh] overflow-hidden mx-4">
+      <div class="flex justify-between items-center border-b p-4 bg-purple-700 text-white">
+        <h3 class="text-lg font-semibold"><i class="fas fa-history mr-2"></i>Activity Log</h3>
+        <button id="closeActivityLog" class="text-white hover:text-gray-200 text-xl">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div id="activityLogContent" class="overflow-y-auto max-h-[calc(90vh-4rem)] p-4">
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Item Modal -->
+  <div id="itemModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto mx-4 p-4">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-bold text-gray-800">Add New Item</h3>
+        <button id="closeItemModal" class="text-gray-500 hover:text-gray-700 text-xl">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <form id="itemForm">
+        <div class="mb-3">
+          <label class="block text-gray-700 text-sm font-bold mb-1">Item Name *</label>
+          <input class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" id="itemName" type="text" required>
+        </div>
+        <div class="mb-3">
+          <label class="block text-gray-700 text-sm font-bold mb-1">Category *</label>
+          <select class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" id="itemCategory" required>
+            <option value="">Select Category</option>
+            <option value="jersey">Jersey</option>
+            <option value="pants">Pants</option>
+            <option value="hat">Hat</option>
+            <option value="cleats">Cleats</option>
+            <option value="bat">Bat</option>
+            <option value="glove">Glove</option>
+            <option value="helmet">Helmet</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3 mb-3">
+          <div>
+            <label class="block text-gray-700 text-sm font-bold mb-1">Size</label>
+            <input class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" id="itemSize" type="text" placeholder="M, L, XL...">
+          </div>
+          <div>
+            <label class="block text-gray-700 text-sm font-bold mb-1">Quantity *</label>
+            <input class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" id="itemQty" type="number" min="0" value="1" required>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="block text-gray-700 text-sm font-bold mb-1">Status *</label>
+          <select class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" id="itemStatus" required>
+            <option value="in-stock">In Stock</option>
+            <option value="low-stock">Low Stock</option>
+            <option value="out-of-stock">Out of Stock</option>
+            <option value="needs-repair">Needs Repair</option>
+          </select>
+        </div>
+        <div class="flex gap-3 mt-4">
+          <button type="button" id="cancelItemBtn" class="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white text-sm">Cancel</button>
+          <button type="submit" class="flex-1 px-4 py-2 bg-purple-700 text-white rounded-md text-sm">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/mobile-detect.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/api.js"></script>
+  <script>
+    // Mobile Menu Toggle
+    const openMenuBtn = document.getElementById('openMenuBtn');
+    const closeMenuBtn = document.getElementById('closeMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuOverlay = document.getElementById('menuOverlay');
+    
+    function openMenu() {
+      mobileMenu.classList.add('active');
+      menuOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closeMenu() {
+      mobileMenu.classList.remove('active');
+      menuOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+    
+    openMenuBtn.addEventListener('click', openMenu);
+    closeMenuBtn.addEventListener('click', closeMenu);
+    menuOverlay.addEventListener('click', closeMenu);
+    
+    // Activity Log
+    let activityLog = JSON.parse(localStorage.getItem('inventory_activity_log') || '[]');
+    
+    function logActivity(action, details) {
+      const entry = { timestamp: new Date().toISOString(), action, details };
+      activityLog.unshift(entry);
+      if (activityLog.length > 100) activityLog = activityLog.slice(0, 100);
+      localStorage.setItem('inventory_activity_log', JSON.stringify(activityLog));
+    }
+    
+    function renderActivityLog() {
+      const container = document.getElementById('activityLogContent');
+      if (activityLog.length === 0) {
+        container.innerHTML = '<p style="color: #666; text-align: center; padding: 2rem;">No activity recorded yet.</p>';
+        return;
+      }
+      
+      container.innerHTML = activityLog.map(entry => {
+        const time = new Date(entry.timestamp).toLocaleString();
+        return `
+          <div style="border-bottom: 1px solid #e5e7eb; padding: 0.75rem 0;">
+            <p style="font-weight: 600; color: #4b2d72;">${entry.action}</p>
+            <p style="font-size: 0.875rem; color: #666;">${entry.details || ''}</p>
+            <p style="font-size: 0.75rem; color: #999; margin-top: 0.25rem;">${time}</p>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    document.getElementById('viewActivityLog').addEventListener('click', () => {
+      renderActivityLog();
+      document.getElementById('activityLogModal').classList.remove('hidden');
+    });
+    
+    document.getElementById('closeActivityLog').addEventListener('click', () => {
+      document.getElementById('activityLogModal').classList.add('hidden');
+    });
+    
+    // Item Modal
+    document.getElementById('addItemBtn').addEventListener('click', () => {
+      document.getElementById('itemModal').classList.remove('hidden');
+    });
+    
+    document.getElementById('closeItemModal').addEventListener('click', () => {
+      document.getElementById('itemModal').classList.add('hidden');
+    });
+    
+    document.getElementById('cancelItemBtn').addEventListener('click', () => {
+      document.getElementById('itemModal').classList.add('hidden');
+    });
+    
+    // Inventory Data
+    let allInventory = [];
+    
+    function getStatusBadge(status) {
+      const classes = {
+        'in-stock': 'badge-success',
+        'low-stock': 'badge-warning',
+        'out-of-stock': 'badge-danger',
+        'needs-repair': 'badge-warning'
+      };
+      const text = status.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      return `<span class="badge ${classes[status] || 'badge-success'}">${text}</span>`;
+    }
+    
+    function getDivisionBadge(division) {
+      if (!division) return '';
+      const cls = division.toLowerCase() === 'baseball' ? 'division-baseball' : 
+                  division.toLowerCase() === 'softball' ? 'division-softball' : 'division-shared';
+      return `<span class="division-badge ${cls}">${division}</span>`;
+    }
+    
+    function renderInventory(items) {
+      const container = document.getElementById('inventoryList');
+      
+      if (!items || items.length === 0) {
+        container.innerHTML = '<p class="empty-message">No inventory items found.</p>';
+        return;
+      }
+      
+      container.innerHTML = items.map(item => `
+        <div class="inventory-item">
+          <div class="item-header">
+            <div>
+              <div class="item-name">${item.name}</div>
+              ${getDivisionBadge(item.division)}
+            </div>
+            <span class="item-qty">x${item.quantity}</span>
+          </div>
+          <div class="item-details">
+            <div class="item-detail"><i class="fas fa-tag"></i> ${item.category}</div>
+            <div class="item-detail"><i class="fas fa-ruler"></i> ${item.size || 'N/A'}</div>
+            <div class="item-detail"><i class="fas fa-users"></i> ${item.team?.name || 'Unassigned'}</div>
+            <div class="item-detail">${getStatusBadge(item.status)}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const [inventory, summary] = await Promise.all([
+          fetchInventory(),
+          fetchInventorySummary()
+        ]);
+        
+        allInventory = inventory;
+        
+        // Update summary
+        document.getElementById('totalItems').textContent = summary.total_items || '0';
+        document.getElementById('availableItems').textContent = summary.available || '0';
+        document.getElementById('checkedOutItems').textContent = summary.checked_out || '0';
+        document.getElementById('needsRepairItems').textContent = summary.needs_repair || '0';
+        
+        renderInventory(allInventory);
+        logActivity('Page View', 'Inventory page loaded');
+        
+      } catch (error) {
+        console.error('Error loading inventory:', error);
+        document.getElementById('inventoryList').innerHTML = '<p style="color: #ef4444; text-align: center;">Failed to load inventory.</p>';
+      }
+    });
+    
+    // Filter handlers
+    document.getElementById('divisionFilter').addEventListener('change', filterInventory);
+    document.getElementById('categoryFilter').addEventListener('change', filterInventory);
+    document.getElementById('statusFilter').addEventListener('change', filterInventory);
+    
+    function filterInventory() {
+      const division = document.getElementById('divisionFilter').value;
+      const category = document.getElementById('categoryFilter').value;
+      const status = document.getElementById('statusFilter').value;
+      
+      let filtered = allInventory;
+      
+      if (division) filtered = filtered.filter(i => i.division === division);
+      if (category) filtered = filtered.filter(i => i.category === category);
+      if (status) filtered = filtered.filter(i => i.status === status);
+      
+      renderInventory(filtered);
+    }
+    
+    // Form submission
+    document.getElementById('itemForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const newItem = {
+        id: Date.now(),
+        name: document.getElementById('itemName').value,
+        category: document.getElementById('itemCategory').value,
+        size: document.getElementById('itemSize').value,
+        quantity: parseInt(document.getElementById('itemQty').value),
+        status: document.getElementById('itemStatus').value
+      };
+      
+      allInventory.push(newItem);
+      renderInventory(allInventory);
+      logActivity('Item Added', `Added ${newItem.name}`);
+      document.getElementById('itemModal').classList.add('hidden');
+      document.getElementById('itemForm').reset();
+    });
+  </script>
+</body>
+</html>

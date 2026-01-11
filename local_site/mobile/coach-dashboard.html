@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Bucksport Little League - Coach Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background-color: #4b2d72;
+      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.5;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+    
+    /* Mobile Header */
+    .mobile-header {
+      background-color: #4b2d72;
+      padding: 1rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    
+    .mobile-header h1 {
+      color: #ffc72c;
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 0;
+    }
+    
+    .hamburger-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.5rem;
+    }
+    
+    /* Mobile Menu */
+    .mobile-menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0,0,0,0.5);
+      z-index: 1001;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .mobile-menu-overlay.active {
+      display: block;
+      opacity: 1;
+    }
+    
+    .mobile-menu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 280px;
+      height: 100vh;
+      background-color: #4b2d72;
+      z-index: 1002;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+    
+    .mobile-menu.active {
+      transform: translateX(0);
+    }
+    
+    .mobile-menu-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 1rem;
+    }
+    
+    .mobile-menu-header h2 {
+      color: #ffc72c;
+      font-size: 1.25rem;
+      margin: 0;
+    }
+    
+    .close-menu-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    
+    .mobile-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .mobile-nav a {
+      color: white;
+      text-decoration: none;
+      padding: 0.875rem 1rem;
+      border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: all 0.2s;
+      font-size: 1rem;
+    }
+    
+    .mobile-nav a:hover, .mobile-nav a.active {
+      background-color: #ffc72c;
+      color: #4b2d72;
+    }
+    
+    .mobile-nav a i {
+      width: 1.5rem;
+      text-align: center;
+    }
+    
+    /* Main Content */
+    .mobile-content {
+      padding: 1rem;
+      padding-top: 5rem;
+      padding-bottom: 2rem;
+    }
+    
+    /* Cards */
+    .mobile-card {
+      background: white;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .mobile-card h2 {
+      color: #4b2d72;
+      font-size: 1.125rem;
+      font-weight: 700;
+      margin: 0 0 0.75rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #ffc72c;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    /* Coach Cards */
+    .coach-card {
+      background: #f9fafb;
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+      border-left: 3px solid #4b2d72;
+    }
+    
+    .coach-name {
+      color: #4b2d72;
+      font-weight: 600;
+      font-size: 0.9375rem;
+      margin-bottom: 0.25rem;
+    }
+    
+    .coach-role {
+      color: #666;
+      font-size: 0.8125rem;
+      margin-bottom: 0.25rem;
+    }
+    
+    .coach-contact {
+      color: #555;
+      font-size: 0.75rem;
+    }
+    
+    .coach-contact i {
+      color: #4b2d72;
+      width: 1rem;
+      margin-right: 0.25rem;
+    }
+    
+    /* Player Cards */
+    .player-card {
+      background: #f9fafb;
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+      border-left: 3px solid #10b981;
+    }
+    
+    .player-name {
+      color: #4b2d72;
+      font-weight: 600;
+      font-size: 0.9375rem;
+    }
+    
+    .player-info {
+      color: #666;
+      font-size: 0.8125rem;
+      margin-top: 0.25rem;
+    }
+    
+    .player-details {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.375rem;
+      padding: 0.5rem;
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+      color: #555;
+      display: none;
+    }
+    
+    .player-details.show {
+      display: block;
+    }
+    
+    /* Buttons */
+    .btn-primary {
+      background-color: #4b2d72;
+      color: white;
+      border: none;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    
+    .btn-success {
+      background-color: #10b981;
+      color: white;
+      border: none;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .btn-small {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.75rem;
+      width: auto;
+    }
+    
+    /* Filter Section */
+    .filter-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .filter-select {
+      width: 100%;
+      padding: 0.625rem;
+      border: 1px solid #ddd;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+      color: #333;
+      background: white;
+    }
+    
+    .filter-input {
+      width: 100%;
+      padding: 0.625rem;
+      border: 1px solid #ddd;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+    }
+    
+    /* Upload Section */
+    .upload-area {
+      background: #f9fafb;
+      border: 2px dashed #ddd;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    
+    .upload-area i {
+      font-size: 2rem;
+      color: #9ca3af;
+      margin-bottom: 0.5rem;
+    }
+    
+    .upload-area p {
+      color: #666;
+      font-size: 0.875rem;
+      margin: 0.5rem 0;
+    }
+    
+    /* Logo */
+    .mobile-logo {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    
+    .mobile-logo img {
+      height: 60px;
+    }
+    
+    .mobile-logo h1 {
+      color: #ffc72c;
+      font-size: 1.25rem;
+      margin-top: 0.5rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    /* Desktop Link */
+    .desktop-link {
+      text-align: center;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .desktop-link a {
+      color: #ffc72c;
+      text-decoration: underline;
+      font-size: 0.875rem;
+    }
+    
+    /* Expandable sections */
+    .expandable-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      padding: 0.5rem 0;
+    }
+    
+    .expandable-header i.toggle-icon {
+      transition: transform 0.3s ease;
+    }
+    
+    .expandable-header.expanded i.toggle-icon {
+      transform: rotate(180deg);
+    }
+    
+    .expandable-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    
+    .expandable-content.expanded {
+      max-height: 2000px;
+    }
+    
+    /* Status badges */
+    .status-approved {
+      color: #10b981;
+      font-weight: 600;
+      font-size: 0.75rem;
+    }
+    
+    .status-pending {
+      color: #f59e0b;
+      font-weight: 600;
+      font-size: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Mobile Header -->
+  <header class="mobile-header">
+    <button class="hamburger-btn" id="openMenuBtn">
+      <i class="fas fa-bars"></i>
+    </button>
+    <h1>Coach Dashboard</h1>
+    <div style="width: 40px;"></div>
+  </header>
+  
+  <!-- Mobile Menu Overlay -->
+  <div class="mobile-menu-overlay" id="menuOverlay"></div>
+  
+  <!-- Mobile Slide-out Menu -->
+  <nav class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-header">
+      <h2>Menu</h2>
+      <button class="close-menu-btn" id="closeMenuBtn">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="mobile-nav">
+      <a href="index.html"><i class="fas fa-home"></i> Home</a>
+      <a href="teams.html"><i class="fas fa-users"></i> Teams</a>
+      <a href="coach-dashboard.html" class="active"><i class="fas fa-tachometer-alt"></i> Coach Dashboard</a>
+      <a href="inventory.html"><i class="fas fa-tshirt"></i> Equipment Inventory</a>
+      <a href="schedule.html"><i class="fas fa-calendar-alt"></i> Schedule</a>
+      <a href="concessions.html"><i class="fas fa-hamburger"></i> Concessions</a>
+      <a href="event_concessions.html"><i class="fas fa-clipboard-list"></i> Event Concessions</a>
+      <a href="fundraising.html"><i class="fas fa-hand-holding-usd"></i> Fundraising & Donations</a>
+    </div>
+  </nav>
+  
+  <!-- Main Content -->
+  <main class="mobile-content">
+    <!-- Logo -->
+    <div class="mobile-logo">
+      <img src="../images/logo.png" alt="Bucksport Little League">
+      <h1>Coach Dashboard</h1>
+    </div>
+    
+    <!-- Activity Log Button -->
+    <button id="viewActivityLog" class="btn-success">
+      <i class="fas fa-history"></i> Activity Log
+    </button>
+    
+    <!-- Coaching Staff Section -->
+    <div class="mobile-card">
+      <div class="expandable-header" data-target="coachesContent">
+        <h2 style="margin: 0; border: none; padding: 0;"><i class="fas fa-user-tie"></i> Coaching Staff</h2>
+        <i class="fas fa-chevron-down toggle-icon"></i>
+      </div>
+      <div id="coachesContent" class="expandable-content expanded">
+        <button id="addCoachBtn" class="btn-primary btn-small" style="margin-bottom: 0.75rem; width: auto;">
+          <i class="fas fa-plus"></i> Add Coach
+        </button>
+        <div id="coachesGrid">
+          <p style="color: #666; text-align: center; padding: 1rem;">Loading coaches...</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Player Roster Upload Section -->
+    <div class="mobile-card">
+      <h2><i class="fas fa-file-upload"></i> Player Roster</h2>
+      <div class="upload-area">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <p>Upload a CSV file with your player roster</p>
+        <input type="file" id="csvFileInput" accept=".csv" style="display: none;">
+        <button onclick="document.getElementById('csvFileInput').click()" class="btn-primary" style="margin-top: 0.5rem;">
+          <i class="fas fa-file-csv"></i> Choose CSV File
+        </button>
+        <p style="font-size: 0.75rem; color: #999;">Supported format: CSV</p>
+      </div>
+      <div id="csvStatus" style="display: none; margin-top: 0.75rem;">
+        <div style="background: #d1fae5; border: 1px solid #10b981; border-radius: 0.375rem; padding: 0.75rem;">
+          <p style="color: #065f46; font-weight: 600; margin: 0;"><i class="fas fa-check-circle"></i> File uploaded!</p>
+          <p style="color: #047857; font-size: 0.75rem; margin: 0.25rem 0 0 0;" id="csvFileName"></p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Filters Section -->
+    <div class="mobile-card">
+      <h2><i class="fas fa-filter"></i> Filter Players</h2>
+      <div class="filter-section">
+        <button id="viewRosterBtn" class="btn-success btn-small" style="width: auto;">
+          <i class="fas fa-users"></i> View Roster
+        </button>
+        <select class="filter-select" id="teamFilter">
+          <option>All Teams</option>
+          <option>Baseball</option>
+          <option>Softball</option>
+        </select>
+        <select class="filter-select" id="ageFilter">
+          <option>All Age Groups</option>
+          <option>4-6</option>
+          <option>7-9</option>
+          <option>10-12</option>
+          <option>13+</option>
+        </select>
+        <select class="filter-select" id="statusFilter">
+          <option>All Statuses</option>
+          <option>Pending</option>
+          <option>Approved</option>
+          <option>Rejected</option>
+        </select>
+        <input type="text" placeholder="Search players..." class="filter-input" id="searchInput">
+      </div>
+    </div>
+    
+    <!-- Player List Section -->
+    <div class="mobile-card">
+      <h2><i class="fas fa-users"></i> Players</h2>
+      <div id="playerList">
+        <p style="color: #666; text-align: center; padding: 1rem;">No players found.</p>
+      </div>
+    </div>
+    
+    <!-- Desktop Version Link -->
+    <div class="desktop-link">
+      <a href="#" onclick="switchToDesktop(); return false;">
+        <i class="fas fa-desktop"></i> Switch to Desktop Version
+      </a>
+    </div>
+  </main>
+
+  <!-- Activity Log Modal -->
+  <div id="activityLogModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg w-full max-w-lg max-h-[90vh] overflow-hidden mx-4">
+      <div class="flex justify-between items-center border-b p-4 bg-purple-700 text-white">
+        <h3 class="text-lg font-semibold"><i class="fas fa-history mr-2"></i>Activity Log</h3>
+        <button id="closeActivityLog" class="text-white hover:text-gray-200 text-xl">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div id="activityLogContent" class="overflow-y-auto max-h-[calc(90vh-4rem)] p-4">
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Coach Modal -->
+  <div id="coachModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto mx-4 p-4">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold text-gray-800" id="coachModalTitle">Add New Coach</h3>
+        <button id="closeCoachModal" class="text-gray-500 hover:text-gray-700 text-xl">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <form id="coachForm">
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2">Full Name *</label>
+          <input class="w-full px-3 py-2 border border-gray-300 rounded-md" id="coachName" type="text" required>
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2">Email *</label>
+          <input class="w-full px-3 py-2 border border-gray-300 rounded-md" id="coachEmail" type="email" required>
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2">Phone</label>
+          <input class="w-full px-3 py-2 border border-gray-300 rounded-md" id="coachPhone" type="tel">
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2">Role *</label>
+          <select class="w-full px-3 py-2 border border-gray-300 rounded-md" id="coachRole" required>
+            <option value="Head Coach">Head Coach</option>
+            <option value="Assistant Coach">Assistant Coach</option>
+            <option value="Pitching Coach">Pitching Coach</option>
+            <option value="Hitting Coach">Hitting Coach</option>
+          </select>
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2">Team *</label>
+          <select class="w-full px-3 py-2 border border-gray-300 rounded-md" id="coachTeam" required>
+            <option value="Baseball Majors">Baseball Majors</option>
+            <option value="Baseball Minors">Baseball Minors</option>
+            <option value="Baseball Rookies">Baseball Rookies</option>
+            <option value="Softball Majors">Softball Majors</option>
+            <option value="Softball Minors">Softball Minors</option>
+            <option value="Softball Rookies">Softball Rookies</option>
+          </select>
+        </div>
+        <div class="flex gap-3">
+          <button type="button" id="cancelCoachBtn" class="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white">Cancel</button>
+          <button type="submit" class="flex-1 px-4 py-2 bg-purple-700 text-white rounded-md">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/mobile-detect.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/api.js"></script>
+  <script>
+    // Mobile Menu Toggle
+    const openMenuBtn = document.getElementById('openMenuBtn');
+    const closeMenuBtn = document.getElementById('closeMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuOverlay = document.getElementById('menuOverlay');
+    
+    function openMenu() {
+      mobileMenu.classList.add('active');
+      menuOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closeMenu() {
+      mobileMenu.classList.remove('active');
+      menuOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+    
+    openMenuBtn.addEventListener('click', openMenu);
+    closeMenuBtn.addEventListener('click', closeMenu);
+    menuOverlay.addEventListener('click', closeMenu);
+    
+    // Expandable sections
+    document.querySelectorAll('.expandable-header').forEach(header => {
+      header.addEventListener('click', () => {
+        const targetId = header.dataset.target;
+        const content = document.getElementById(targetId);
+        header.classList.toggle('expanded');
+        content.classList.toggle('expanded');
+      });
+    });
+    
+    // Activity Log
+    let activityLog = [];
+    
+    function renderActivityLog() {
+      const container = document.getElementById('activityLogContent');
+      if (activityLog.length === 0) {
+        container.innerHTML = '<p style="color: #666; text-align: center; padding: 2rem;">No activity recorded yet.</p>';
+        return;
+      }
+      
+      container.innerHTML = activityLog.map(entry => {
+        const time = new Date(entry.timestamp).toLocaleString();
+        return `
+          <div style="border-bottom: 1px solid #e5e7eb; padding: 0.75rem 0;">
+            <p style="font-weight: 600; color: #4b2d72;">${entry.action}</p>
+            <p style="font-size: 0.875rem; color: #666;">${entry.details || ''}</p>
+            <p style="font-size: 0.75rem; color: #999; margin-top: 0.25rem;">${time}</p>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    function logActivity(action, details = {}) {
+      const entry = {
+        timestamp: new Date().toISOString(),
+        action,
+        details: typeof details === 'string' ? details : JSON.stringify(details)
+      };
+      activityLog.unshift(entry);
+    }
+    
+    document.getElementById('viewActivityLog').addEventListener('click', () => {
+      renderActivityLog();
+      document.getElementById('activityLogModal').classList.remove('hidden');
+    });
+    
+    document.getElementById('closeActivityLog').addEventListener('click', () => {
+      document.getElementById('activityLogModal').classList.add('hidden');
+    });
+    
+    // Coaches
+    let coaches = [];
+    let players = JSON.parse(localStorage.getItem('players')) || [];
+    
+    async function loadCoaches() {
+      try {
+        coaches = await fetchCoaches();
+        renderCoaches();
+      } catch (error) {
+        console.error('Error loading coaches:', error);
+        document.getElementById('coachesGrid').innerHTML = '<p style="color: #ef4444; text-align: center;">Failed to load coaches.</p>';
+      }
+    }
+    
+    function renderCoaches() {
+      const grid = document.getElementById('coachesGrid');
+      if (coaches.length === 0) {
+        grid.innerHTML = '<p style="color: #666; text-align: center;">No coaches listed.</p>';
+        return;
+      }
+      
+      grid.innerHTML = coaches.map(coach => `
+        <div class="coach-card">
+          <div class="coach-name">${coach.name}</div>
+          <div class="coach-role">${coach.role || 'Head Coach'} - ${coach.team || 'Unassigned'}</div>
+          <div class="coach-contact">
+            ${coach.phone ? `<div><i class="fas fa-phone"></i> ${coach.phone}</div>` : ''}
+            ${coach.email ? `<div><i class="fas fa-envelope"></i> ${coach.email}</div>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    // Players
+    function getApprovedPlayers() {
+      return players.filter(p => p.status === 'approved');
+    }
+    
+    function renderPlayers() {
+      const container = document.getElementById('playerList');
+      const approvedPlayers = getApprovedPlayers();
+      
+      if (approvedPlayers.length === 0) {
+        container.innerHTML = '<p style="color: #666; text-align: center;">No approved players found.</p>';
+        return;
+      }
+      
+      container.innerHTML = approvedPlayers.map(player => `
+        <div class="player-card" onclick="togglePlayerDetails(this)">
+          <div class="player-name">${player.name}</div>
+          <div class="player-info">
+            <span>${player.team}</span> | <span>Grade: ${player.grade}</span>
+          </div>
+          <div class="player-details">
+            <p><strong>Parent:</strong> ${player.parentName} (${player.parentPhone})</p>
+            <p><strong>Email:</strong> ${player.parentEmail}</p>
+            <p><strong>Emergency:</strong> ${player.emergencyContact} (${player.emergencyPhone})</p>
+            <p><strong>Uniform:</strong> Jersey ${player.jerseySize}, Pants ${player.pantsSize}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    window.togglePlayerDetails = function(card) {
+      const details = card.querySelector('.player-details');
+      details.classList.toggle('show');
+    };
+    
+    // Coach Modal
+    document.getElementById('addCoachBtn').addEventListener('click', () => {
+      document.getElementById('coachModal').classList.remove('hidden');
+    });
+    
+    document.getElementById('closeCoachModal').addEventListener('click', () => {
+      document.getElementById('coachModal').classList.add('hidden');
+    });
+    
+    document.getElementById('cancelCoachBtn').addEventListener('click', () => {
+      document.getElementById('coachModal').classList.add('hidden');
+    });
+    
+    document.getElementById('coachForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const newCoach = {
+        id: coaches.length + 1,
+        name: document.getElementById('coachName').value,
+        email: document.getElementById('coachEmail').value,
+        phone: document.getElementById('coachPhone').value,
+        role: document.getElementById('coachRole').value,
+        team: document.getElementById('coachTeam').value
+      };
+      coaches.push(newCoach);
+      renderCoaches();
+      logActivity('Added coach', newCoach.name);
+      document.getElementById('coachModal').classList.add('hidden');
+      document.getElementById('coachForm').reset();
+    });
+    
+    // CSV Upload
+    document.getElementById('csvFileInput').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        document.getElementById('csvFileName').textContent = `File: ${file.name}`;
+        document.getElementById('csvStatus').style.display = 'block';
+        logActivity('CSV file uploaded', file.name);
+      }
+    });
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      logActivity('Viewed coach dashboard');
+      loadCoaches();
+      renderPlayers();
+    });
+  </script>
+</body>
+</html>

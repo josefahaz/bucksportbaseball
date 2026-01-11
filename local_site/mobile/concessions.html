@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Bucksport LL - Concessions</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background-color: #4b2d72;
+      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.5;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+    
+    .mobile-header {
+      background-color: #4b2d72;
+      padding: 1rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    
+    .mobile-header h1 {
+      color: #ffc72c;
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 0;
+    }
+    
+    .hamburger-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.5rem;
+    }
+    
+    .mobile-menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0,0,0,0.5);
+      z-index: 1001;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .mobile-menu-overlay.active {
+      display: block;
+      opacity: 1;
+    }
+    
+    .mobile-menu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 280px;
+      height: 100vh;
+      background-color: #4b2d72;
+      z-index: 1002;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+    
+    .mobile-menu.active {
+      transform: translateX(0);
+    }
+    
+    .mobile-menu-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 1rem;
+    }
+    
+    .mobile-menu-header h2 {
+      color: #ffc72c;
+      font-size: 1.25rem;
+      margin: 0;
+    }
+    
+    .close-menu-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    
+    .mobile-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .mobile-nav a {
+      color: white;
+      text-decoration: none;
+      padding: 0.875rem 1rem;
+      border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: all 0.2s;
+      font-size: 1rem;
+    }
+    
+    .mobile-nav a:hover, .mobile-nav a.active {
+      background-color: #ffc72c;
+      color: #4b2d72;
+    }
+    
+    .mobile-nav a i {
+      width: 1.5rem;
+      text-align: center;
+    }
+    
+    .mobile-content {
+      padding: 1rem;
+      padding-top: 5rem;
+      padding-bottom: 2rem;
+    }
+    
+    .mobile-card {
+      background: white;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .mobile-card h2 {
+      color: #4b2d72;
+      font-size: 1rem;
+      font-weight: 700;
+      margin: 0 0 0.75rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #ffc72c;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    /* Inventory Items */
+    .inventory-item {
+      background: #f9fafb;
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .item-info {
+      flex: 1;
+    }
+    
+    .item-name {
+      color: #4b2d72;
+      font-weight: 600;
+      font-size: 0.9375rem;
+    }
+    
+    .item-category {
+      color: #666;
+      font-size: 0.75rem;
+    }
+    
+    .item-details {
+      text-align: right;
+    }
+    
+    .item-qty {
+      color: #4b2d72;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+    
+    .item-cost {
+      color: #666;
+      font-size: 0.75rem;
+    }
+    
+    .item-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-left: 0.5rem;
+    }
+    
+    .item-actions button {
+      background: none;
+      border: none;
+      padding: 0.25rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    
+    .item-actions .edit-btn { color: #3b82f6; }
+    .item-actions .delete-btn { color: #ef4444; }
+    
+    /* Total */
+    .total-row {
+      background: #4b2d72;
+      color: white;
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      margin-top: 0.75rem;
+    }
+    
+    /* Buttons */
+    .btn-success {
+      background-color: #10b981;
+      color: white;
+      border: none;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .btn-primary {
+      background-color: #4b2d72;
+      color: white;
+      border: none;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    
+    .mobile-logo {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    
+    .mobile-logo img {
+      height: 50px;
+    }
+    
+    .mobile-logo h1 {
+      color: #ffc72c;
+      font-size: 1.25rem;
+      margin-top: 0.5rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .desktop-link {
+      text-align: center;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .desktop-link a {
+      color: #ffc72c;
+      text-decoration: underline;
+      font-size: 0.875rem;
+    }
+    
+    .empty-message {
+      color: #666;
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Mobile Header -->
+  <header class="mobile-header">
+    <button class="hamburger-btn" id="openMenuBtn">
+      <i class="fas fa-bars"></i>
+    </button>
+    <h1>Concessions</h1>
+    <div style="width: 40px;"></div>
+  </header>
+  
+  <!-- Mobile Menu Overlay -->
+  <div class="mobile-menu-overlay" id="menuOverlay"></div>
+  
+  <!-- Mobile Slide-out Menu -->
+  <nav class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-header">
+      <h2>Menu</h2>
+      <button class="close-menu-btn" id="closeMenuBtn">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="mobile-nav">
+      <a href="index.html"><i class="fas fa-home"></i> Home</a>
+      <a href="teams.html"><i class="fas fa-users"></i> Teams</a>
+      <a href="coach-dashboard.html"><i class="fas fa-tachometer-alt"></i> Coach Dashboard</a>
+      <a href="inventory.html"><i class="fas fa-tshirt"></i> Equipment Inventory</a>
+      <a href="schedule.html"><i class="fas fa-calendar-alt"></i> Schedule</a>
+      <a href="concessions.html" class="active"><i class="fas fa-hamburger"></i> Concessions</a>
+      <a href="event_concessions.html"><i class="fas fa-clipboard-list"></i> Event Concessions</a>
+      <a href="fundraising.html"><i class="fas fa-hand-holding-usd"></i> Fundraising & Donations</a>
+    </div>
+  </nav>
+  
+  <!-- Main Content -->
+  <main class="mobile-content">
+    <!-- Logo -->
+    <div class="mobile-logo">
+      <img src="../images/logo.png" alt="Bucksport Little League">
+      <h1>Concessions Inventory</h1>
+    </div>
+    
+    <!-- Activity Log Button -->
+    <button id="viewActivityLog" class="btn-success">
+      <i class="fas fa-history"></i> Activity Log
+    </button>
+    
+    <!-- Inventory -->
+    <div class="mobile-card">
+      <h2>
+        <span><i class="fas fa-boxes"></i> Inventory</span>
+        <button class="btn-primary" id="addItemBtn">
+          <i class="fas fa-plus"></i> Add
+        </button>
+      </h2>
+      <div id="inventoryList">
+        <p class="empty-message">No items in inventory.</p>
+      </div>
+      <div class="total-row">
+        <span>Total Value:</span>
+        <span id="totalValue">$0.00</span>
+      </div>
+    </div>
+    
+    <!-- Desktop Version Link -->
+    <div class="desktop-link">
+      <a href="#" onclick="switchToDesktop(); return false;">
+        <i class="fas fa-desktop"></i> Switch to Desktop Version
+      </a>
+    </div>
+  </main>
+
+  <!-- Activity Log Modal -->
+  <div id="activityLogModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg w-full max-w-lg max-h-[90vh] overflow-hidden mx-4">
+      <div class="flex justify-between items-center border-b p-4 bg-purple-700 text-white">
+        <h3 class="text-lg font-semibold"><i class="fas fa-history mr-2"></i>Activity Log</h3>
+        <button id="closeActivityLog" class="text-white hover:text-gray-200 text-xl">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div id="activityLogContent" class="overflow-y-auto max-h-[calc(90vh-4rem)] p-4">
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Item Modal -->
+  <div id="itemModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto mx-4 p-4">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-bold text-gray-800" id="modalTitle">Add New Item</h3>
+        <button id="closeItemModal" class="text-gray-500 hover:text-gray-700 text-xl">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <form id="itemForm">
+        <input type="hidden" id="itemId">
+        <div class="mb-3">
+          <label class="block text-gray-700 text-sm font-bold mb-1">Item Name</label>
+          <input class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" id="itemName" type="text" required>
+        </div>
+        <div class="mb-3">
+          <label class="block text-gray-700 text-sm font-bold mb-1">Category</label>
+          <select class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" id="itemCategory">
+            <option value="">Select category</option>
+            <option value="other">Other...</option>
+          </select>
+          <input class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm mt-2 hidden" id="itemCategoryNew" type="text" placeholder="Enter new category">
+        </div>
+        <div class="grid grid-cols-2 gap-3 mb-3">
+          <div>
+            <label class="block text-gray-700 text-sm font-bold mb-1">Quantity</label>
+            <input class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" id="itemQty" type="number" min="0" required>
+          </div>
+          <div>
+            <label class="block text-gray-700 text-sm font-bold mb-1">Cost Per Item</label>
+            <input class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" id="itemCost" type="number" step="0.01" min="0" required>
+          </div>
+        </div>
+        <div class="flex gap-3 mt-4">
+          <button type="button" id="cancelItemBtn" class="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white text-sm">Cancel</button>
+          <button type="submit" class="flex-1 px-4 py-2 bg-purple-700 text-white rounded-md text-sm">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/mobile-detect.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>
+    // Mobile Menu Toggle
+    const openMenuBtn = document.getElementById('openMenuBtn');
+    const closeMenuBtn = document.getElementById('closeMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuOverlay = document.getElementById('menuOverlay');
+    
+    function openMenu() {
+      mobileMenu.classList.add('active');
+      menuOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closeMenu() {
+      mobileMenu.classList.remove('active');
+      menuOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+    
+    openMenuBtn.addEventListener('click', openMenu);
+    closeMenuBtn.addEventListener('click', closeMenu);
+    menuOverlay.addEventListener('click', closeMenu);
+    
+    // Activity Log
+    let activityLog = JSON.parse(localStorage.getItem('concessions_activity_log') || '[]');
+    
+    function logActivity(action, details) {
+      const entry = { timestamp: new Date().toISOString(), action, details };
+      activityLog.unshift(entry);
+      if (activityLog.length > 100) activityLog = activityLog.slice(0, 100);
+      localStorage.setItem('concessions_activity_log', JSON.stringify(activityLog));
+    }
+    
+    function renderActivityLog() {
+      const container = document.getElementById('activityLogContent');
+      if (activityLog.length === 0) {
+        container.innerHTML = '<p style="color: #666; text-align: center; padding: 2rem;">No activity recorded yet.</p>';
+        return;
+      }
+      
+      container.innerHTML = activityLog.map(entry => {
+        const time = new Date(entry.timestamp).toLocaleString();
+        return `
+          <div style="border-bottom: 1px solid #e5e7eb; padding: 0.75rem 0;">
+            <p style="font-weight: 600; color: #4b2d72;">${entry.action}</p>
+            <p style="font-size: 0.875rem; color: #666;">${entry.details || ''}</p>
+            <p style="font-size: 0.75rem; color: #999; margin-top: 0.25rem;">${time}</p>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    document.getElementById('viewActivityLog').addEventListener('click', () => {
+      renderActivityLog();
+      document.getElementById('activityLogModal').classList.remove('hidden');
+    });
+    
+    document.getElementById('closeActivityLog').addEventListener('click', () => {
+      document.getElementById('activityLogModal').classList.add('hidden');
+    });
+    
+    // Inventory Data
+    let inventoryData = JSON.parse(localStorage.getItem('concessionsInventory')) || [];
+    let nextId = inventoryData.length > 0 ? Math.max(...inventoryData.map(i => i.id)) + 1 : 1;
+    
+    function saveInventory() {
+      localStorage.setItem('concessionsInventory', JSON.stringify(inventoryData));
+    }
+    
+    function renderInventory() {
+      const container = document.getElementById('inventoryList');
+      const totalEl = document.getElementById('totalValue');
+      
+      if (inventoryData.length === 0) {
+        container.innerHTML = '<p class="empty-message">No items in inventory.</p>';
+        totalEl.textContent = '$0.00';
+        return;
+      }
+      
+      let total = 0;
+      container.innerHTML = inventoryData.map(item => {
+        const itemTotal = item.quantity * item.cost;
+        total += itemTotal;
+        return `
+          <div class="inventory-item">
+            <div class="item-info">
+              <div class="item-name">${item.item}</div>
+              <div class="item-category">${item.category}</div>
+            </div>
+            <div class="item-details">
+              <div class="item-qty">x${item.quantity}</div>
+              <div class="item-cost">$${item.cost.toFixed(2)} ea</div>
+            </div>
+            <div class="item-actions">
+              <button class="edit-btn" onclick="editItem(${item.id})"><i class="fas fa-edit"></i></button>
+              <button class="delete-btn" onclick="deleteItem(${item.id})"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      totalEl.textContent = `$${total.toFixed(2)}`;
+    }
+    
+    // Modal functions
+    function populateCategories() {
+      const select = document.getElementById('itemCategory');
+      const categories = [...new Set(inventoryData.map(i => i.category))];
+      select.innerHTML = '<option value="">Select category</option>';
+      categories.forEach(cat => {
+        select.innerHTML += `<option value="${cat}">${cat}</option>`;
+      });
+      select.innerHTML += '<option value="other">Other...</option>';
+    }
+    
+    document.getElementById('addItemBtn').addEventListener('click', () => {
+      document.getElementById('modalTitle').textContent = 'Add New Item';
+      document.getElementById('itemForm').reset();
+      document.getElementById('itemId').value = '';
+      populateCategories();
+      document.getElementById('itemCategoryNew').classList.add('hidden');
+      document.getElementById('itemModal').classList.remove('hidden');
+    });
+    
+    document.getElementById('closeItemModal').addEventListener('click', () => {
+      document.getElementById('itemModal').classList.add('hidden');
+    });
+    
+    document.getElementById('cancelItemBtn').addEventListener('click', () => {
+      document.getElementById('itemModal').classList.add('hidden');
+    });
+    
+    document.getElementById('itemCategory').addEventListener('change', (e) => {
+      const newInput = document.getElementById('itemCategoryNew');
+      if (e.target.value === 'other') {
+        newInput.classList.remove('hidden');
+        newInput.focus();
+      } else {
+        newInput.classList.add('hidden');
+      }
+    });
+    
+    document.getElementById('itemForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      let category = document.getElementById('itemCategory').value;
+      if (category === 'other') {
+        category = document.getElementById('itemCategoryNew').value.trim();
+      }
+      
+      if (!category) {
+        alert('Please select or enter a category.');
+        return;
+      }
+      
+      const id = document.getElementById('itemId').value;
+      const itemData = {
+        item: document.getElementById('itemName').value,
+        category: category,
+        quantity: parseInt(document.getElementById('itemQty').value) || 0,
+        cost: parseFloat(document.getElementById('itemCost').value) || 0
+      };
+      
+      if (id) {
+        // Edit
+        const index = inventoryData.findIndex(i => i.id == id);
+        inventoryData[index] = { ...inventoryData[index], ...itemData };
+        logActivity('Item Updated', `Updated "${itemData.item}"`);
+      } else {
+        // Add
+        itemData.id = nextId++;
+        inventoryData.push(itemData);
+        logActivity('Item Added', `Added "${itemData.item}" - Qty: ${itemData.quantity}`);
+      }
+      
+      saveInventory();
+      renderInventory();
+      document.getElementById('itemModal').classList.add('hidden');
+    });
+    
+    window.editItem = function(id) {
+      const item = inventoryData.find(i => i.id === id);
+      if (!item) return;
+      
+      document.getElementById('modalTitle').textContent = 'Edit Item';
+      document.getElementById('itemId').value = item.id;
+      document.getElementById('itemName').value = item.item;
+      populateCategories();
+      document.getElementById('itemCategory').value = item.category;
+      document.getElementById('itemQty').value = item.quantity;
+      document.getElementById('itemCost').value = item.cost;
+      document.getElementById('itemCategoryNew').classList.add('hidden');
+      document.getElementById('itemModal').classList.remove('hidden');
+    };
+    
+    window.deleteItem = function(id) {
+      const item = inventoryData.find(i => i.id === id);
+      if (confirm(`Delete "${item.item}"?`)) {
+        inventoryData = inventoryData.filter(i => i.id !== id);
+        saveInventory();
+        renderInventory();
+        logActivity('Item Deleted', `Deleted "${item.item}"`);
+      }
+    };
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      renderInventory();
+      logActivity('Page View', 'Concessions page loaded');
+    });
+  </script>
+</body>
+</html>

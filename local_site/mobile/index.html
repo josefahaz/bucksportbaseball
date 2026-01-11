@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Bucksport Little League</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      background-color: #4b2d72;
+      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.5;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+    
+    /* Mobile Navigation */
+    .mobile-header {
+      background-color: #4b2d72;
+      padding: 1rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    
+    .mobile-header h1 {
+      color: #ffc72c;
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 0;
+    }
+    
+    .hamburger-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.5rem;
+    }
+    
+    /* Mobile Menu Overlay */
+    .mobile-menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0,0,0,0.5);
+      z-index: 1001;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .mobile-menu-overlay.active {
+      display: block;
+      opacity: 1;
+    }
+    
+    /* Mobile Slide-out Menu */
+    .mobile-menu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 280px;
+      height: 100vh;
+      background-color: #4b2d72;
+      z-index: 1002;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+    
+    .mobile-menu.active {
+      transform: translateX(0);
+    }
+    
+    .mobile-menu-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 1rem;
+    }
+    
+    .mobile-menu-header h2 {
+      color: #ffc72c;
+      font-size: 1.25rem;
+      margin: 0;
+    }
+    
+    .close-menu-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    
+    .mobile-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .mobile-nav a {
+      color: white;
+      text-decoration: none;
+      padding: 0.875rem 1rem;
+      border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: all 0.2s;
+      font-size: 1rem;
+    }
+    
+    .mobile-nav a:hover, .mobile-nav a.active {
+      background-color: #ffc72c;
+      color: #4b2d72;
+    }
+    
+    .mobile-nav a i {
+      width: 1.5rem;
+      text-align: center;
+    }
+    
+    /* Main Content Area */
+    .mobile-content {
+      padding: 1rem;
+      padding-top: 5rem; /* Space for fixed header */
+      padding-bottom: 2rem;
+    }
+    
+    /* Cards */
+    .mobile-card {
+      background: white;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .mobile-card h2 {
+      color: #4b2d72;
+      font-size: 1.125rem;
+      font-weight: 700;
+      margin: 0 0 0.75rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #ffc72c;
+    }
+    
+    /* Member/Coach Cards */
+    .member-card {
+      background: #f9fafb;
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+      border-left: 3px solid #4b2d72;
+    }
+    
+    .member-card:last-child {
+      margin-bottom: 0;
+    }
+    
+    .member-name {
+      color: #4b2d72;
+      font-weight: 600;
+      font-size: 0.9375rem;
+      margin-bottom: 0.25rem;
+    }
+    
+    .member-role {
+      color: #666;
+      font-size: 0.8125rem;
+      margin-bottom: 0.25rem;
+    }
+    
+    .member-contact {
+      color: #555;
+      font-size: 0.75rem;
+    }
+    
+    .member-contact i {
+      color: #4b2d72;
+      width: 1rem;
+      margin-right: 0.25rem;
+    }
+    
+    /* Section Headers */
+    .section-header {
+      color: #4b2d72;
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 1rem 0 0.5rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .section-header i {
+      color: #ffc72c;
+    }
+    
+    /* Desktop Switch Link */
+    .desktop-link {
+      text-align: center;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .desktop-link a {
+      color: #ffc72c;
+      text-decoration: underline;
+      font-size: 0.875rem;
+    }
+    
+    /* User Section in Menu */
+    .mobile-user-section {
+      padding: 0.75rem;
+      background-color: rgba(255, 199, 44, 0.1);
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid rgba(255, 199, 44, 0.2);
+    }
+    
+    .mobile-user-name {
+      color: #ffc72c;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    .mobile-logout-btn {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    
+    /* Activity Log Button */
+    .activity-btn {
+      background-color: #10b981;
+      color: white;
+      border: none;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    /* Logo */
+    .mobile-logo {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    
+    .mobile-logo img {
+      height: 60px;
+    }
+    
+    .mobile-logo h1 {
+      color: #ffc72c;
+      font-size: 1.25rem;
+      margin-top: 0.5rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+  <!-- Mobile Header -->
+  <header class="mobile-header">
+    <button class="hamburger-btn" id="openMenuBtn">
+      <i class="fas fa-bars"></i>
+    </button>
+    <h1>Bucksport LL</h1>
+    <div style="width: 40px;"></div> <!-- Spacer for centering -->
+  </header>
+  
+  <!-- Mobile Menu Overlay -->
+  <div class="mobile-menu-overlay" id="menuOverlay"></div>
+  
+  <!-- Mobile Slide-out Menu -->
+  <nav class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-header">
+      <h2>Menu</h2>
+      <button class="close-menu-btn" id="closeMenuBtn">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <!-- User Section -->
+    <div class="mobile-user-section" id="mobileUserSection" style="display: none;">
+      <div class="mobile-user-name" id="mobileUserName">Welcome, User</div>
+      <button class="mobile-logout-btn" id="mobileLogoutBtn">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+    
+    <div class="mobile-nav">
+      <a href="index.html" class="active"><i class="fas fa-home"></i> Home</a>
+      <a href="teams.html"><i class="fas fa-users"></i> Teams</a>
+      <a href="coach-dashboard.html"><i class="fas fa-tachometer-alt"></i> Coach Dashboard</a>
+      <a href="inventory.html"><i class="fas fa-tshirt"></i> Equipment Inventory</a>
+      <a href="schedule.html"><i class="fas fa-calendar-alt"></i> Schedule</a>
+      <a href="concessions.html"><i class="fas fa-hamburger"></i> Concessions</a>
+      <a href="event_concessions.html"><i class="fas fa-clipboard-list"></i> Event Concessions</a>
+      <a href="fundraising.html"><i class="fas fa-hand-holding-usd"></i> Fundraising & Donations</a>
+    </div>
+  </nav>
+  
+  <!-- Main Content -->
+  <main class="mobile-content">
+    <!-- Logo and Title -->
+    <div class="mobile-logo">
+      <img src="../images/logo.png" alt="Bucksport Little League">
+      <h1>Welcome to Bucksport Little League</h1>
+    </div>
+    
+    <!-- Activity Log Button -->
+    <button id="viewActivityLog" class="activity-btn">
+      <i class="fas fa-history"></i> Activity Log
+    </button>
+    
+    <!-- Board Members Section -->
+    <div class="mobile-card">
+      <h2><i class="fas fa-users-cog"></i> 2026 Board Members</h2>
+      <div id="board-members-container">
+        <p style="color: #666; text-align: center; padding: 1rem;">Loading...</p>
+      </div>
+    </div>
+    
+    <!-- Coaching Staff Section -->
+    <div class="mobile-card">
+      <h2><i class="fas fa-user-tie"></i> Coaching Staff</h2>
+      <div id="coaches-container">
+        <p style="color: #666; text-align: center; padding: 1rem;">Loading...</p>
+      </div>
+      <div style="text-align: center; margin-top: 0.75rem;">
+        <a href="coach-dashboard.html" style="color: #4b2d72; font-size: 0.875rem; font-weight: 600;">
+          View All Coaches <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+    
+    <!-- Desktop Version Link -->
+    <div class="desktop-link">
+      <a href="#" onclick="switchToDesktop(); return false;">
+        <i class="fas fa-desktop"></i> Switch to Desktop Version
+      </a>
+    </div>
+  </main>
+
+  <!-- Activity Log Modal -->
+  <div id="activityLogModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg w-full max-w-lg max-h-[90vh] overflow-hidden mx-4">
+      <div class="flex justify-between items-center border-b p-4 bg-purple-700 text-white">
+        <h3 class="text-lg font-semibold"><i class="fas fa-history mr-2"></i>Activity Log</h3>
+        <button id="closeActivityLog" class="text-white hover:text-gray-200 text-xl">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div id="activityLogContent" class="overflow-y-auto max-h-[calc(90vh-4rem)] p-4">
+        <!-- Activity entries will be inserted here -->
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/mobile-detect.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/api.js"></script>
+  <script>
+    // Mobile Menu Toggle
+    const openMenuBtn = document.getElementById('openMenuBtn');
+    const closeMenuBtn = document.getElementById('closeMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuOverlay = document.getElementById('menuOverlay');
+    
+    function openMenu() {
+      mobileMenu.classList.add('active');
+      menuOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closeMenu() {
+      mobileMenu.classList.remove('active');
+      menuOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+    
+    openMenuBtn.addEventListener('click', openMenu);
+    closeMenuBtn.addEventListener('click', closeMenu);
+    menuOverlay.addEventListener('click', closeMenu);
+    
+    // Activity Log
+    let activityLog = JSON.parse(localStorage.getItem('homepage_activity_log') || '[]');
+    
+    function renderActivityLog() {
+      const container = document.getElementById('activityLogContent');
+      if (activityLog.length === 0) {
+        container.innerHTML = '<p style="color: #666; text-align: center; padding: 2rem;">No activity recorded yet.</p>';
+        return;
+      }
+      
+      container.innerHTML = activityLog.map(entry => {
+        const date = new Date(entry.timestamp);
+        const timeStr = date.toLocaleString();
+        return `
+          <div style="border-bottom: 1px solid #e5e7eb; padding: 0.75rem 0;">
+            <p style="font-weight: 600; color: #4b2d72;">${entry.action}</p>
+            <p style="font-size: 0.875rem; color: #666;">${entry.details}</p>
+            <p style="font-size: 0.75rem; color: #999; margin-top: 0.25rem;">${timeStr}</p>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    document.getElementById('viewActivityLog').addEventListener('click', () => {
+      renderActivityLog();
+      document.getElementById('activityLogModal').classList.remove('hidden');
+    });
+    
+    document.getElementById('closeActivityLog').addEventListener('click', () => {
+      document.getElementById('activityLogModal').classList.add('hidden');
+    });
+    
+    // Load Board Members and Coaches
+    document.addEventListener('DOMContentLoaded', async () => {
+      const boardContainer = document.getElementById('board-members-container');
+      const coachesContainer = document.getElementById('coaches-container');
+      
+      // Load board members
+      try {
+        const boardMembers = await fetchBoardMembers();
+        
+        if (!boardMembers || boardMembers.length === 0) {
+          boardContainer.innerHTML = '<p style="color: #666; text-align: center;">No board members available.</p>';
+        } else {
+          // Group by division
+          const leagueWide = boardMembers.filter(m => !m.division);
+          const baseball = boardMembers.filter(m => m.division === 'Baseball');
+          const softball = boardMembers.filter(m => m.division === 'Softball');
+          
+          let html = '';
+          
+          if (leagueWide.length > 0) {
+            html += '<div class="section-header"><i class="fas fa-star"></i> League Leadership</div>';
+            html += leagueWide.map(m => createMemberCard(m)).join('');
+          }
+          
+          if (baseball.length > 0) {
+            html += '<div class="section-header"><i class="fas fa-baseball-ball"></i> Baseball Division</div>';
+            html += baseball.map(m => createMemberCard(m)).join('');
+          }
+          
+          if (softball.length > 0) {
+            html += '<div class="section-header"><i class="fas fa-baseball-ball"></i> Softball Division</div>';
+            html += softball.map(m => createMemberCard(m)).join('');
+          }
+          
+          boardContainer.innerHTML = html;
+        }
+      } catch (error) {
+        console.error('Error loading board members:', error);
+        boardContainer.innerHTML = '<p style="color: #ef4444; text-align: center;">Failed to load board members.</p>';
+      }
+      
+      // Load coaches
+      try {
+        const coaches = await fetchCoaches();
+        
+        if (!coaches || coaches.length === 0) {
+          coachesContainer.innerHTML = '<p style="color: #666; text-align: center;">No coaches available.</p>';
+        } else {
+          coachesContainer.innerHTML = coaches.map(coach => `
+            <div class="member-card">
+              <div class="member-name">${coach.name}</div>
+              <div class="member-role">Head Coach</div>
+              <div class="member-contact">
+                ${coach.email && coach.email !== 'N/A' ? `<div><i class="fas fa-envelope"></i> ${coach.email}</div>` : ''}
+                ${coach.phone && coach.phone !== 'N/A' ? `<div><i class="fas fa-phone"></i> ${coach.phone}</div>` : ''}
+              </div>
+            </div>
+          `).join('');
+        }
+      } catch (error) {
+        console.error('Error loading coaches:', error);
+        coachesContainer.innerHTML = '<p style="color: #ef4444; text-align: center;">Failed to load coaches.</p>';
+      }
+    });
+    
+    function createMemberCard(member) {
+      return `
+        <div class="member-card">
+          <div class="member-name">${member.name}</div>
+          <div class="member-role">${member.position}${member.division ? ` - ${member.division}` : ''}</div>
+          <div class="member-contact">
+            ${member.email && member.email !== 'N/A' ? `<div><i class="fas fa-envelope"></i> ${member.email}</div>` : ''}
+            ${member.phone && member.phone !== 'N/A' ? `<div><i class="fas fa-phone"></i> ${member.phone}</div>` : ''}
+          </div>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>

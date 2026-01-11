@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bucksport Little League</title>
+  <script src="js/mobile-detect.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
@@ -117,7 +118,72 @@
       padding: 0 20px;
     }
     
-    /* Responsive adjustments for smaller screens */
+    /* Responsive adjustments for different screen sizes */
+    @media (max-width: 1400px) {
+      .container {
+        max-width: 100%;
+        padding: 0 15px;
+      }
+    }
+    
+    @media (max-width: 1200px) {
+      .main-content {
+        padding: 1rem;
+      }
+      
+      .form-col {
+        flex: 0 0 calc(50% - 8px);
+        min-width: 180px;
+      }
+    }
+    
+    @media (max-width: 1024px) {
+      .sidebar {
+        width: 200px;
+      }
+      
+      .main-content {
+        margin-left: 200px;
+        width: calc(100% - 200px);
+      }
+      
+      .sidebar a {
+        padding: 0.6rem 0.75rem;
+        font-size: 0.875rem;
+      }
+      
+      .sidebar h2 {
+        font-size: 1.1rem;
+      }
+    }
+    
+    @media (max-width: 900px) {
+      .sidebar {
+        width: 180px;
+      }
+      
+      .main-content {
+        margin-left: 180px;
+        width: calc(100% - 180px);
+      }
+      
+      .sidebar a {
+        padding: 0.5rem 0.6rem;
+        font-size: 0.8rem;
+        gap: 0.5rem;
+      }
+      
+      .sidebar i {
+        width: 1.2rem;
+        font-size: 0.9rem;
+      }
+      
+      .form-col {
+        flex: 0 0 100%;
+        margin-right: 0;
+      }
+    }
+    
     @media (max-width: 768px) {
       .sidebar {
         transform: translateX(-100%);
@@ -126,7 +192,15 @@
       
       .main-content {
         margin-left: 0;
+        width: 100%;
       }
+    }
+    
+    /* Ensure content doesn't overflow */
+    .main-content {
+      min-width: 0;
+      box-sizing: border-box;
+      width: calc(100% - 250px);
     }
     .form-container {
       background: rgba(255, 255, 255, 0.9);

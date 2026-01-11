@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bucksport Little League - Equipment Inventory</title>
+  <script src="js/mobile-detect.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
@@ -209,9 +210,71 @@
     
     /* Ensure the table takes full width and is scrollable on mobile */
     .main-content {
-      width: 100%;
+      margin-left: 250px;
+      width: calc(100% - 250px);
       overflow-x: auto;
       padding: 1.5rem;
+      min-width: 0;
+      box-sizing: border-box;
+    }
+    
+    /* Responsive adjustments for different screen sizes */
+    @media (max-width: 1200px) {
+      .main-content {
+        padding: 1rem;
+      }
+      
+      .container {
+        max-width: 100%;
+        padding: 0 10px;
+      }
+    }
+    
+    @media (max-width: 1024px) {
+      .sidebar {
+        width: 200px;
+      }
+      
+      .main-content {
+        margin-left: 200px;
+        width: calc(100% - 200px);
+      }
+      
+      .sidebar a {
+        padding: 0.6rem 0.75rem;
+        font-size: 0.875rem;
+      }
+      
+      .sidebar h2 {
+        font-size: 1.1rem;
+      }
+    }
+    
+    @media (max-width: 900px) {
+      .sidebar {
+        width: 180px;
+      }
+      
+      .main-content {
+        margin-left: 180px;
+        width: calc(100% - 180px);
+      }
+      
+      .sidebar a {
+        padding: 0.5rem 0.6rem;
+        font-size: 0.8rem;
+        gap: 0.5rem;
+      }
+      
+      .sidebar i {
+        width: 1.2rem;
+        font-size: 0.9rem;
+      }
+      
+      th, td {
+        padding: 8px 6px;
+        font-size: 0.8rem;
+      }
     }
       
     .sidebar-user {

@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bucksport Little League - Coach Dashboard</title>
+  <script src="js/mobile-detect.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
@@ -258,6 +259,133 @@
       background-color: rgba(255, 255, 255, 0.2);
       border-color: rgba(255, 255, 255, 0.3);
     }
+    
+    /* Main Content - ensures proper layout with sidebar */
+    .main-content {
+      margin-left: 250px;
+      flex-grow: 1;
+      padding: 0;
+      min-width: 0; /* Prevents flex item from overflowing */
+      width: calc(100% - 250px);
+      box-sizing: border-box;
+    }
+    
+    /* Responsive adjustments for different screen sizes */
+    @media (max-width: 1400px) {
+      .container {
+        max-width: 100%;
+        padding: 0 15px;
+      }
+    }
+    
+    @media (max-width: 1200px) {
+      .coaches-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      }
+      
+      .filter-bar {
+        gap: 8px;
+      }
+      
+      .filter-select {
+        min-width: 120px;
+        font-size: 13px;
+        padding: 6px 10px;
+      }
+    }
+    
+    @media (max-width: 1024px) {
+      .sidebar {
+        width: 200px;
+      }
+      
+      .main-content {
+        margin-left: 200px;
+        width: calc(100% - 200px);
+      }
+      
+      .sidebar a {
+        padding: 0.6rem 0.75rem;
+        font-size: 0.875rem;
+      }
+      
+      .sidebar h2 {
+        font-size: 1.1rem;
+      }
+      
+      .coaches-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px;
+      }
+      
+      .coach-card {
+        padding: 10px;
+      }
+      
+      .filter-bar {
+        flex-wrap: wrap;
+      }
+    }
+    
+    @media (max-width: 900px) {
+      .sidebar {
+        width: 180px;
+      }
+      
+      .main-content {
+        margin-left: 180px;
+        width: calc(100% - 180px);
+      }
+      
+      .sidebar a {
+        padding: 0.5rem 0.6rem;
+        font-size: 0.8rem;
+        gap: 0.5rem;
+      }
+      
+      .sidebar i {
+        width: 1.2rem;
+        font-size: 0.9rem;
+      }
+      
+      header h1 {
+        font-size: 1.5rem !important;
+      }
+      
+      .coaches-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      }
+    }
+    
+    /* Ensure all content containers don't overflow */
+    .dashboard-container,
+    .section,
+    .player-card,
+    .coach-card {
+      max-width: 100%;
+      overflow-x: auto;
+      box-sizing: border-box;
+    }
+    
+    /* Make tables responsive */
+    table {
+      width: 100%;
+      min-width: 600px;
+    }
+    
+    .table-responsive {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Prevent text overflow */
+    .sidebar a span,
+    .coach-card h3,
+    .player-card h3 {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   </style>
 </head>
 <body style="display: flex;">
@@ -304,7 +432,7 @@
   </div>
 
   <!-- Main Content -->
-    <div class="main-content" style="flex-grow: 1;">
+    <div class="main-content">
     <div class="container mx-auto px-4">
       <header class="text-center py-8 relative">
         <div class="flex flex-col items-center">
