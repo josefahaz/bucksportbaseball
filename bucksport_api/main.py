@@ -529,5 +529,56 @@ def delete_inventory_item(item_id: int, session: Session = Depends(get_session))
     logger.info(f"Deleted inventory item: {item_name} (ID: {item_id})")
     return {"status": "success", "message": "Item deleted successfully"}
 
+# ----------------- Activity Log endpoints -----------------
+@app.get("/api/activity-logs")
+def get_activity_logs(
+    page: Optional[str] = None,
+    limit: int = 100,
+    session: Session = Depends(get_session)
+):
+    """Get activity logs, optionally filtered by page."""
+    from models import ActivityLog
+    
+    statement = select(ActivityLog).order_by(ActivityLog.timestamp.desc())
+    
+    if page:
+        statement = statement.where(ActivityLog.page == page)
+    
+    statement = statement.limit(limit)
+    logs = session.exec(statement).all()
+    
+    return [
+        {
+            "id": log.id,
+            "timestamp": log.timestamp.isoformat(),
+            "action": log.action,
+            "details": log.details,
+            "user": log.user,
+            "page": log.page,
+            "item_id": log.item_id
+        }
+        for log in logs
+    ]
+
+@app.post("/api/activity-logs")
+def create_activity_log(log_data: dict, session: Session = Depends(get_session)):
+    """Create a new activity log entry."""
+    from models import ActivityLog
+    
+    log = ActivityLog(
+        action=log_data.get("action", "Unknown Action"),
+        details=log_data.get("details", ""),
+        user=log_data.get("user", "Unknown User"),
+        page=log_data.get("page", "unknown"),
+        item_id=log_data.get("item_id")
+    )
+    
+    session.add(log)
+    session.commit()
+    session.refresh(log)
+    
+    logger.info(f"Activity logged: {log.action} by {log.user} on {log.page}")
+    return {"status": "success", "id": log.id}
+
 # Mount the static directory to serve frontend files. This should be last.
 app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")

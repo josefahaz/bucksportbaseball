@@ -1,14 +1,13 @@
 // Activity Log functionality - shared across all pages
-// Version 1.1 - Dec 2025
+// Version 2.0 - Jan 2026 - Database-backed for persistent, shared logs
 class ActivityLogger {
   constructor(pageName) {
     this.pageName = pageName;
-    this.storageKey = `${pageName}_activity_log`;
-    this.masterLogKey = 'master_activity_log';
-    this.activityLog = JSON.parse(localStorage.getItem(this.storageKey) || '[]');
+    this.activityLog = [];
+    this.apiBaseUrl = window.API_BASE_URL || '';
   }
 
-  logActivity(action, details) {
+  async logActivity(action, details, itemId = null) {
     // Get user from auth manager if available
     let userName = 'Admin';
     if (typeof authManager !== 'undefined' && authManager.getCurrentUser()) {
@@ -17,22 +16,43 @@ class ActivityLogger {
     }
     
     const entry = {
-      timestamp: new Date().toISOString(),
       action: action,
       details: details,
       user: userName,
-      page: this.pageName
+      page: this.pageName,
+      item_id: itemId
     };
     
-    // Add to page-specific log (keep last 100)
-    this.activityLog.unshift(entry);
-    if (this.activityLog.length > 100) {
-      this.activityLog = this.activityLog.slice(0, 100);
+    try {
+      // Save to database via API
+      const response = await fetch(`${this.apiBaseUrl}/api/activity-logs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(entry)
+      });
+      
+      if (!response.ok) {
+        console.error('Failed to log activity to database');
+        // Fallback to localStorage if API fails
+        this.fallbackToLocalStorage(entry);
+      }
+    } catch (error) {
+      console.error('Error logging activity:', error);
+      // Fallback to localStorage if API fails
+      this.fallbackToLocalStorage(entry);
     }
-    localStorage.setItem(this.storageKey, JSON.stringify(this.activityLog));
-    
-    // Add to master log (unlimited history)
-    this.addToMasterLog(entry);
+  }
+  
+  fallbackToLocalStorage(entry) {
+    const storageKey = `${this.pageName}_activity_log`;
+    const logs = JSON.parse(localStorage.getItem(storageKey) || '[]');
+    logs.unshift({...entry, timestamp: new Date().toISOString()});
+    if (logs.length > 100) {
+      logs.splice(100);
+    }
+    localStorage.setItem(storageKey, JSON.stringify(logs));
   }
 
   // Helper method to log changes with before/after values
@@ -54,36 +74,57 @@ class ActivityLogger {
     }
   }
 
-  addToMasterLog(entry) {
-    const masterLog = JSON.parse(localStorage.getItem(this.masterLogKey) || '[]');
-    masterLog.unshift(entry);
-    localStorage.setItem(this.masterLogKey, JSON.stringify(masterLog));
+  async fetchActivityLogs(pageFilter = null) {
+    try {
+      const url = pageFilter 
+        ? `${this.apiBaseUrl}/api/activity-logs?page=${pageFilter}`
+        : `${this.apiBaseUrl}/api/activity-logs`;
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error('Failed to fetch activity logs');
+      }
+      
+      this.activityLog = await response.json();
+      return this.activityLog;
+    } catch (error) {
+      console.error('Error fetching activity logs:', error);
+      // Fallback to localStorage
+      const storageKey = pageFilter ? `${pageFilter}_activity_log` : 'master_activity_log';
+      this.activityLog = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      return this.activityLog;
+    }
   }
 
-  static getMasterLog() {
-    return JSON.parse(localStorage.getItem('master_activity_log') || '[]');
+  static async exportMasterLog() {
+    try {
+      const apiBaseUrl = window.API_BASE_URL || '';
+      const response = await fetch(`${apiBaseUrl}/api/activity-logs`);
+      const logs = await response.json();
+      
+      const dataStr = JSON.stringify(logs, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `activity_log_${new Date().toISOString().split('T')[0]}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error exporting activity log:', error);
+      alert('Failed to export activity log');
+    }
   }
 
-  static clearMasterLog() {
-    localStorage.setItem('master_activity_log', '[]');
-    console.log('Master activity log cleared');
-  }
-
-  static exportMasterLog() {
-    const masterLog = ActivityLogger.getMasterLog();
-    const dataStr = JSON.stringify(masterLog, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `activity_log_${new Date().toISOString().split('T')[0]}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
-  }
-
-  renderActivityLog(containerId) {
+  async renderActivityLog(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
+
+    // Show loading state
+    container.innerHTML = '<p class="text-gray-500 text-center py-8">Loading activity logs...</p>';
+
+    // Fetch logs from database
+    await this.fetchActivityLogs(this.pageName);
 
     if (this.activityLog.length === 0) {
       container.innerHTML = '<p class="text-gray-500 text-center py-8">No activity recorded yet.</p>';
@@ -99,6 +140,7 @@ class ActivityLogger {
             <div class="flex-1">
               <p class="font-semibold text-purple-900">${entry.action}</p>
               <p class="text-sm text-gray-600">${entry.details}</p>
+              <p class="text-xs text-gray-500 mt-1">By: ${entry.user}</p>
             </div>
             <div class="text-xs text-gray-500 ml-4 whitespace-nowrap">${timeStr}</div>
           </div>
@@ -113,8 +155,8 @@ class ActivityLogger {
     const closeBtn = document.getElementById('closeActivityLog');
 
     if (openBtn) {
-      openBtn.addEventListener('click', () => {
-        this.renderActivityLog('activityLogContent');
+      openBtn.addEventListener('click', async () => {
+        await this.renderActivityLog('activityLogContent');
         modal.classList.remove('hidden');
       });
     }

@@ -972,7 +972,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             // Log activity
             if (activityLogger) {
-                activityLogger.logActivity('Item Deleted', `Deleted item: ${item.name}`);
+                await activityLogger.logActivity('Item Deleted', `Deleted item: ${item.name}`, itemId);
             }
             
             alert('Item deleted successfully!');
@@ -1026,7 +1026,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (activityLogger) {
                     const action = currentEditId ? 'Item Updated' : 'Item Added';
                     const message = currentEditId ? `Updated item: ${itemData.name}` : `Added new item: ${itemData.name}`;
-                    activityLogger.logActivity(action, message);
+                    await activityLogger.logActivity(action, message, currentEditId);
                 }
                 
                 alert(currentEditId ? 'Item updated successfully!' : 'Item added successfully!');

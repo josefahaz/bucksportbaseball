@@ -106,3 +106,14 @@ class Location(SQLModel, table=True):
     """Available locations/fields."""
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str = Field(unique=True, index=True)
+
+
+class ActivityLog(SQLModel, table=True):
+    """Activity log for tracking all user actions across the system."""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    timestamp: datetime = Field(default_factory=datetime.utcnow, index=True)
+    action: str = Field(index=True)  # e.g., "Item Updated", "Item Deleted", "Item Added"
+    details: str  # Description of what changed
+    user: str = Field(index=True)  # User who performed the action
+    page: str = Field(index=True)  # Page where action occurred (inventory, schedule, etc.)
+    item_id: Optional[int] = None  # Optional reference to the item that was modified
