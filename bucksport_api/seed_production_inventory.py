@@ -27,6 +27,10 @@ def determine_division(item_name, category, notes):
     if 'softball' in item_lower or 'softball' in notes_lower:
         return 'Softball'
     
+    # Girls and womens pants are for softball
+    if category == 'pants' and ('girls' in item_lower or 'womens' in item_lower or 'women' in item_lower):
+        return 'Softball'
+    
     # Baseball indicators
     if 'baseball' in item_lower or 'tee ball' in item_lower:
         return 'Baseball'
