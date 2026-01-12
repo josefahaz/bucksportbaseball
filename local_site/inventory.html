@@ -961,7 +961,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         
         try {
-            const response = await fetch(`${API_BASE_URL}/inventory/${itemId}`, {
+            const response = await fetch(`${API_BASE_URL}/api/inventory/${itemId}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
@@ -1006,7 +1006,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 let response;
                 if (currentEditId) {
                     // Update existing item
-                    response = await fetch(`${API_BASE_URL}/inventory/${currentEditId}`, {
+                    response = await fetch(`${API_BASE_URL}/api/inventory/${currentEditId}`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json'
