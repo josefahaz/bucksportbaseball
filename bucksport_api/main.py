@@ -117,6 +117,29 @@ def health_check():
     """Health check endpoint for monitoring service status."""
     return {"status": "ok", "message": "Server is running"}
 
+# Debug endpoint to check static files
+@app.get("/api/debug/static-files")
+def debug_static_files():
+    """Debug endpoint to list files in static directory."""
+    try:
+        files = []
+        if STATIC_DIR.exists():
+            for item in STATIC_DIR.iterdir():
+                if item.is_file():
+                    files.append({
+                        "name": item.name,
+                        "size": item.stat().st_size,
+                        "path": str(item)
+                    })
+        return {
+            "static_dir": str(STATIC_DIR),
+            "exists": STATIC_DIR.exists(),
+            "file_count": len(files),
+            "files": files[:20]  # First 20 files
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
 # Serve the main page
 @app.get("/", response_class=FileResponse, include_in_schema=False)
 async def read_index():
