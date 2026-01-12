@@ -1014,10 +1014,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                         body: JSON.stringify(itemData)
                     });
                 } else {
-                    // Create new item (TODO: implement POST endpoint)
-                    console.log('New item to save:', itemData);
-                    alert('Create functionality not yet implemented');
-                    return;
+                    // Create new item
+                    response = await fetch(`${API_BASE_URL}/api/inventory`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(itemData)
+                    });
                 }
                 
                 if (!response.ok) {

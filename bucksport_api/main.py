@@ -480,6 +480,52 @@ def get_inventory_statuses():
     # Return standard inventory statuses
     return ["Available", "Checked Out", "Needs Repair", "Retired"]
 
+@app.post("/api/inventory", status_code=status.HTTP_201_CREATED)
+def create_inventory_item(item_data: dict, session: Session = Depends(get_session)):
+    """Create a new inventory item."""
+    from datetime import datetime
+    
+    # Determine division based on category and name
+    division = "Shared"
+    item_name = item_data.get("name", "").lower()
+    category = item_data.get("category", "").lower()
+    
+    if category in ["jersey", "pants"] and ("girl" in item_name or "women" in item_name or "softball" in item_name):
+        division = "Softball"
+    elif category in ["jersey", "pants", "bat"] and ("baseball" in item_name or "boy" in item_name or "men" in item_name):
+        division = "Baseball"
+    
+    new_item = InventoryItem(
+        item_name=item_data.get("name"),
+        category=item_data.get("category"),
+        division=division,
+        size=item_data.get("size"),
+        team=item_data.get("team"),
+        assigned_coach=item_data.get("assigned_coach"),
+        quantity=item_data.get("quantity", 1),
+        status=item_data.get("status", "in-stock"),
+        notes=item_data.get("notes", ""),
+        last_updated=datetime.now()
+    )
+    
+    session.add(new_item)
+    session.commit()
+    session.refresh(new_item)
+    
+    return {
+        "id": new_item.id,
+        "name": new_item.item_name,
+        "category": new_item.category,
+        "division": new_item.division,
+        "size": new_item.size,
+        "team": new_item.team,
+        "assigned_coach": new_item.assigned_coach,
+        "quantity": new_item.quantity,
+        "status": new_item.status,
+        "notes": new_item.notes,
+        "last_updated": new_item.last_updated.isoformat()
+    }
+
 @app.put("/api/inventory/{item_id}")
 def update_inventory_item(item_id: int, item_data: dict, session: Session = Depends(get_session)):
     """Update an inventory item."""
