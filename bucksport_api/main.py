@@ -104,6 +104,13 @@ app.include_router(auth_router)
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR.parent / "local_site"
 
+# Log the static directory path for debugging
+logger.info(f"BASE_DIR: {BASE_DIR}")
+logger.info(f"STATIC_DIR: {STATIC_DIR}")
+logger.info(f"STATIC_DIR exists: {STATIC_DIR.exists()}")
+if STATIC_DIR.exists():
+    logger.info(f"Files in STATIC_DIR: {list(STATIC_DIR.glob('*.html'))[:5]}")
+
 # Health check endpoint (for monitoring and uptime checks)
 @app.get("/api/health")
 def health_check():
