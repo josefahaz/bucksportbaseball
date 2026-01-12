@@ -4,7 +4,10 @@ class ActivityLogger {
   constructor(pageName) {
     this.pageName = pageName;
     this.activityLog = [];
-    this.apiBaseUrl = window.API_BASE_URL || '';
+    // Use the same API base URL logic as api.js
+    this.apiBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://localhost:8000'
+      : 'https://bucksport-api.onrender.com';
   }
 
   async logActivity(action, details, itemId = null) {

@@ -834,6 +834,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (itemModal) {
             itemModal.style.display = 'none';
             if (itemForm) itemForm.reset();
+            currentEditId = null;
+            document.querySelector('#itemModal h2').textContent = 'Add New Inventory Item';
         }
     };
     
@@ -1044,14 +1046,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
     }
-    
-    // Reset currentEditId when closing modal
-    const originalCloseModal = closeModal;
-    closeModal = () => {
-        currentEditId = null;
-        document.querySelector('#itemModal h2').textContent = 'Add New Inventory Item';
-        originalCloseModal();
-    };
 
     // --- Initial Load ---
     initializePage();
