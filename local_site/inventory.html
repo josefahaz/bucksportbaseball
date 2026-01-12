@@ -835,7 +835,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             itemModal.style.display = 'none';
             if (itemForm) itemForm.reset();
             currentEditId = null;
-            document.querySelector('#itemModal h2').textContent = 'Add New Inventory Item';
+            const modalTitle = document.querySelector('#itemModal h3');
+            if (modalTitle) modalTitle.textContent = 'Add New Inventory Item';
         }
     };
     
@@ -943,7 +944,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         
         // Change modal title
-        document.querySelector('#itemModal h2').textContent = 'Edit Inventory Item';
+        const modalTitle = document.querySelector('#itemModal h3');
+        if (modalTitle) modalTitle.textContent = 'Edit Inventory Item';
         
         // Show modal
         itemModal.style.display = 'flex';
@@ -1040,7 +1042,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 currentEditId = null;
                 
                 // Reset modal title
-                document.querySelector('#itemModal h2').textContent = 'Add New Inventory Item';
+                const modalTitle = document.querySelector('#itemModal h3');
+                if (modalTitle) modalTitle.textContent = 'Add New Inventory Item';
                 
                 // Refresh the inventory
                 await initializePage();
