@@ -104,41 +104,11 @@ app.include_router(auth_router)
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR.parent / "local_site"
 
-# Log the static directory path for debugging
-logger.info(f"BASE_DIR: {BASE_DIR}")
-logger.info(f"STATIC_DIR: {STATIC_DIR}")
-logger.info(f"STATIC_DIR exists: {STATIC_DIR.exists()}")
-if STATIC_DIR.exists():
-    logger.info(f"Files in STATIC_DIR: {list(STATIC_DIR.glob('*.html'))[:5]}")
-
 # Health check endpoint (for monitoring and uptime checks)
 @app.get("/api/health")
 def health_check():
     """Health check endpoint for monitoring service status."""
     return {"status": "ok", "message": "Server is running"}
-
-# Debug endpoint to check static files
-@app.get("/api/debug/static-files")
-def debug_static_files():
-    """Debug endpoint to list files in static directory."""
-    try:
-        files = []
-        if STATIC_DIR.exists():
-            for item in STATIC_DIR.iterdir():
-                if item.is_file():
-                    files.append({
-                        "name": item.name,
-                        "size": item.stat().st_size,
-                        "path": str(item)
-                    })
-        return {
-            "static_dir": str(STATIC_DIR),
-            "exists": STATIC_DIR.exists(),
-            "file_count": len(files),
-            "files": files[:20]  # First 20 files
-        }
-    except Exception as e:
-        return {"error": str(e)}
 
 # Serve the main page
 @app.get("/", response_class=FileResponse, include_in_schema=False)
