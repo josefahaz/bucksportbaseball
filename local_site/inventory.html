@@ -617,16 +617,6 @@ document.addEventListener('DOMContentLoaded', () => {
       createActivityLogModal();
       activityLogger.initializeModal();
       activityLogger.logActivity('Page View', 'Inventory page loaded');
-      
-      // Add click handler for activity log button
-      const activityLogBtn = document.getElementById('viewActivityLog');
-      if (activityLogBtn) {
-          activityLogBtn.addEventListener('click', () => {
-              if (activityLogger && typeof activityLogger.openModal === 'function') {
-                  activityLogger.openModal();
-              }
-          });
-      }
   }
 });
 </script>
@@ -934,31 +924,42 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         currentEditId = itemId;
         
-        // Populate modal with item data
-        document.getElementById('itemName').value = item.name;
-        document.getElementById('category').value = item.category;
-        document.getElementById('size').value = item.size || '';
-        document.getElementById('quantity').value = item.quantity;
-        document.getElementById('status').value = item.status;
-        document.getElementById('notes').value = item.notes || '';
-        
-        // Populate dropdowns
-        await populateModalDropdowns();
-        
-        // Set team and coach if they exist
-        if (item.team && item.team.id) {
-            document.getElementById('itemTeam').value = item.team.id;
-        }
-        if (item.assigned_coach && item.assigned_coach.id) {
-            document.getElementById('assignedCoach').value = item.assigned_coach.id;
+        // Show modal first
+        if (itemModal) {
+            itemModal.style.display = 'flex';
         }
         
         // Change modal title
         const modalTitle = document.querySelector('#itemModal h3');
         if (modalTitle) modalTitle.textContent = 'Edit Inventory Item';
         
-        // Show modal
-        itemModal.style.display = 'flex';
+        // Populate dropdowns first
+        await populateModalDropdowns();
+        
+        // Populate modal with item data
+        const itemNameEl = document.getElementById('itemName');
+        const categoryEl = document.getElementById('category');
+        const sizeEl = document.getElementById('size');
+        const quantityEl = document.getElementById('quantity');
+        const statusEl = document.getElementById('status');
+        const notesEl = document.getElementById('notes');
+        
+        if (itemNameEl) itemNameEl.value = item.name || '';
+        if (categoryEl) categoryEl.value = item.category || '';
+        if (sizeEl) sizeEl.value = item.size || '';
+        if (quantityEl) quantityEl.value = item.quantity || 1;
+        if (statusEl) statusEl.value = item.status || 'in-stock';
+        if (notesEl) notesEl.value = item.notes || '';
+        
+        // Set team and coach if they exist
+        if (item.team && item.team.id) {
+            const teamEl = document.getElementById('itemTeam');
+            if (teamEl) teamEl.value = item.team.id;
+        }
+        if (item.assigned_coach && item.assigned_coach.id) {
+            const coachEl = document.getElementById('assignedCoach');
+            if (coachEl) coachEl.value = item.assigned_coach.id;
+        }
     }
     
     async function handleDelete(itemId) {
