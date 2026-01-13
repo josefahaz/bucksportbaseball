@@ -617,6 +617,16 @@ document.addEventListener('DOMContentLoaded', () => {
       createActivityLogModal();
       activityLogger.initializeModal();
       activityLogger.logActivity('Page View', 'Inventory page loaded');
+      
+      // Add click handler for activity log button
+      const activityLogBtn = document.getElementById('viewActivityLog');
+      if (activityLogBtn) {
+          activityLogBtn.addEventListener('click', () => {
+              if (activityLogger && typeof activityLogger.openModal === 'function') {
+                  activityLogger.openModal();
+              }
+          });
+      }
   }
 });
 </script>
