@@ -533,11 +533,11 @@
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
           <div>
             <label style="display: block; margin-bottom: 4px; font-size: 0.875rem; font-weight: 500; color: #4b5563;">Item Name *</label>
-            <input type="text" name="itemName" required style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; color: #1f2937;">
+            <input type="text" id="itemName" name="itemName" required style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; color: #1f2937;">
           </div>
           <div>
             <label style="display: block; margin-bottom: 4px; font-size: 0.875rem; font-weight: 500; color: #4b5563;">Category *</label>
-            <select name="category" required style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; color: #1f2937;">
+            <select id="category" name="category" required style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; color: #1f2937;">
               <option value="">Select Category</option>
               <option value="jersey">Jersey</option>
               <option value="pants">Pants</option>
@@ -552,7 +552,7 @@
           </div>
           <div>
             <label style="display: block; margin-bottom: 4px; font-size: 0.875rem; font-weight: 500; color: #4b5563;">Size</label>
-            <input type="text" name="size" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; color: #1f2937;" placeholder="e.g., M, L, XL, 10, 12">
+            <input type="text" id="size" name="size" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; color: #1f2937;" placeholder="e.g., M, L, XL, 10, 12">
           </div>
           <div>
             <label style="display: block; margin-bottom: 4px; font-size: 0.875rem; font-weight: 500; color: #4b5563;">Team</label>
@@ -569,11 +569,11 @@
           </div>
           <div>
             <label style="display: block; margin-bottom: 4px; font-size: 0.875rem; font-weight: 500; color: #4b5563;">Quantity *</label>
-            <input type="number" name="quantity" min="0" value="1" required style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; color: #1f2937;">
+            <input type="number" id="quantity" name="quantity" min="0" value="1" required style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; color: #1f2937;">
           </div>
           <div>
             <label style="display: block; margin-bottom: 4px; font-size: 0.875rem; font-weight: 500; color: #4b5563;">Status *</label>
-            <select name="status" required style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; color: #1f2937;">
+            <select id="status" name="status" required style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; color: #1f2937;">
               <option value="in-stock">In Stock</option>
               <option value="low-stock">Low Stock</option>
               <option value="out-of-stock">Out of Stock</option>
@@ -583,7 +583,7 @@
           </div>
           <div style="grid-column: span 2;">
             <label style="display: block; margin-bottom: 4px; font-size: 0.875rem; font-weight: 500; color: #4b5563;">Notes</label>
-            <textarea name="notes" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; min-height: 80px; color: #1f2937;" placeholder="Any additional notes about this item"></textarea>
+            <textarea id="notes" name="notes" style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; min-height: 80px; color: #1f2937;" placeholder="Any additional notes about this item"></textarea>
           </div>
         </div>
         <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px;">
