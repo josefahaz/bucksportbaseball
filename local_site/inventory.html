@@ -652,6 +652,20 @@ document.addEventListener('DOMContentLoaded', () => {
                           modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
                           modal.style.alignItems = 'center';
                           modal.style.justifyContent = 'center';
+                          
+                          // Style the inner content div
+                          const modalContent = modal.querySelector('.bg-white');
+                          if (modalContent) {
+                              modalContent.style.backgroundColor = 'white';
+                              modalContent.style.borderRadius = '8px';
+                              modalContent.style.width = '90%';
+                              modalContent.style.maxWidth = '1000px';
+                              modalContent.style.maxHeight = '90vh';
+                              modalContent.style.overflow = 'hidden';
+                              modalContent.style.margin = '0 16px';
+                              console.log('Modal content styled');
+                          }
+                          
                           console.log('Modal classes after:', modal.className);
                           console.log('Modal should now be visible with inline styles');
                       } catch (error) {
