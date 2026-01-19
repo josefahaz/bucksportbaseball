@@ -157,11 +157,25 @@ class ActivityLogger {
     const openBtn = document.getElementById('viewActivityLog');
     const closeBtn = document.getElementById('closeActivityLog');
 
+    console.log('initializeModal called', {
+      modal: !!modal,
+      openBtn: !!openBtn,
+      closeBtn: !!closeBtn
+    });
+
     if (openBtn) {
+      console.log('Adding click handler to activity log button');
       openBtn.addEventListener('click', async () => {
+        console.log('Activity log button clicked!');
+        if (!modal) {
+          console.error('Modal element not found!');
+          return;
+        }
         await this.renderActivityLog('activityLogContent');
         modal.classList.remove('hidden');
       });
+    } else {
+      console.error('Activity log button (viewActivityLog) not found!');
     }
 
     if (closeBtn) {
@@ -177,6 +191,8 @@ class ActivityLogger {
           modal.classList.add('hidden');
         }
       });
+    } else {
+      console.error('Activity log modal element not found!');
     }
   }
 }

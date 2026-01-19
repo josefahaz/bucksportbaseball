@@ -838,9 +838,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     if (addItemBtn) {
         addItemBtn.addEventListener('click', async () => {
+            currentEditId = null;
             if (itemModal) {
                 await populateModalDropdowns();
                 itemModal.style.display = 'flex';
+                
+                // Reset modal title
+                const modalTitle = document.querySelector('#itemModal h3');
+                if (modalTitle) modalTitle.textContent = 'Add New Inventory Item';
+                
+                // Clear form
+                if (itemForm) itemForm.reset();
             }
         });
     }
