@@ -645,7 +645,7 @@ document.addEventListener('DOMContentLoaded', () => {
         await activityLogger.renderActivityLog('activityLogContent');
         modal.classList.remove('hidden');
         
-        // Force all display styles
+        // Force all display styles on modal overlay
         modal.style.cssText = `
           display: flex !important;
           position: fixed !important;
@@ -658,6 +658,22 @@ document.addEventListener('DOMContentLoaded', () => {
           align-items: center !important;
           justify-content: center !important;
         `;
+        
+        // Force styles on inner content div
+        const modalContent = modal.querySelector('div');
+        if (modalContent) {
+          modalContent.style.cssText = `
+            background-color: white !important;
+            border-radius: 8px !important;
+            width: 90% !important;
+            max-width: 1000px !important;
+            max-height: 90vh !important;
+            overflow: hidden !important;
+            display: block !important;
+            position: relative !important;
+          `;
+          console.log('Modal content styled');
+        }
         
         console.log('Modal computed style after:', window.getComputedStyle(modal).display);
         console.log('Modal should now be visible');
