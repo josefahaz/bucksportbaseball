@@ -901,43 +901,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
     
-    // Form submission
-    if (itemForm) {
-        itemForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = new FormData(itemForm);
-            const newItem = {
-                name: formData.get('itemName'),
-                category: formData.get('category'),
-                size: formData.get('size') || null,
-                team_id: formData.get('team') || null,
-                assigned_coach_id: formData.get('assignedCoach') === 'unassigned' ? null : formData.get('assignedCoach'),
-                quantity: parseInt(formData.get('quantity')),
-                status: formData.get('status'),
-                notes: formData.get('notes') || ''
-            };
-            
-            try {
-                // TODO: Add API call to save item
-                console.log('New item to save:', newItem);
-                
-                // Log activity (if available)
-                if (activityLogger) {
-                    activityLogger.logActivity('Item Added', `Added new item: ${newItem.name}`);
-                }
-                
-                alert('Item added successfully! (Note: Backend integration pending)');
-                closeModal();
-                
-                // Refresh the inventory
-                await initializePage();
-            } catch (error) {
-                console.error('Failed to save item:', error);
-                alert('Failed to save item. Please try again.');
-            }
-        });
-    }
+    // Old form submission handler removed - using the new one below that handles both create and update
 
     // --- Edit and Delete Handlers ---
     let currentEditId = null;
