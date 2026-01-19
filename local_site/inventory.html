@@ -602,8 +602,8 @@
 <script src="js/api.js"></script>
 <script src="js/activity-log.js"></script>
 <script>
-// Initialize Activity Logger
-const activityLogger = new ActivityLogger('inventory');
+// Initialize Activity Logger - make it globally accessible
+var activityLogger = new ActivityLogger('inventory');
 
 document.addEventListener('DOMContentLoaded', () => {
   // Create and initialize activity log modal
