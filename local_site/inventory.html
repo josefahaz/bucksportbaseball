@@ -603,12 +603,52 @@
 <script src="js/activity-log.js"></script>
 <script>
 // Initialize Activity Logger - make it globally accessible
-var activityLogger = new ActivityLogger('inventory');
+var activityLogger = null;
 
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('Initializing activity logger...');
+  
+  // Check if ActivityLogger class exists
+  if (typeof ActivityLogger === 'undefined') {
+    console.error('ActivityLogger class not found - activity-log.js may not be loaded');
+    return;
+  }
+  
+  activityLogger = new ActivityLogger('inventory');
+  console.log('ActivityLogger created');
+  
+  // Check if createActivityLogModal function exists
+  if (typeof createActivityLogModal !== 'function') {
+    console.error('createActivityLogModal function not found');
+    return;
+  }
+  
   // Create and initialize activity log modal
   createActivityLogModal();
+  console.log('Activity log modal created');
+  
   activityLogger.initializeModal();
+  console.log('Activity log modal initialized');
+  
+  // Add direct click handler as backup
+  const activityBtn = document.getElementById('viewActivityLog');
+  if (activityBtn) {
+    console.log('Adding direct click handler to activity log button');
+    activityBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      console.log('Direct click handler fired!');
+      const modal = document.getElementById('activityLogModal');
+      if (modal) {
+        await activityLogger.renderActivityLog('activityLogContent');
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+      } else {
+        console.error('Modal not found!');
+      }
+    });
+  } else {
+    console.error('Activity log button not found!');
+  }
 });
 </script>
 <script>
