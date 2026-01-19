@@ -630,13 +630,22 @@ document.addEventListener('DOMContentLoaded', () => {
           setTimeout(() => {
               const btn = document.getElementById('viewActivityLog');
               const modal = document.getElementById('activityLogModal');
-              console.log('Fallback check:', { btn: !!btn, modal: !!modal });
+              const content = document.getElementById('activityLogContent');
+              console.log('Fallback check:', { btn: !!btn, modal: !!modal, content: !!content });
               
               if (btn && modal) {
                   btn.addEventListener('click', async () => {
                       console.log('Fallback click handler fired!');
-                      await activityLogger.renderActivityLog('activityLogContent');
-                      modal.classList.remove('hidden');
+                      console.log('Modal classes before:', modal.className);
+                      try {
+                          await activityLogger.renderActivityLog('activityLogContent');
+                          console.log('Activity log rendered');
+                          modal.classList.remove('hidden');
+                          console.log('Modal classes after:', modal.className);
+                          console.log('Modal should now be visible');
+                      } catch (error) {
+                          console.error('Error in fallback click handler:', error);
+                      }
                   });
                   console.log('Fallback click handler added');
               }
