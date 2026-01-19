@@ -615,7 +615,8 @@ try {
 document.addEventListener('DOMContentLoaded', () => {
   console.log('Initializing activity log...', {
     activityLogger: !!activityLogger,
-    createActivityLogModal: typeof createActivityLogModal
+    createActivityLogModal: typeof createActivityLogModal,
+    buttonExists: !!document.getElementById('viewActivityLog')
   });
   
   if (activityLogger && typeof createActivityLogModal === 'function') {
@@ -624,6 +625,23 @@ document.addEventListener('DOMContentLoaded', () => {
           console.log('Activity log modal created');
           activityLogger.initializeModal();
           console.log('Activity log modal initialized');
+          
+          // Add manual fallback click handler
+          setTimeout(() => {
+              const btn = document.getElementById('viewActivityLog');
+              const modal = document.getElementById('activityLogModal');
+              console.log('Fallback check:', { btn: !!btn, modal: !!modal });
+              
+              if (btn && modal) {
+                  btn.addEventListener('click', async () => {
+                      console.log('Fallback click handler fired!');
+                      await activityLogger.renderActivityLog('activityLogContent');
+                      modal.classList.remove('hidden');
+                  });
+                  console.log('Fallback click handler added');
+              }
+          }, 500);
+          
           activityLogger.logActivity('Page View', 'Inventory page loaded');
       } catch (error) {
           console.error('Failed to initialize activity log:', error);
