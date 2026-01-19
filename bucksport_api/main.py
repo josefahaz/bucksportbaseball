@@ -559,7 +559,19 @@ def update_inventory_item(item_id: int, item_data: dict, session: Session = Depe
     session.refresh(item)
     
     logger.info(f"Updated inventory item: {item.item_name} (ID: {item_id})")
-    return {"status": "success", "message": "Item updated successfully"}
+    return {
+        "id": item.id,
+        "name": item.item_name,
+        "category": item.category,
+        "division": item.division,
+        "size": item.size,
+        "team": item.team,
+        "assigned_coach": item.assigned_coach,
+        "quantity": item.quantity,
+        "status": item.status,
+        "notes": item.notes,
+        "last_updated": item.last_updated.isoformat()
+    }
 
 @app.delete("/api/inventory/{item_id}")
 def delete_inventory_item(item_id: int, session: Session = Depends(get_session)):
