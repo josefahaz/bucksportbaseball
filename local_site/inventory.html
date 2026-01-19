@@ -638,10 +638,29 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       console.log('Direct click handler fired!');
       const modal = document.getElementById('activityLogModal');
+      console.log('Modal element:', modal);
+      console.log('Modal computed style before:', modal ? window.getComputedStyle(modal).display : 'N/A');
+      
       if (modal) {
         await activityLogger.renderActivityLog('activityLogContent');
         modal.classList.remove('hidden');
-        modal.style.display = 'flex';
+        
+        // Force all display styles
+        modal.style.cssText = `
+          display: flex !important;
+          position: fixed !important;
+          top: 0 !important;
+          left: 0 !important;
+          right: 0 !important;
+          bottom: 0 !important;
+          z-index: 9999 !important;
+          background-color: rgba(0, 0, 0, 0.5) !important;
+          align-items: center !important;
+          justify-content: center !important;
+        `;
+        
+        console.log('Modal computed style after:', window.getComputedStyle(modal).display);
+        console.log('Modal should now be visible');
       } else {
         console.error('Modal not found!');
       }

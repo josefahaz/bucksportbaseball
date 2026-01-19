@@ -591,13 +591,19 @@ def delete_inventory_item(item_id: int, session: Session = Depends(get_session))
 @app.get("/api/activity-logs")
 def get_activity_logs(
     page: Optional[str] = None,
-    limit: int = 100,
+    limit: int = 1000,
+    days: int = 30,
     session: Session = Depends(get_session)
 ):
-    """Get activity logs, optionally filtered by page."""
+    """Get activity logs, optionally filtered by page. Shows last 30 days by default."""
     from models import ActivityLog
+    from datetime import datetime, timedelta
     
     statement = select(ActivityLog).order_by(ActivityLog.timestamp.desc())
+    
+    # Filter by date - last 30 days by default
+    cutoff_date = datetime.utcnow() - timedelta(days=days)
+    statement = statement.where(ActivityLog.timestamp >= cutoff_date)
     
     if page:
         statement = statement.where(ActivityLog.page == page)
