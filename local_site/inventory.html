@@ -613,10 +613,26 @@ try {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('Initializing activity log...', {
+    activityLogger: !!activityLogger,
+    createActivityLogModal: typeof createActivityLogModal
+  });
+  
   if (activityLogger && typeof createActivityLogModal === 'function') {
-      createActivityLogModal();
-      activityLogger.initializeModal();
-      activityLogger.logActivity('Page View', 'Inventory page loaded');
+      try {
+          createActivityLogModal();
+          console.log('Activity log modal created');
+          activityLogger.initializeModal();
+          console.log('Activity log modal initialized');
+          activityLogger.logActivity('Page View', 'Inventory page loaded');
+      } catch (error) {
+          console.error('Failed to initialize activity log:', error);
+      }
+  } else {
+      console.warn('Activity log not available:', {
+          activityLogger: !!activityLogger,
+          createActivityLogModal: typeof createActivityLogModal
+      });
   }
 });
 </script>
