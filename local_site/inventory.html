@@ -856,7 +856,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     if (addItemBtn) {
         addItemBtn.addEventListener('click', async () => {
+            console.log('Add New Item clicked - clearing currentEditId');
             currentEditId = null;
+            console.log('currentEditId is now:', currentEditId);
             if (itemModal) {
                 await populateModalDropdowns();
                 itemModal.style.display = 'flex';
@@ -957,6 +959,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     
     async function handleEdit(itemId) {
+        console.log('handleEdit called with itemId:', itemId);
         // Find the item in allInventory
         const item = allInventory.find(i => i.id == itemId);
         if (!item) {
@@ -965,6 +968,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         
         currentEditId = itemId;
+        console.log('currentEditId set to:', currentEditId);
         
         // Show modal first
         if (itemModal) {
@@ -1057,9 +1061,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 notes: formData.get('notes') || ''
             };
             
+            console.log('Form submit - currentEditId:', currentEditId);
+            
             try {
                 let response;
                 if (currentEditId) {
+                    console.log('Updating existing item with ID:', currentEditId);
                     // Update existing item
                     response = await fetch(`${API_BASE_URL}/api/inventory/${currentEditId}`, {
                         method: 'PUT',
