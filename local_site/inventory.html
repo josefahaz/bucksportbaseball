@@ -617,72 +617,52 @@ document.addEventListener('DOMContentLoaded', () => {
   activityLogger = new ActivityLogger('inventory');
   console.log('ActivityLogger created');
   
-  // Check if createActivityLogModal function exists
-  if (typeof createActivityLogModal !== 'function') {
-    console.error('createActivityLogModal function not found');
-    return;
-  }
+  // Create modal HTML directly inline
+  const modalHTML = `
+    <div id="activityLogModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; background-color: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center;">
+      <div style="background-color: white; border-radius: 8px; width: 90%; max-width: 1000px; max-height: 90vh; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e5e7eb; padding: 16px; background-color: #7c3aed; color: white;">
+          <h3 style="font-size: 18px; font-weight: 600; margin: 0;"><i class="fas fa-history" style="margin-right: 8px;"></i>Activity Log</h3>
+          <button id="closeActivityLog" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 0; line-height: 1;">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div id="activityLogContent" style="overflow-y: auto; max-height: calc(90vh - 80px); padding: 16px;">
+          <!-- Activity entries will be inserted here -->
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+  console.log('Custom activity log modal created');
   
-  // Create and initialize activity log modal
-  createActivityLogModal();
-  console.log('Activity log modal created');
-  
-  activityLogger.initializeModal();
-  console.log('Activity log modal initialized');
-  
-  // Add direct click handler as backup
+  // Add click handlers
   const activityBtn = document.getElementById('viewActivityLog');
-  if (activityBtn) {
-    console.log('Adding direct click handler to activity log button');
+  const modal = document.getElementById('activityLogModal');
+  const closeBtn = document.getElementById('closeActivityLog');
+  
+  if (activityBtn && modal) {
+    console.log('Adding click handler to activity log button');
     activityBtn.addEventListener('click', async (e) => {
       e.preventDefault();
-      console.log('Direct click handler fired!');
-      const modal = document.getElementById('activityLogModal');
-      console.log('Modal element:', modal);
-      console.log('Modal computed style before:', modal ? window.getComputedStyle(modal).display : 'N/A');
-      
-      if (modal) {
-        await activityLogger.renderActivityLog('activityLogContent');
-        modal.classList.remove('hidden');
-        
-        // Force all display styles on modal overlay
-        modal.style.cssText = `
-          display: flex !important;
-          position: fixed !important;
-          top: 0 !important;
-          left: 0 !important;
-          right: 0 !important;
-          bottom: 0 !important;
-          z-index: 9999 !important;
-          background-color: rgba(0, 0, 0, 0.5) !important;
-          align-items: center !important;
-          justify-content: center !important;
-        `;
-        
-        // Force styles on inner content div
-        const modalContent = modal.querySelector('div');
-        if (modalContent) {
-          modalContent.style.cssText = `
-            background-color: white !important;
-            border-radius: 8px !important;
-            width: 90% !important;
-            max-width: 1000px !important;
-            max-height: 90vh !important;
-            overflow: hidden !important;
-            display: block !important;
-            position: relative !important;
-          `;
-          console.log('Modal content styled');
-        }
-        
-        console.log('Modal computed style after:', window.getComputedStyle(modal).display);
-        console.log('Modal should now be visible');
-      } else {
-        console.error('Modal not found!');
+      console.log('Activity log button clicked!');
+      await activityLogger.renderActivityLog('activityLogContent');
+      modal.style.display = 'flex';
+      console.log('Modal should now be visible');
+    });
+  }
+  
+  if (closeBtn && modal) {
+    closeBtn.addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+    
+    // Close when clicking outside
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.style.display = 'none';
       }
     });
-  } else {
-    console.error('Activity log button not found!');
   }
 });
 </script>
