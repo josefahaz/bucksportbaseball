@@ -598,96 +598,14 @@
     </div>
   </div>
 
-  <!-- Activity Log Modal - Standalone -->
-  <div id="activityLogModal" style="display: none !important; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; background-color: rgba(0, 0, 0, 0.5);">
-    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; border-radius: 8px; width: 90%; max-width: 1000px; max-height: 90vh; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); overflow: hidden;">
-      <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px; background-color: #7c3aed; color: white; border-bottom: 1px solid #6d28d9;">
-        <h3 style="margin: 0; font-size: 20px; font-weight: 600;">
-          <i class="fas fa-history" style="margin-right: 10px;"></i>Activity Log
-        </h3>
-        <button id="closeActivityLog" style="background: none; border: none; color: white; font-size: 28px; cursor: pointer; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      <div id="activityLogContent" style="padding: 20px; overflow-y: auto; max-height: calc(90vh - 80px); background-color: white;">
-        <p style="text-align: center; color: #6b7280; padding: 40px 0;">Loading activity logs...</p>
-      </div>
-    </div>
-  </div>
-
 <script src="js/auth.js"></script>
 <script src="js/api.js"></script>
 <script src="js/activity-log.js"></script>
 <script>
-console.log('Activity log script block starting...');
-
-// Initialize Activity Logger
 const activityLogger = new ActivityLogger('inventory');
-console.log('ActivityLogger instance created:', activityLogger);
-
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('DOMContentLoaded - Setting up activity log modal handlers');
-  
-  // Check for duplicate modals and remove any with hidden class
-  const allModals = document.querySelectorAll('#activityLogModal');
-  console.log('Found', allModals.length, 'modal(s) with id activityLogModal');
-  allModals.forEach((m, index) => {
-    console.log(`Modal ${index}:`, m.className, m.style.cssText);
-    if (m.classList.contains('hidden')) {
-      console.log(`Removing modal ${index} with hidden class`);
-      m.remove();
-    }
-  });
-  
-  // Setup activity log modal handlers
-  const modal = document.getElementById('activityLogModal');
-  const openBtn = document.getElementById('viewActivityLog');
-  const closeBtn = document.getElementById('closeActivityLog');
-  
-  console.log('Modal element after cleanup:', modal);
-  console.log('Open button element:', openBtn);
-  console.log('Close button element:', closeBtn);
-  
-  if (openBtn) {
-    console.log('Adding click event listener to activity log button');
-    openBtn.addEventListener('click', async (e) => {
-      console.log('ACTIVITY LOG BUTTON CLICKED!');
-      e.preventDefault();
-      e.stopPropagation();
-      try {
-        await activityLogger.renderActivityLog('activityLogContent');
-        modal.classList.remove('hidden');
-        modal.style.cssText = 'display: block !important; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; background-color: rgba(0, 0, 0, 0.5);';
-        console.log('Modal display set to block');
-      } catch (error) {
-        console.error('Error opening activity log:', error);
-      }
-    });
-    console.log('Click event listener added successfully');
-  } else {
-    console.error('Activity log button NOT FOUND!');
-  }
-  
-  if (closeBtn) {
-    closeBtn.addEventListener('click', () => {
-      console.log('Close button clicked');
-      modal.classList.add('hidden');
-      modal.style.cssText = 'display: none !important; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; background-color: rgba(0, 0, 0, 0.5);';
-    });
-  }
-  
-  // Close when clicking outside
-  if (modal) {
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        console.log('Clicked outside modal, closing');
-        modal.classList.add('hidden');
-        modal.style.cssText = 'display: none !important; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; background-color: rgba(0, 0, 0, 0.5);';
-      }
-    });
-  }
-  
-  console.log('Activity log modal setup complete');
+  createActivityLogModal();
+  activityLogger.initializeModal();
 });
 </script>
 <script>
