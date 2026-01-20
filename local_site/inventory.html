@@ -619,24 +619,46 @@
 <script src="js/api.js"></script>
 <script src="js/activity-log.js"></script>
 <script>
+console.log('Activity log script block starting...');
+
 // Initialize Activity Logger
 const activityLogger = new ActivityLogger('inventory');
+console.log('ActivityLogger instance created:', activityLogger);
 
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('DOMContentLoaded - Setting up activity log modal handlers');
+  
   // Setup activity log modal handlers
   const modal = document.getElementById('activityLogModal');
   const openBtn = document.getElementById('viewActivityLog');
   const closeBtn = document.getElementById('closeActivityLog');
   
+  console.log('Modal element:', modal);
+  console.log('Open button element:', openBtn);
+  console.log('Close button element:', closeBtn);
+  
   if (openBtn) {
-    openBtn.addEventListener('click', async () => {
-      await activityLogger.renderActivityLog('activityLogContent');
-      modal.style.display = 'block';
+    console.log('Adding click event listener to activity log button');
+    openBtn.addEventListener('click', async (e) => {
+      console.log('ACTIVITY LOG BUTTON CLICKED!');
+      e.preventDefault();
+      e.stopPropagation();
+      try {
+        await activityLogger.renderActivityLog('activityLogContent');
+        modal.style.display = 'block';
+        console.log('Modal display set to block');
+      } catch (error) {
+        console.error('Error opening activity log:', error);
+      }
     });
+    console.log('Click event listener added successfully');
+  } else {
+    console.error('Activity log button NOT FOUND!');
   }
   
   if (closeBtn) {
     closeBtn.addEventListener('click', () => {
+      console.log('Close button clicked');
       modal.style.display = 'none';
     });
   }
@@ -645,10 +667,13 @@ document.addEventListener('DOMContentLoaded', () => {
   if (modal) {
     modal.addEventListener('click', (e) => {
       if (e.target === modal) {
+        console.log('Clicked outside modal, closing');
         modal.style.display = 'none';
       }
     });
   }
+  
+  console.log('Activity log modal setup complete');
 });
 </script>
 <script>
