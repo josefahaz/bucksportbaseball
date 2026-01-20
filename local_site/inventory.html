@@ -603,10 +603,6 @@
 <script src="js/activity-log.js"></script>
 <script>
 const activityLogger = new ActivityLogger('inventory');
-document.addEventListener('DOMContentLoaded', () => {
-  createActivityLogModal();
-  activityLogger.initializeModal();
-});
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', async () => {
@@ -1095,6 +1091,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- Initial Load ---
     initializePage();
+    
+    // Initialize activity log modal AFTER all inventory code
+    createActivityLogModal();
+    activityLogger.initializeModal();
 });
 </script>
 </body>
