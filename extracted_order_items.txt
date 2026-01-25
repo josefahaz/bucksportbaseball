@@ -1,0 +1,54 @@
+113	-8653053-0269026	8653053	2025-10-14
+14	, 2025	2025	2025-10-14
+113	-8653053-0269026	8653053	2025-10-14
+14	, 2025	2025	2025-10-14
+2	of:  PHINIX 12" Safety Softball for Training and Recreational Play (Box of 12)	12	2025-10-14
+56	.98	98	2025-10-14
+13	BRIDGES RD	S	2025-10-14
+4416	-3112	3112	2025-10-14
+0	.00	00	2025-10-14
+6	.26	26	2025-10-14
+15	, 2025	2025	2025-10-14
+1	of: Champion Sports 6 Gallon Bucket with Padded Soft Seat Lid - Durable Construction - Balls Not Included - Ideal for Baseba	m	2025-10-14
+24	.37	37	2025-10-14
+13	BRIDGES RD	S	2025-10-14
+4416	-3112	3112	2025-10-14
+0	.00	00	2025-10-14
+1	.34	34	2025-10-14
+507	2	2	2025-10-14
+70	SCHOOL HOUSE RD	S	2025-10-14
+0	.00	00	2025-10-14
+7	.60	60	2025-10-14
+5072	: October 16, 2025: $145.93	16	2025-10-14
+1996	-2020, Amazon.com, Inc.	2020	2025-10-14
+113	-1473785-8300258	1473785	2025-11-20
+20	, 2025	2025	2025-11-20
+113	-1473785-8300258	1473785	2025-11-20
+2	of:  Rawlings | PLAYERS SERIES Catcher's Helmet | Baseball | Youth (6 1/2" - 7") | Black	l	2025-11-20
+61	.97	97	2025-11-20
+1	of:  Easton | Black Magic 3.0 Youth Catcher's Set | Black | Medium (Ages 6-9)	s	2025-11-20
+144	.49	49	2025-11-20
+2	of:  Easton | E100G TEAM EQUIPMENT DUFFLE BAG | Baseball & Fastpitch Softball | Black	s	2025-11-20
+44	.99	99	2025-11-20
+4	of:  MLB Baseball + Softball Lineup Cards - 25 Game Line Up Sheets Book + Holder for Coaches + Managers - Black	M	2025-11-20
+9	.46	46	2025-11-20
+3	of: PLAYAPUT Portable Batting Tee for Baseball/Softball, Height Adjustment from 25-37 inch,Easy Transport Premium Baseball	L	2025-11-20
+35	.99	99	2025-11-20
+1	of: General Medi Instant Ice Cold Pack (4"x 5.5") - 25 Packs Disposable Cold Therapy Ice Packs for Pain Relief, Sw	l	2025-11-20
+17	.66	66	2025-11-20
+1	of: HOYWOUL Softball Pitching Mat with Anti-Fade Turf, 10'x3' Baseball Softball Pitching Mound with Anti-Slip Bott	L	2025-11-20
+72	.59	59	2025-11-20
+13	BRIDGES RD	S	2025-11-20
+4416	-3112	3112	2025-11-20
+3	of: Athletico 15 Player Dugout Organizer - Hanging Baseball Helmet Bag to Organize Baseball Equipment Including Gloves,	l	2025-11-20
+39	.99	99	2025-11-20
+13	BRIDGES RD	S	2025-11-20
+4416	-3112	3112	2025-11-20
+0	.00	00	2025-11-20
+6	.60	60	2025-11-20
+507	2	2	2025-11-20
+70	SCHOOL HOUSE RD	S	2025-11-20
+4472	-3694	3694	2025-11-20
+0	.00	00	2025-11-20
+39	.29	29	2025-11-20
+1996	-2020, Amazon.com, Inc.	2020	2025-11-20

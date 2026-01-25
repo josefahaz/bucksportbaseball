@@ -181,13 +181,26 @@
     </footer>
   </div>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
+        const API_BASE_URL = 'https://bucksport-api.onrender.com';
         const form = document.getElementById('donation-form');
         const tableBody = document.getElementById('donations-table-body');
         const filterType = document.getElementById('filter-type');
         const totalAmountEl = document.getElementById('total-amount');
 
-        let donations = JSON.parse(localStorage.getItem('donationsData')) || [];
+        let donations = [];
+
+        const fetchDonations = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/donations`);
+                if (!response.ok) throw new Error('Failed to fetch donations');
+                donations = await response.json();
+                renderTable();
+            } catch (error) {
+                console.error('Error fetching donations:', error);
+                tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-red-600">Failed to load donations. Please try again.</td></tr>';
+            }
+        };
 
         const renderTable = () => {
             const currentFilter = filterType.value;
@@ -196,7 +209,7 @@
 
             const filteredDonations = donations.filter(d => currentFilter === 'all' || d.type === currentFilter);
 
-            filteredDonations.forEach((donation, index) => {
+            filteredDonations.forEach((donation) => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td class="px-6 py-4 whitespace-nowrap">${donation.name}</td>
@@ -204,7 +217,7 @@
                     <td class="px-6 py-4 whitespace-nowrap">${donation.type}</td>
                     <td class="px-6 py-4 whitespace-nowrap">${donation.date}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button class="text-red-600 hover:text-red-900" data-index="${index}">Delete</button>
+                        <button class="text-red-600 hover:text-red-900" data-id="${donation.id}">Delete</button>
                     </td>
                 `;
                 tableBody.appendChild(row);
@@ -214,12 +227,7 @@
             totalAmountEl.textContent = `$${totalAmount.toFixed(2)}`;
         };
 
-        const saveAndRender = () => {
-            localStorage.setItem('donationsData', JSON.stringify(donations));
-            renderTable();
-        };
-
-        form.addEventListener('submit', (e) => {
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const newDonation = {
                 name: document.getElementById('entry-name').value,
@@ -227,31 +235,56 @@
                 type: document.getElementById('entry-type').value,
                 date: document.getElementById('entry-date').value,
             };
-            donations.push(newDonation);
-            donations.sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort by most recent
-            saveAndRender();
-            // Log activity
-            if (typeof activityLogger !== 'undefined') {
-                activityLogger.logActivity('Donation Added', `Added ${newDonation.type}: $${parseFloat(newDonation.amount).toFixed(2)} from "${newDonation.name}"`);
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/donations`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newDonation)
+                });
+                
+                if (!response.ok) throw new Error('Failed to add donation');
+                
+                await fetchDonations();
+                
+                // Log activity
+                if (typeof activityLogger !== 'undefined') {
+                    activityLogger.logActivity('Donation Added', `Added ${newDonation.type}: $${parseFloat(newDonation.amount).toFixed(2)} from "${newDonation.name}"`);
+                }
+                
+                form.reset();
+                document.getElementById('entry-date').valueAsDate = new Date();
+                alert('Donation added successfully!');
+            } catch (error) {
+                console.error('Error adding donation:', error);
+                alert('Failed to add donation. Please try again.');
             }
-            form.reset();
-            document.getElementById('entry-date').valueAsDate = new Date(); // Set default date to today
         });
 
-        tableBody.addEventListener('click', (e) => {
+        tableBody.addEventListener('click', async (e) => {
             if (e.target.tagName === 'BUTTON' && e.target.textContent === 'Delete') {
                 if (confirm('Are you sure you want to delete this entry?')) {
-                    const indexToDelete = parseInt(e.target.dataset.index, 10);
-                    const currentFilter = filterType.value;
-                    const filteredDonations = donations.filter(d => currentFilter === 'all' || d.type === currentFilter);
-                    const deletedEntry = filteredDonations[indexToDelete];
-                    const originalIndex = donations.indexOf(deletedEntry);
-
-                    donations.splice(originalIndex, 1);
-                    saveAndRender();
-                    // Log activity
-                    if (typeof activityLogger !== 'undefined') {
-                        activityLogger.logActivity('Donation Deleted', `Deleted ${deletedEntry.type}: $${parseFloat(deletedEntry.amount).toFixed(2)} from "${deletedEntry.name}"`);
+                    const donationId = parseInt(e.target.dataset.id, 10);
+                    const donation = donations.find(d => d.id === donationId);
+                    
+                    try {
+                        const response = await fetch(`${API_BASE_URL}/api/donations/${donationId}`, {
+                            method: 'DELETE'
+                        });
+                        
+                        if (!response.ok) throw new Error('Failed to delete donation');
+                        
+                        await fetchDonations();
+                        
+                        // Log activity
+                        if (typeof activityLogger !== 'undefined' && donation) {
+                            activityLogger.logActivity('Donation Deleted', `Deleted ${donation.type}: $${parseFloat(donation.amount).toFixed(2)} from "${donation.name}"`);
+                        }
+                        
+                        alert('Donation deleted successfully!');
+                    } catch (error) {
+                        console.error('Error deleting donation:', error);
+                        alert('Failed to delete donation. Please try again.');
                     }
                 }
             }
@@ -259,8 +292,8 @@
 
         filterType.addEventListener('change', renderTable);
         
-        document.getElementById('entry-date').valueAsDate = new Date(); // Set default date to today on load
-        renderTable();
+        document.getElementById('entry-date').valueAsDate = new Date();
+        await fetchDonations();
     });
   </script>
 <script src="js/auth.js"></script>

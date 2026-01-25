@@ -117,3 +117,20 @@ class ActivityLog(SQLModel, table=True):
     user: str = Field(index=True)  # User who performed the action
     page: str = Field(index=True)  # Page where action occurred (inventory, schedule, etc.)
     item_id: Optional[int] = None  # Optional reference to the item that was modified
+
+
+class Donation(SQLModel, table=True):
+    """Fundraising and sponsorship donations."""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(index=True)  # Company/person name
+    amount: float
+    donation_type: str = Field(index=True)  # Donation, Sponsorship, Fundraiser
+    date: date
+    division: Optional[str] = None  # Baseball, Softball, or Both
+    contact_person: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    address: Optional[str] = None
+    notes: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)

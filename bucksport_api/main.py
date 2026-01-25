@@ -644,5 +644,106 @@ def create_activity_log(log_data: dict, session: Session = Depends(get_session))
     logger.info(f"Activity logged: {log.action} by {log.user} on {log.page}")
     return {"status": "success", "id": log.id}
 
+# ----------------- Donation endpoints -----------------
+@app.get("/api/donations")
+def get_donations(
+    donation_type: Optional[str] = None,
+    division: Optional[str] = None,
+    session: Session = Depends(get_session)
+):
+    """Get all donations, optionally filtered by type or division."""
+    from models import Donation
+    
+    statement = select(Donation).order_by(Donation.date.desc())
+    
+    if donation_type:
+        statement = statement.where(Donation.donation_type == donation_type)
+    
+    if division:
+        statement = statement.where(Donation.division == division)
+    
+    donations = session.exec(statement).all()
+    
+    return [
+        {
+            "id": d.id,
+            "name": d.name,
+            "amount": d.amount,
+            "type": d.donation_type,
+            "date": d.date.isoformat(),
+            "division": d.division,
+            "contact_person": d.contact_person,
+            "phone": d.phone,
+            "email": d.email,
+            "address": d.address,
+            "notes": d.notes
+        }
+        for d in donations
+    ]
+
+@app.post("/api/donations")
+def create_donation(donation_data: dict, session: Session = Depends(get_session)):
+    """Create a new donation entry."""
+    from models import Donation
+    from datetime import datetime
+    
+    # Parse date
+    date_str = donation_data.get("date")
+    if isinstance(date_str, str):
+        donation_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+    else:
+        donation_date = date_str
+    
+    donation = Donation(
+        name=donation_data.get("name"),
+        amount=float(donation_data.get("amount")),
+        donation_type=donation_data.get("type", "Donation"),
+        date=donation_date,
+        division=donation_data.get("division"),
+        contact_person=donation_data.get("contact_person"),
+        phone=donation_data.get("phone"),
+        email=donation_data.get("email"),
+        address=donation_data.get("address"),
+        notes=donation_data.get("notes")
+    )
+    
+    session.add(donation)
+    session.commit()
+    session.refresh(donation)
+    
+    logger.info(f"Created donation: {donation.name} - ${donation.amount}")
+    
+    return {
+        "id": donation.id,
+        "name": donation.name,
+        "amount": donation.amount,
+        "type": donation.donation_type,
+        "date": donation.date.isoformat(),
+        "division": donation.division,
+        "contact_person": donation.contact_person,
+        "phone": donation.phone,
+        "email": donation.email,
+        "address": donation.address,
+        "notes": donation.notes
+    }
+
+@app.delete("/api/donations/{donation_id}")
+def delete_donation(donation_id: int, session: Session = Depends(get_session)):
+    """Delete a donation by ID."""
+    from models import Donation
+    
+    donation = session.get(Donation, donation_id)
+    if not donation:
+        raise HTTPException(status_code=404, detail="Donation not found")
+    
+    donation_name = donation.name
+    donation_amount = donation.amount
+    
+    session.delete(donation)
+    session.commit()
+    
+    logger.info(f"Deleted donation: {donation_name} - ${donation_amount} (ID: {donation_id})")
+    return {"status": "success", "message": "Donation deleted successfully"}
+
 # Mount the static directory to serve frontend files. This should be last.
 app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
