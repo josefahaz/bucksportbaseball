@@ -102,6 +102,11 @@
       background-color: rgba(147, 51, 234, 0.1);
     }
     
+    .sheet-table-wrapper {
+      position: relative;
+      max-width: 100%;
+    }
+    
     .sheet-table-container {
       overflow-x: auto;
       overflow-y: visible;
@@ -131,6 +136,41 @@
     .sheet-table-container table {
       width: max-content;
       min-width: 100%;
+    }
+    
+    .sticky-scrollbar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 20px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      background: #f9fafb;
+      border-top: 2px solid #9333ea;
+      z-index: 1000;
+      display: none;
+    }
+    
+    .sticky-scrollbar-content {
+      height: 1px;
+    }
+    
+    .sticky-scrollbar::-webkit-scrollbar {
+      height: 18px;
+    }
+    
+    .sticky-scrollbar::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    
+    .sticky-scrollbar::-webkit-scrollbar-thumb {
+      background: #9333ea;
+      border-radius: 9px;
+    }
+    
+    .sticky-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #7e22ce;
     }
   </style>
 </head>
@@ -272,7 +312,7 @@
 
           <div id="sheet-status" class="text-sm text-gray-600"></div>
 
-          <div class="sheet-table-container">
+          <div class="sheet-table-container" id="sheet-table-container">
             <table class="min-w-full divide-y divide-gray-200">
               <thead class="bg-gray-50" id="sheet-table-head"></thead>
               <tbody id="sheet-table-body" class="bg-white divide-y divide-gray-200"></tbody>
@@ -280,6 +320,11 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Sticky horizontal scrollbar -->
+    <div id="sticky-scrollbar" class="sticky-scrollbar">
+      <div id="sticky-scrollbar-content" class="sticky-scrollbar-content"></div>
     </div>
 
     <footer class="mt-12 text-center">
@@ -952,6 +997,58 @@
         userPermissions = await fetchUserPermissions();
         authToken = getAuthToken();
         applyReadOnlyMode();
+        
+        // Setup sticky scrollbar
+        const tableContainer = document.getElementById('sheet-table-container');
+        const stickyScrollbar = document.getElementById('sticky-scrollbar');
+        const stickyScrollbarContent = document.getElementById('sticky-scrollbar-content');
+        
+        const updateStickyScrollbar = () => {
+          if (!tableContainer) return;
+          
+          const table = tableContainer.querySelector('table');
+          if (!table) return;
+          
+          const tableWidth = table.scrollWidth;
+          const containerWidth = tableContainer.clientWidth;
+          
+          // Show sticky scrollbar only when table is wider than container and spreadsheet view is active
+          if (tableWidth > containerWidth && spreadsheetView.style.display !== 'none') {
+            stickyScrollbar.style.display = 'block';
+            stickyScrollbarContent.style.width = tableWidth + 'px';
+          } else {
+            stickyScrollbar.style.display = 'none';
+          }
+        };
+        
+        // Sync scrolling between table container and sticky scrollbar
+        let isSyncingScroll = false;
+        
+        tableContainer.addEventListener('scroll', () => {
+          if (isSyncingScroll) return;
+          isSyncingScroll = true;
+          stickyScrollbar.scrollLeft = tableContainer.scrollLeft;
+          isSyncingScroll = false;
+        });
+        
+        stickyScrollbar.addEventListener('scroll', () => {
+          if (isSyncingScroll) return;
+          isSyncingScroll = true;
+          tableContainer.scrollLeft = stickyScrollbar.scrollLeft;
+          isSyncingScroll = false;
+        });
+        
+        // Update sticky scrollbar when switching views
+        const originalSetActiveView = setActiveView;
+        setActiveView = (view) => {
+          originalSetActiveView(view);
+          setTimeout(updateStickyScrollbar, 100);
+        };
+        
+        // Update sticky scrollbar when window resizes or table changes
+        window.addEventListener('resize', updateStickyScrollbar);
+        const observer = new MutationObserver(updateStickyScrollbar);
+        observer.observe(document.getElementById('sheet-table-body'), { childList: true, subtree: true });
         
         document.getElementById('entry-date').valueAsDate = new Date();
         await fetchDonations();
