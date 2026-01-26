@@ -745,5 +745,75 @@ def delete_donation(donation_id: int, session: Session = Depends(get_session)):
     logger.info(f"Deleted donation: {donation_name} - ${donation_amount} (ID: {donation_id})")
     return {"status": "success", "message": "Donation deleted successfully"}
 
+# TEMPORARY ADMIN ENDPOINT - Remove after first use
+@app.post("/api/admin/setup-donations")
+def setup_donations_from_spreadsheet(session: Session = Depends(get_session)):
+    """
+    ONE-TIME SETUP: Import donation data from spreadsheet.
+    This endpoint should be called once to populate the database, then removed.
+    """
+    from models import Donation
+    from datetime import date
+    import pandas as pd
+    
+    try:
+        # Check if data already exists
+        existing = session.exec(select(Donation)).first()
+        if existing:
+            return {
+                "status": "already_setup",
+                "message": "Donation data already exists in database",
+                "count": len(session.exec(select(Donation)).all())
+            }
+        
+        # Load Excel file
+        xl = pd.ExcelFile('/opt/render/project/src/Softball AND Baseball Banner & Sponsorship Log.xlsx')
+        total_imported = 0
+        
+        # Process Master Sponsor List
+        df_master = pd.read_excel(xl, sheet_name='Master Sponsor List')
+        for _, row in df_master.iterrows():
+            company_name = row.get('Company Name')
+            if pd.isna(company_name) or company_name == '':
+                continue
+            
+            for year in ['2025', '2024', '2023', '2022', '2021', '2020']:
+                amount = row.get(year)
+                if pd.notna(amount):
+                    try:
+                        amount_float = float(amount)
+                        if amount_float > 0:
+                            donation = Donation(
+                                name=str(company_name),
+                                amount=amount_float,
+                                donation_type='Sponsorship',
+                                date=date(int(year), 1, 1),
+                                division=row.get('Division') if pd.notna(row.get('Division')) else None,
+                                contact_person=row.get('Contact Person') if pd.notna(row.get('Contact Person')) else None,
+                                phone=row.get('Phone') if pd.notna(row.get('Phone')) else None,
+                                email=row.get('Email') if pd.notna(row.get('Email')) else None,
+                                address=row.get('Address') if pd.notna(row.get('Address')) else None,
+                                notes=f"{row.get('Sponsor Type', '')} - {row.get('Notes', '')}" if pd.notna(row.get('Notes')) else row.get('Sponsor Type', '')
+                            )
+                            session.add(donation)
+                            total_imported += 1
+                    except (ValueError, TypeError):
+                        continue
+        
+        session.commit()
+        
+        return {
+            "status": "success",
+            "message": f"Successfully imported {total_imported} donation records",
+            "total_imported": total_imported
+        }
+        
+    except Exception as e:
+        logger.error(f"Error importing donations: {str(e)}")
+        return {
+            "status": "error",
+            "message": f"Failed to import donations: {str(e)}"
+        }
+
 # Mount the static directory to serve frontend files. This should be last.
 app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
