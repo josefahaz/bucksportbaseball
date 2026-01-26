@@ -312,7 +312,7 @@
 
         // Get auth token from localStorage
         const getAuthToken = () => {
-          const token = localStorage.getItem('authToken');
+          const token = localStorage.getItem('auth_token');
           return token;
         };
 
@@ -387,6 +387,7 @@
         viewTransactionsBtn.addEventListener('click', () => setActiveView('transactions'));
         viewSpreadsheetBtn.addEventListener('click', async () => {
           setActiveView('spreadsheet');
+          applyReadOnlyMode(); // Re-apply permissions when switching views
           if (!sheetMetas.length) {
             await loadSheetMetas();
           }
