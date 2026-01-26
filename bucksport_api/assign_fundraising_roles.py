@@ -6,9 +6,9 @@ from auth_models import User
 
 # Users who should have fundraising_coordinator role
 FUNDRAISING_COORDINATORS = [
-    "joseph.hazlett@bucksportll.org",  # Fundraising Coordinator
-    "katie.littlefield@bucksportll.org",  # President
-    "erick.kennard@bucksportll.org",  # Vice President
+    "jhazlett@bucksportll.org",  # Joseph Hazlett - Fundraising Coordinator
+    "klittlefield@bucksportll.org",  # Katie Littlefield - President
+    "ekennard@bucksportll.org",  # Erick Kennard - Vice President
 ]
 
 
