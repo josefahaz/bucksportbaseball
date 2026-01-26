@@ -263,6 +263,7 @@
                 <p class="text-sm text-yellow-700">
                   <strong>Read-Only Access:</strong> You can view this data but only Fundraising Coordinators can make edits.
                 </p>
+                <p id="user-info-debug" class="text-xs text-gray-600 mt-1"></p>
               </div>
             </div>
           </div>
@@ -320,7 +321,7 @@
           const token = getAuthToken();
           if (!token) {
             console.log('No auth token found');
-            return { can_edit_fundraising: false };
+            return { can_edit_fundraising: false, email: null, role: null };
           }
 
           try {
@@ -330,19 +331,27 @@
               }
             });
             if (response.ok) {
-              return await response.json();
+              const permissions = await response.json();
+              console.log('User permissions:', permissions);
+              return permissions;
+            } else {
+              console.error('Failed to fetch permissions:', response.status);
             }
           } catch (error) {
             console.error('Error fetching permissions:', error);
           }
-          return { can_edit_fundraising: false };
+          return { can_edit_fundraising: false, email: null, role: null };
         };
 
         // Apply read-only mode
         const applyReadOnlyMode = () => {
+          const debugInfo = document.getElementById('user-info-debug');
           if (!userPermissions.can_edit_fundraising) {
             readOnlyNotice.style.display = '';
             sheetAddRowBtn.style.display = 'none';
+            if (debugInfo && userPermissions.email) {
+              debugInfo.textContent = `Logged in as: ${userPermissions.email} (Role: ${userPermissions.role || 'none'})`;
+            }
           } else {
             readOnlyNotice.style.display = 'none';
             sheetAddRowBtn.style.display = '';
