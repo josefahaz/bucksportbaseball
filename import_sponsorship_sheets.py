@@ -1,7 +1,7 @@
 import math
 from datetime import date, datetime
 
-import pandas as pd
+import openpyxl
 from sqlmodel import Session, select
 
 from bucksport_api.database import engine
@@ -21,20 +21,6 @@ def _json_safe(value):
     if value is None:
         return ""
 
-    # pandas NA
-    try:
-        if pd.isna(value):
-            return ""
-    except Exception:
-        pass
-
-    # convert numpy scalars
-    if hasattr(value, "item"):
-        try:
-            value = value.item()
-        except Exception:
-            pass
-
     # float nan
     if isinstance(value, float) and math.isnan(value):
         return ""
@@ -46,10 +32,26 @@ def _json_safe(value):
 
 
 def import_sheet(session: Session, sheet_name: str) -> int:
-    df = pd.read_excel(EXCEL_FILE, sheet_name=sheet_name, dtype=object)
+    wb = openpyxl.load_workbook(EXCEL_FILE, data_only=False)
+    if sheet_name not in wb.sheetnames:
+        raise ValueError(f"Sheet not found: {sheet_name}")
+
+    ws = wb[sheet_name]
 
     # Preserve exact column headers, including multiline strings.
-    columns = [str(c) for c in df.columns]
+    header_row = ws[1]
+
+    # Some spreadsheets have trailing empty columns; trim to last non-empty header
+    last_col = 0
+    for i, cell in enumerate(header_row, start=1):
+        if cell.value not in (None, ""):
+            last_col = i
+
+    if last_col == 0:
+        return 0
+
+    headers = [header_row[i - 1].value for i in range(1, last_col + 1)]
+    columns = [str(h) if h is not None else "" for h in headers]
 
     meta = session.get(SponsorshipSheetMeta, sheet_name)
     if not meta:
@@ -70,16 +72,18 @@ def import_sheet(session: Session, sheet_name: str) -> int:
     session.commit()
 
     inserted = 0
-    for idx, row in df.iterrows():
-        row_data = {str(col): _json_safe(row[col]) for col in df.columns}
+    for row_num in range(2, ws.max_row + 1):
+        values = [ws.cell(row=row_num, column=col_num).value for col_num in range(1, last_col + 1)]
+        row_data = {columns[i]: _json_safe(values[i]) for i in range(len(columns))}
 
-        # Keep Excel-like row numbering (header row is 1, first data row is 2)
-        excel_row_index = int(idx) + 2
+        # Skip completely empty rows
+        if all(v in ("", None) for v in row_data.values()):
+            continue
 
         session.add(
             SponsorshipSheetRow(
                 sheet_name=sheet_name,
-                row_index=excel_row_index,
+                row_index=row_num,
                 data=row_data,
                 updated_at=datetime.utcnow(),
             )
