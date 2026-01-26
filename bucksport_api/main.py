@@ -11,12 +11,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlmodel import Session, select
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from dotenv import load_dotenv
+import openpyxl
+from io import BytesIO
 
 from database import get_session, init_db
 from models import Event, Player, PlayerBase, Team, InventoryItem, BoardMember, Coach, Location, ScheduleEvent
 from auth_routes import router as auth_router
+from auth import get_current_user, get_current_fundraising_editor, can_edit_fundraising
+from auth_models import User
 from seed_users import seed_users
 from seed_inventory import seed_inventory
 from seed_board_coaches import seed_all as seed_board_coaches
@@ -809,7 +813,12 @@ def get_sponsorship_sheet(sheet_name: str, session: Session = Depends(get_sessio
 
 
 @app.post("/api/sponsorship-sheets/{sheet_name}/rows", status_code=status.HTTP_201_CREATED)
-def create_sponsorship_sheet_row(sheet_name: str, payload: dict, session: Session = Depends(get_session)):
+def create_sponsorship_sheet_row(
+    sheet_name: str,
+    payload: dict,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_fundraising_editor)
+):
     from models import SponsorshipSheetMeta, SponsorshipSheetRow
     from datetime import datetime
 
@@ -852,7 +861,13 @@ def create_sponsorship_sheet_row(sheet_name: str, payload: dict, session: Sessio
 
 
 @app.put("/api/sponsorship-sheets/{sheet_name}/rows/{row_index}")
-def upsert_sponsorship_sheet_row(sheet_name: str, row_index: int, payload: dict, session: Session = Depends(get_session)):
+def upsert_sponsorship_sheet_row(
+    sheet_name: str,
+    row_index: int,
+    payload: dict,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_fundraising_editor)
+):
     from models import SponsorshipSheetMeta, SponsorshipSheetRow
     from datetime import datetime
 
@@ -901,7 +916,12 @@ def upsert_sponsorship_sheet_row(sheet_name: str, row_index: int, payload: dict,
 
 
 @app.delete("/api/sponsorship-sheets/{sheet_name}/rows/{row_index}")
-def delete_sponsorship_sheet_row(sheet_name: str, row_index: int, session: Session = Depends(get_session)):
+def delete_sponsorship_sheet_row(
+    sheet_name: str,
+    row_index: int,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_fundraising_editor)
+):
     from models import SponsorshipSheetMeta, SponsorshipSheetRow
     from datetime import datetime
 
@@ -996,6 +1016,84 @@ def setup_donations_from_spreadsheet(session: Session = Depends(get_session)):
             "status": "error",
             "message": f"Failed to import donations: {str(e)}"
         }
+
+
+@app.get("/api/user/permissions")
+async def get_user_permissions(current_user: User = Depends(get_current_user)):
+    """Get current user's permissions for fundraising."""
+    return {
+        "email": current_user.email,
+        "role": current_user.role,
+        "can_edit_fundraising": can_edit_fundraising(current_user),
+        "first_name": current_user.first_name,
+        "last_name": current_user.last_name
+    }
+
+
+@app.get("/api/sponsorship-sheets/export/excel")
+async def export_sponsorship_sheets_to_excel(
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user)
+):
+    """Export all sponsorship sheets to Excel file."""
+    from models import SponsorshipSheetMeta, SponsorshipSheetRow
+    
+    # Define sheet order
+    sheet_order = [
+        "Master Sponsor List",
+        "Softball Banners - Current",
+        "Softball Banners - Team Sponsor",
+        "Baseball Banners - Current",
+    ]
+    
+    # Create workbook
+    wb = openpyxl.Workbook()
+    wb.remove(wb.active)  # Remove default sheet
+    
+    for sheet_name in sheet_order:
+        meta = session.get(SponsorshipSheetMeta, sheet_name)
+        if not meta:
+            continue
+            
+        # Create worksheet
+        ws = wb.create_sheet(title=sheet_name)
+        
+        # Write headers
+        for col_idx, col_name in enumerate(meta.columns, start=1):
+            cell = ws.cell(row=1, column=col_idx)
+            cell.value = col_name
+            cell.font = openpyxl.styles.Font(bold=True)
+        
+        # Get rows
+        rows = session.exec(
+            select(SponsorshipSheetRow)
+            .where(SponsorshipSheetRow.sheet_name == sheet_name)
+            .order_by(SponsorshipSheetRow.row_index.asc())
+        ).all()
+        
+        # Write data rows
+        for row_obj in rows:
+            excel_row = row_obj.row_index + 1  # +1 because header is row 1
+            for col_idx, col_name in enumerate(meta.columns, start=1):
+                cell_value = row_obj.data.get(col_name, "")
+                ws.cell(row=excel_row, column=col_idx, value=cell_value)
+    
+    # Save to BytesIO
+    output = BytesIO()
+    wb.save(output)
+    output.seek(0)
+    
+    # Generate filename with timestamp
+    from datetime import datetime
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"Sponsorship_Log_{timestamp}.xlsx"
+    
+    return StreamingResponse(
+        output,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
+
 
 # Mount the static directory to serve frontend files. This should be last.
 app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")

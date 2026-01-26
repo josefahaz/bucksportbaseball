@@ -10,7 +10,7 @@ class User(SQLModel, table=True):
     email: str = Field(unique=True, index=True)
     first_name: str
     last_name: str
-    role: str  # 'admin' or 'board_member'
+    role: str  # 'admin', 'board_member', 'fundraising_coordinator', or 'viewer'
     google_id: Optional[str] = Field(default=None, unique=True, index=True)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     last_login: Optional[datetime] = None

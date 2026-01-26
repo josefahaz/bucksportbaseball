@@ -89,3 +89,21 @@ async def get_current_admin_user(
 def verify_bucksport_email(email: str) -> bool:
     """Verify that the email is from the bucksportll.org domain."""
     return email.lower().endswith("@bucksportll.org")
+
+
+async def get_current_fundraising_editor(
+    current_user: User = Depends(get_current_user)
+) -> User:
+    """Get the current user and verify they can edit fundraising data."""
+    allowed_roles = ["admin", "fundraising_coordinator"]
+    if current_user.role not in allowed_roles:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Fundraising coordinator or admin access required",
+        )
+    return current_user
+
+
+def can_edit_fundraising(user: User) -> bool:
+    """Check if a user has permission to edit fundraising data."""
+    return user.role in ["admin", "fundraising_coordinator"]

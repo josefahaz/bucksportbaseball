@@ -77,6 +77,61 @@
       background-color: rgba(255, 255, 255, 0.2);
       border-color: rgba(255, 255, 255, 0.3);
     }
+    
+    .resizable-th {
+      position: relative;
+      min-width: 80px;
+    }
+    
+    .resize-handle {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 5px;
+      height: 100%;
+      cursor: col-resize;
+      user-select: none;
+      z-index: 10;
+    }
+    
+    .resize-handle:hover {
+      background-color: rgba(147, 51, 234, 0.3);
+    }
+    
+    .resizing {
+      background-color: rgba(147, 51, 234, 0.1);
+    }
+    
+    .sheet-table-container {
+      overflow-x: auto;
+      overflow-y: visible;
+      max-width: 100%;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+    }
+    
+    .sheet-table-container::-webkit-scrollbar {
+      height: 12px;
+    }
+    
+    .sheet-table-container::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 0 0 0.5rem 0.5rem;
+    }
+    
+    .sheet-table-container::-webkit-scrollbar-thumb {
+      background: #9333ea;
+      border-radius: 6px;
+    }
+    
+    .sheet-table-container::-webkit-scrollbar-thumb:hover {
+      background: #7e22ce;
+    }
+    
+    .sheet-table-container table {
+      width: max-content;
+      min-width: 100%;
+    }
   </style>
 </head>
 <body class="min-h-screen bg-gray-100">
@@ -111,6 +166,15 @@
     </div>
     <header class="flex justify-between items-center mb-8">
     </header>
+
+    <div class="bg-white p-4 rounded-lg shadow mb-8">
+      <div class="flex flex-wrap gap-2">
+        <button id="view-transactions" class="px-4 py-2 rounded-md bg-purple-800 text-white font-semibold">Transactions</button>
+        <button id="view-spreadsheet" class="px-4 py-2 rounded-md bg-gray-200 text-gray-800 font-semibold">Spreadsheet Mirror</button>
+      </div>
+    </div>
+
+    <div id="transactions-view">
 
     <div class="bg-white text-gray-800 p-6 sm:p-8 rounded-lg shadow-xl mb-8">
       <h2 class="text-2xl font-bold text-purple-800 mb-4">Add New Entry</h2>
@@ -175,6 +239,48 @@
         </div>
     </div>
 
+    </div>
+
+    <div id="spreadsheet-view" style="display:none;">
+      <div class="bg-white text-gray-800 p-6 sm:p-8 rounded-lg shadow-xl">
+        <div class="flex flex-col gap-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <h2 class="text-2xl font-bold text-purple-800">Spreadsheet Mirror</h2>
+            <div class="flex items-center gap-2">
+              <button id="sheet-export-excel" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg">
+                <i class="fas fa-file-excel"></i> Export to Excel
+              </button>
+              <button id="sheet-add-row" class="bg-purple-800 hover:bg-purple-900 text-white font-bold py-2 px-4 rounded-lg shadow-lg">Add Row</button>
+              <button id="sheet-refresh" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg shadow">Refresh</button>
+            </div>
+          </div>
+          <div id="read-only-notice" class="bg-yellow-50 border-l-4 border-yellow-400 p-4" style="display:none;">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm text-yellow-700">
+                  <strong>Read-Only Access:</strong> You can view this data but only Fundraising Coordinators can make edits.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div id="sheet-tabs" class="flex flex-wrap gap-2"></div>
+
+          <div id="sheet-status" class="text-sm text-gray-600"></div>
+
+          <div class="sheet-table-container">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50" id="sheet-table-head"></thead>
+              <tbody id="sheet-table-body" class="bg-white divide-y divide-gray-200"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <footer class="mt-12 text-center">
       <p class="text-gray-500 font-medium">Bucksport Little League &copy; 2025</p>
     </footer>
@@ -187,7 +293,95 @@
         const filterType = document.getElementById('filter-type');
         const totalAmountEl = document.getElementById('total-amount');
 
+        const transactionsView = document.getElementById('transactions-view');
+        const spreadsheetView = document.getElementById('spreadsheet-view');
+        const viewTransactionsBtn = document.getElementById('view-transactions');
+        const viewSpreadsheetBtn = document.getElementById('view-spreadsheet');
+
+        const sheetTabsEl = document.getElementById('sheet-tabs');
+        const sheetTableHead = document.getElementById('sheet-table-head');
+        const sheetTableBody = document.getElementById('sheet-table-body');
+        const sheetStatusEl = document.getElementById('sheet-status');
+        const sheetAddRowBtn = document.getElementById('sheet-add-row');
+        const sheetRefreshBtn = document.getElementById('sheet-refresh');
+        const sheetExportBtn = document.getElementById('sheet-export-excel');
+        const readOnlyNotice = document.getElementById('read-only-notice');
+
         let donations = [];
+
+        // Get auth token from localStorage
+        const getAuthToken = () => {
+          const token = localStorage.getItem('authToken');
+          return token;
+        };
+
+        // Fetch user permissions
+        const fetchUserPermissions = async () => {
+          const token = getAuthToken();
+          if (!token) {
+            console.log('No auth token found');
+            return { can_edit_fundraising: false };
+          }
+
+          try {
+            const response = await fetch(`${API_BASE_URL}/api/user/permissions`, {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            });
+            if (response.ok) {
+              return await response.json();
+            }
+          } catch (error) {
+            console.error('Error fetching permissions:', error);
+          }
+          return { can_edit_fundraising: false };
+        };
+
+        // Apply read-only mode
+        const applyReadOnlyMode = () => {
+          if (!userPermissions.can_edit_fundraising) {
+            readOnlyNotice.style.display = '';
+            sheetAddRowBtn.style.display = 'none';
+          } else {
+            readOnlyNotice.style.display = 'none';
+            sheetAddRowBtn.style.display = '';
+          }
+        };
+
+        let sheetMetas = [];
+        let activeSheetName = null;
+        let activeSheetColumns = [];
+        let activeSheetRows = [];
+        let sortColumn = null;
+        let sortAscending = true;
+        let columnWidths = {};
+        let resizingColumn = null;
+        let resizeStartX = 0;
+        let resizeStartWidth = 0;
+        let userPermissions = { can_edit_fundraising: false };
+        let authToken = null;
+
+        const setActiveView = (view) => {
+          const isTransactions = view === 'transactions';
+          transactionsView.style.display = isTransactions ? '' : 'none';
+          spreadsheetView.style.display = isTransactions ? 'none' : '';
+
+          viewTransactionsBtn.className = isTransactions
+            ? 'px-4 py-2 rounded-md bg-purple-800 text-white font-semibold'
+            : 'px-4 py-2 rounded-md bg-gray-200 text-gray-800 font-semibold';
+          viewSpreadsheetBtn.className = isTransactions
+            ? 'px-4 py-2 rounded-md bg-gray-200 text-gray-800 font-semibold'
+            : 'px-4 py-2 rounded-md bg-purple-800 text-white font-semibold';
+        };
+
+        viewTransactionsBtn.addEventListener('click', () => setActiveView('transactions'));
+        viewSpreadsheetBtn.addEventListener('click', async () => {
+          setActiveView('spreadsheet');
+          if (!sheetMetas.length) {
+            await loadSheetMetas();
+          }
+        });
 
         const fetchDonations = async () => {
             try {
@@ -200,6 +394,459 @@
                 tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-red-600">Failed to load donations. Please try again.</td></tr>';
             }
         };
+
+        const loadSheetMetas = async () => {
+          sheetStatusEl.textContent = 'Loading sheets...';
+          try {
+            const res = await fetch(`${API_BASE_URL}/api/sponsorship-sheets`);
+            if (!res.ok) throw new Error('Failed to fetch sheets');
+            sheetMetas = await res.json();
+            if (!sheetMetas.length) {
+              sheetStatusEl.textContent = 'No sheet data found. (Import may not have been run yet.)';
+              sheetTabsEl.innerHTML = '';
+              sheetTableHead.innerHTML = '';
+              sheetTableBody.innerHTML = '';
+              return;
+            }
+
+            renderSheetTabs();
+            if (!activeSheetName) {
+              activeSheetName = sheetMetas[0].sheet_name;
+            }
+            await loadSheet(activeSheetName);
+          } catch (e) {
+            console.error(e);
+            sheetStatusEl.textContent = 'Failed to load sheets.';
+          }
+        };
+
+        const renderSheetTabs = () => {
+          sheetTabsEl.innerHTML = '';
+          sheetMetas.forEach((m) => {
+            const btn = document.createElement('button');
+            const isActive = m.sheet_name === activeSheetName;
+            btn.textContent = m.sheet_name;
+            btn.className = isActive
+              ? 'px-3 py-2 rounded-md bg-purple-800 text-white font-semibold text-sm'
+              : 'px-3 py-2 rounded-md bg-gray-200 text-gray-800 font-semibold text-sm';
+            btn.addEventListener('click', async () => {
+              activeSheetName = m.sheet_name;
+              renderSheetTabs();
+              await loadSheet(activeSheetName);
+            });
+            sheetTabsEl.appendChild(btn);
+          });
+        };
+
+        const renderSheetTable = () => {
+          sheetTableHead.innerHTML = '';
+          sheetTableBody.innerHTML = '';
+
+          const headRow = document.createElement('tr');
+          activeSheetColumns.forEach((col, colIdx) => {
+            const th = document.createElement('th');
+            th.className = 'resizable-th px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100';
+            th.style.whiteSpace = 'pre-line';
+            th.style.cursor = 'pointer';
+            th.style.position = 'relative';
+            
+            if (columnWidths[col]) {
+              th.style.width = columnWidths[col] + 'px';
+              th.style.minWidth = columnWidths[col] + 'px';
+              th.style.maxWidth = columnWidths[col] + 'px';
+            }
+            
+            const colText = document.createElement('span');
+            colText.textContent = col;
+            th.appendChild(colText);
+            
+            if (sortColumn === col) {
+              const arrow = document.createElement('span');
+              arrow.textContent = sortAscending ? ' ↑' : ' ↓';
+              arrow.className = 'ml-1 text-purple-600';
+              th.appendChild(arrow);
+            }
+            
+            const resizeHandle = document.createElement('div');
+            resizeHandle.className = 'resize-handle';
+            resizeHandle.addEventListener('mousedown', (e) => {
+              e.stopPropagation();
+              startResize(e, th, col);
+            });
+            th.appendChild(resizeHandle);
+            
+            th.addEventListener('click', (e) => {
+              if (e.target.className.includes('resize-handle')) return;
+              if (sortColumn === col) {
+                sortAscending = !sortAscending;
+              } else {
+                sortColumn = col;
+                sortAscending = true;
+              }
+              sortAndRenderRows();
+            });
+            
+            headRow.appendChild(th);
+          });
+
+          if (userPermissions.can_edit_fundraising) {
+            const thActions = document.createElement('th');
+            thActions.className = 'px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider';
+            thActions.textContent = 'Actions';
+            headRow.appendChild(thActions);
+          }
+          sheetTableHead.appendChild(headRow);
+
+          const rowsToRender = sortColumn ? getSortedRows() : activeSheetRows;
+          rowsToRender.forEach((r) => {
+            const tr = document.createElement('tr');
+            tr.dataset.rowIndex = r.row_index;
+
+            activeSheetColumns.forEach((col) => {
+              const td = document.createElement('td');
+              td.className = 'px-3 py-2 text-sm text-gray-900';
+
+              const input = document.createElement('input');
+              input.type = 'text';
+              input.className = 'w-full border border-gray-200 rounded px-2 py-1 focus:ring-purple-500 focus:border-purple-500';
+              input.value = (r.data && r.data[col] !== undefined && r.data[col] !== null) ? String(r.data[col]) : '';
+              input.dataset.col = col;
+              input.readOnly = !userPermissions.can_edit_fundraising;
+              if (!userPermissions.can_edit_fundraising) {
+                input.className = 'w-full border border-gray-200 rounded px-2 py-1 bg-gray-50 cursor-not-allowed';
+              }
+              input.addEventListener('blur', async () => {
+                if (!userPermissions.can_edit_fundraising) return;
+                const newVal = input.value;
+                const rowIndex = parseInt(tr.dataset.rowIndex, 10);
+                await saveCell(rowIndex, col, newVal);
+              });
+
+              td.appendChild(input);
+              tr.appendChild(td);
+            });
+
+            const tdActions = document.createElement('td');
+            tdActions.className = 'px-3 py-2 text-right text-sm';
+            if (userPermissions.can_edit_fundraising) {
+              const delBtn = document.createElement('button');
+              delBtn.className = 'text-red-600 hover:text-red-900 font-semibold';
+              delBtn.textContent = 'Delete';
+              delBtn.addEventListener('click', async () => {
+                if (!confirm('Delete this row?')) return;
+                await deleteRow(r.row_index);
+              });
+              tdActions.appendChild(delBtn);
+            }
+            tr.appendChild(tdActions);
+
+            sheetTableBody.appendChild(tr);
+          });
+        };
+
+        const getSortedRows = () => {
+          if (!sortColumn) return activeSheetRows;
+          
+          return [...activeSheetRows].sort((a, b) => {
+            const aVal = (a.data && a.data[sortColumn]) || '';
+            const bVal = (b.data && b.data[sortColumn]) || '';
+            
+            const aStr = String(aVal).toLowerCase();
+            const bStr = String(bVal).toLowerCase();
+            
+            const aNum = parseFloat(aVal);
+            const bNum = parseFloat(bVal);
+            
+            let comparison = 0;
+            if (!isNaN(aNum) && !isNaN(bNum)) {
+              comparison = aNum - bNum;
+            } else {
+              comparison = aStr.localeCompare(bStr);
+            }
+            
+            return sortAscending ? comparison : -comparison;
+          });
+        };
+
+        const startResize = (e, th, col) => {
+          resizingColumn = col;
+          resizeStartX = e.pageX;
+          resizeStartWidth = th.offsetWidth;
+          th.classList.add('resizing');
+          
+          document.addEventListener('mousemove', handleResize);
+          document.addEventListener('mouseup', stopResize);
+          e.preventDefault();
+        };
+        
+        const handleResize = (e) => {
+          if (!resizingColumn) return;
+          
+          const diff = e.pageX - resizeStartX;
+          const newWidth = Math.max(80, resizeStartWidth + diff);
+          columnWidths[resizingColumn] = newWidth;
+          
+          const th = Array.from(sheetTableHead.querySelectorAll('th')).find(
+            el => el.textContent.includes(resizingColumn.substring(0, 20))
+          );
+          
+          if (th) {
+            th.style.width = newWidth + 'px';
+            th.style.minWidth = newWidth + 'px';
+            th.style.maxWidth = newWidth + 'px';
+          }
+          
+          const colIdx = activeSheetColumns.indexOf(resizingColumn);
+          if (colIdx >= 0) {
+            sheetTableBody.querySelectorAll('tr').forEach(tr => {
+              const td = tr.children[colIdx];
+              if (td) {
+                td.style.width = newWidth + 'px';
+                td.style.minWidth = newWidth + 'px';
+                td.style.maxWidth = newWidth + 'px';
+              }
+            });
+          }
+        };
+        
+        const stopResize = () => {
+          if (resizingColumn) {
+            const th = Array.from(sheetTableHead.querySelectorAll('th')).find(
+              el => el.textContent.includes(resizingColumn.substring(0, 20))
+            );
+            if (th) th.classList.remove('resizing');
+          }
+          
+          resizingColumn = null;
+          document.removeEventListener('mousemove', handleResize);
+          document.removeEventListener('mouseup', stopResize);
+        };
+
+        const sortAndRenderRows = () => {
+          sheetTableBody.innerHTML = '';
+          const rowsToRender = getSortedRows();
+          
+          rowsToRender.forEach((r) => {
+            const tr = document.createElement('tr');
+            tr.dataset.rowIndex = r.row_index;
+
+            activeSheetColumns.forEach((col) => {
+              const td = document.createElement('td');
+              td.className = 'px-3 py-2 text-sm text-gray-900';
+              
+              if (columnWidths[col]) {
+                td.style.width = columnWidths[col] + 'px';
+                td.style.minWidth = columnWidths[col] + 'px';
+                td.style.maxWidth = columnWidths[col] + 'px';
+              }
+
+              const input = document.createElement('input');
+              input.type = 'text';
+              input.className = 'w-full border border-gray-200 rounded px-2 py-1 focus:ring-purple-500 focus:border-purple-500';
+              input.value = (r.data && r.data[col] !== undefined && r.data[col] !== null) ? String(r.data[col]) : '';
+              input.dataset.col = col;
+              input.readOnly = !userPermissions.can_edit_fundraising;
+              if (!userPermissions.can_edit_fundraising) {
+                input.className = 'w-full border border-gray-200 rounded px-2 py-1 bg-gray-50 cursor-not-allowed';
+              }
+              input.addEventListener('blur', async () => {
+                if (!userPermissions.can_edit_fundraising) return;
+                const newVal = input.value;
+                const rowIndex = parseInt(tr.dataset.rowIndex, 10);
+                await saveCell(rowIndex, col, newVal);
+              });
+
+              td.appendChild(input);
+              tr.appendChild(td);
+            });
+
+            const tdActions = document.createElement('td');
+            tdActions.className = 'px-3 py-2 text-right text-sm';
+            if (userPermissions.can_edit_fundraising) {
+              const delBtn = document.createElement('button');
+              delBtn.className = 'text-red-600 hover:text-red-900 font-semibold';
+              delBtn.textContent = 'Delete';
+              delBtn.addEventListener('click', async () => {
+                if (!confirm('Delete this row?')) return;
+                await deleteRow(r.row_index);
+              });
+              tdActions.appendChild(delBtn);
+            }
+            tr.appendChild(tdActions);
+
+            sheetTableBody.appendChild(tr);
+          });
+          
+          const headRow = sheetTableHead.querySelector('tr');
+          if (headRow) {
+            headRow.querySelectorAll('th').forEach((th, idx) => {
+              if (idx < activeSheetColumns.length) {
+                const col = activeSheetColumns[idx];
+                th.innerHTML = '';
+                const colText = document.createElement('span');
+                colText.textContent = col;
+                th.appendChild(colText);
+                
+                if (sortColumn === col) {
+                  const arrow = document.createElement('span');
+                  arrow.textContent = sortAscending ? ' ↑' : ' ↓';
+                  arrow.className = 'ml-1 text-purple-600';
+                  th.appendChild(arrow);
+                }
+                
+                const resizeHandle = document.createElement('div');
+                resizeHandle.className = 'resize-handle';
+                resizeHandle.addEventListener('mousedown', (e) => {
+                  e.stopPropagation();
+                  startResize(e, th, col);
+                });
+                th.appendChild(resizeHandle);
+              }
+            });
+          }
+        };
+
+        const loadSheet = async (sheetName) => {
+          sheetStatusEl.textContent = `Loading sheet: ${sheetName}...`;
+          sheetTableHead.innerHTML = '';
+          sheetTableBody.innerHTML = '';
+          try {
+            const res = await fetch(`${API_BASE_URL}/api/sponsorship-sheets/${encodeURIComponent(sheetName)}`);
+            if (!res.ok) throw new Error('Failed to fetch sheet');
+            const data = await res.json();
+            activeSheetColumns = data.columns || [];
+            activeSheetRows = data.rows || [];
+            sortColumn = null;
+            sortAscending = true;
+            columnWidths = {};
+            sheetStatusEl.textContent = `${sheetName} — ${activeSheetRows.length} rows`;
+            renderSheetTable();
+          } catch (e) {
+            console.error(e);
+            sheetStatusEl.textContent = `Failed to load sheet: ${sheetName}`;
+          }
+        };
+
+        const saveCell = async (rowIndex, col, value) => {
+          const row = activeSheetRows.find(x => x.row_index === rowIndex);
+          if (!row) return;
+          if (!row.data) row.data = {};
+          row.data[col] = value;
+
+          sheetStatusEl.textContent = `Saving...`;
+          try {
+            const token = getAuthToken();
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            
+            const res = await fetch(`${API_BASE_URL}/api/sponsorship-sheets/${encodeURIComponent(activeSheetName)}/rows/${rowIndex}`, {
+              method: 'PUT',
+              headers: headers,
+              body: JSON.stringify({ data: row.data })
+            });
+            if (!res.ok) throw new Error('Failed to save');
+            sheetStatusEl.textContent = `${activeSheetName} — ${activeSheetRows.length} rows (Saved)`;
+          } catch (e) {
+            console.error(e);
+            sheetStatusEl.textContent = 'Save failed.';
+            alert('Failed to save cell. Please try again.');
+          }
+        };
+
+        const addRow = async () => {
+          if (!activeSheetName) return;
+          sheetStatusEl.textContent = 'Adding row...';
+          const blank = {};
+          activeSheetColumns.forEach((c) => { blank[c] = ''; });
+
+          try {
+            const token = getAuthToken();
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            
+            const res = await fetch(`${API_BASE_URL}/api/sponsorship-sheets/${encodeURIComponent(activeSheetName)}/rows`, {
+              method: 'POST',
+              headers: headers,
+              body: JSON.stringify({ data: blank })
+            });
+            if (!res.ok) throw new Error('Failed to add row');
+            await loadSheet(activeSheetName);
+          } catch (e) {
+            console.error(e);
+            sheetStatusEl.textContent = 'Failed to add row.';
+          }
+        };
+
+        const deleteRow = async (rowIndex) => {
+          if (!activeSheetName) return;
+          sheetStatusEl.textContent = 'Deleting row...';
+          try {
+            const token = getAuthToken();
+            const headers = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            
+            const res = await fetch(`${API_BASE_URL}/api/sponsorship-sheets/${encodeURIComponent(activeSheetName)}/rows/${rowIndex}`, {
+              method: 'DELETE',
+              headers: headers
+            });
+            if (!res.ok) throw new Error('Failed to delete');
+            await loadSheet(activeSheetName);
+          } catch (e) {
+            console.error(e);
+            sheetStatusEl.textContent = 'Failed to delete row.';
+          }
+        };
+
+        sheetAddRowBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          await addRow();
+        });
+
+        sheetRefreshBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          if (!sheetMetas.length) await loadSheetMetas();
+          else await loadSheet(activeSheetName || sheetMetas[0].sheet_name);
+        });
+
+        sheetExportBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          const token = getAuthToken();
+          if (!token) {
+            alert('Please log in to export data');
+            return;
+          }
+
+          try {
+            sheetExportBtn.disabled = true;
+            sheetExportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
+            
+            const response = await fetch(`${API_BASE_URL}/api/sponsorship-sheets/export/excel`, {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            });
+            
+            if (!response.ok) throw new Error('Failed to export');
+            
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Sponsorship_Log_${new Date().toISOString().split('T')[0]}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            
+            sheetExportBtn.innerHTML = '<i class="fas fa-file-excel"></i> Export to Excel';
+            sheetExportBtn.disabled = false;
+          } catch (error) {
+            console.error('Error exporting:', error);
+            alert('Failed to export. Please try again.');
+            sheetExportBtn.innerHTML = '<i class="fas fa-file-excel"></i> Export to Excel';
+            sheetExportBtn.disabled = false;
+          }
+        });
 
         const renderTable = () => {
             const currentFilter = filterType.value;
@@ -290,6 +937,11 @@
         });
 
         filterType.addEventListener('change', renderTable);
+        
+        // Initialize permissions and apply read-only mode
+        userPermissions = await fetchUserPermissions();
+        authToken = getAuthToken();
+        applyReadOnlyMode();
         
         document.getElementById('entry-date').valueAsDate = new Date();
         await fetchDonations();
