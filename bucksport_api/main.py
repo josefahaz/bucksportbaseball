@@ -750,13 +750,31 @@ def delete_donation(donation_id: int, session: Session = Depends(get_session)):
 def list_sponsorship_sheets(session: Session = Depends(get_session)):
     from models import SponsorshipSheetMeta
     metas = session.exec(select(SponsorshipSheetMeta)).all()
+    
+    # Define explicit order to match Excel import order
+    sheet_order = [
+        "Master Sponsor List",
+        "Softball Banners - Current",
+        "Softball Banners - Team Sponsor",
+        "Baseball Banners - Current",
+    ]
+    
+    # Sort metas by the defined order
+    def get_order(meta):
+        try:
+            return sheet_order.index(meta.sheet_name)
+        except ValueError:
+            return len(sheet_order)  # Put unknown sheets at the end
+    
+    sorted_metas = sorted(metas, key=get_order)
+    
     return [
         {
             "sheet_name": m.sheet_name,
             "columns": m.columns,
             "updated_at": m.updated_at.isoformat() if m.updated_at else None,
         }
-        for m in metas
+        for m in sorted_metas
     ]
 
 
