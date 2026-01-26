@@ -12,7 +12,7 @@ import sys
 # 5. Paste it below between the quotes
 
 # PASTE YOUR DATABASE URL HERE:
-PRODUCTION_DB_URL = "postgresql://bucksport_db_user:AoNwTTxKMfRcNethp9tly3g24j3paHyD@dpg-d4o3lfeuk2gs7386r050-a/bucksport_db"
+PRODUCTION_DB_URL = ""
 
 # If you can't find it in Render, try checking your Web Service environment variables:
 # 1. Go to your Web Service (bucksport-api) in Render
@@ -22,7 +22,7 @@ PRODUCTION_DB_URL = "postgresql://bucksport_db_user:AoNwTTxKMfRcNethp9tly3g24j3p
 
 if not PRODUCTION_DB_URL:
     print("="*80)
-    print("❌ ERROR: You need to set the DATABASE_URL")
+    print(" ERROR: You need to set the DATABASE_URL")
     print("="*80)
     print("\nTo find your DATABASE_URL:")
     print("\nOption 1 - From Database:")

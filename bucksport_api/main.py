@@ -745,6 +745,170 @@ def delete_donation(donation_id: int, session: Session = Depends(get_session)):
     logger.info(f"Deleted donation: {donation_name} - ${donation_amount} (ID: {donation_id})")
     return {"status": "success", "message": "Donation deleted successfully"}
 
+
+@app.get("/api/sponsorship-sheets")
+def list_sponsorship_sheets(session: Session = Depends(get_session)):
+    from models import SponsorshipSheetMeta
+    metas = session.exec(select(SponsorshipSheetMeta)).all()
+    return [
+        {
+            "sheet_name": m.sheet_name,
+            "columns": m.columns,
+            "updated_at": m.updated_at.isoformat() if m.updated_at else None,
+        }
+        for m in metas
+    ]
+
+
+@app.get("/api/sponsorship-sheets/{sheet_name}")
+def get_sponsorship_sheet(sheet_name: str, session: Session = Depends(get_session)):
+    from models import SponsorshipSheetMeta, SponsorshipSheetRow
+
+    meta = session.get(SponsorshipSheetMeta, sheet_name)
+    if not meta:
+        raise HTTPException(status_code=404, detail="Sheet not found")
+
+    rows = session.exec(
+        select(SponsorshipSheetRow)
+        .where(SponsorshipSheetRow.sheet_name == sheet_name)
+        .order_by(SponsorshipSheetRow.row_index.asc())
+    ).all()
+
+    return {
+        "sheet_name": meta.sheet_name,
+        "columns": meta.columns,
+        "rows": [
+            {
+                "id": r.id,
+                "row_index": r.row_index,
+                "data": r.data,
+                "updated_at": r.updated_at.isoformat() if r.updated_at else None,
+            }
+            for r in rows
+        ],
+        "updated_at": meta.updated_at.isoformat() if meta.updated_at else None,
+    }
+
+
+@app.post("/api/sponsorship-sheets/{sheet_name}/rows", status_code=status.HTTP_201_CREATED)
+def create_sponsorship_sheet_row(sheet_name: str, payload: dict, session: Session = Depends(get_session)):
+    from models import SponsorshipSheetMeta, SponsorshipSheetRow
+    from datetime import datetime
+
+    meta = session.get(SponsorshipSheetMeta, sheet_name)
+    if not meta:
+        raise HTTPException(status_code=404, detail="Sheet not found")
+
+    existing_max = session.exec(
+        select(SponsorshipSheetRow.row_index)
+        .where(SponsorshipSheetRow.sheet_name == sheet_name)
+        .order_by(SponsorshipSheetRow.row_index.desc())
+    ).first()
+
+    next_row_index = (existing_max or 1) + 1
+    row_data = payload.get("data") if isinstance(payload, dict) else None
+    if row_data is None or not isinstance(row_data, dict):
+        row_data = {}
+
+    new_row = SponsorshipSheetRow(
+        sheet_name=sheet_name,
+        row_index=next_row_index,
+        data=row_data,
+        updated_at=datetime.utcnow(),
+    )
+    session.add(new_row)
+    session.commit()
+    session.refresh(new_row)
+
+    meta.updated_at = datetime.utcnow()
+    session.add(meta)
+    session.commit()
+
+    return {
+        "id": new_row.id,
+        "sheet_name": new_row.sheet_name,
+        "row_index": new_row.row_index,
+        "data": new_row.data,
+        "updated_at": new_row.updated_at.isoformat() if new_row.updated_at else None,
+    }
+
+
+@app.put("/api/sponsorship-sheets/{sheet_name}/rows/{row_index}")
+def upsert_sponsorship_sheet_row(sheet_name: str, row_index: int, payload: dict, session: Session = Depends(get_session)):
+    from models import SponsorshipSheetMeta, SponsorshipSheetRow
+    from datetime import datetime
+
+    meta = session.get(SponsorshipSheetMeta, sheet_name)
+    if not meta:
+        raise HTTPException(status_code=404, detail="Sheet not found")
+
+    row = session.exec(
+        select(SponsorshipSheetRow)
+        .where(SponsorshipSheetRow.sheet_name == sheet_name)
+        .where(SponsorshipSheetRow.row_index == row_index)
+    ).first()
+
+    row_data = payload.get("data") if isinstance(payload, dict) else None
+    if row_data is None or not isinstance(row_data, dict):
+        raise HTTPException(status_code=400, detail="Payload must include data object")
+
+    if row:
+        row.data = row_data
+        row.updated_at = datetime.utcnow()
+        session.add(row)
+        session.commit()
+        session.refresh(row)
+    else:
+        row = SponsorshipSheetRow(
+            sheet_name=sheet_name,
+            row_index=row_index,
+            data=row_data,
+            updated_at=datetime.utcnow(),
+        )
+        session.add(row)
+        session.commit()
+        session.refresh(row)
+
+    meta.updated_at = datetime.utcnow()
+    session.add(meta)
+    session.commit()
+
+    return {
+        "id": row.id,
+        "sheet_name": row.sheet_name,
+        "row_index": row.row_index,
+        "data": row.data,
+        "updated_at": row.updated_at.isoformat() if row.updated_at else None,
+    }
+
+
+@app.delete("/api/sponsorship-sheets/{sheet_name}/rows/{row_index}")
+def delete_sponsorship_sheet_row(sheet_name: str, row_index: int, session: Session = Depends(get_session)):
+    from models import SponsorshipSheetMeta, SponsorshipSheetRow
+    from datetime import datetime
+
+    meta = session.get(SponsorshipSheetMeta, sheet_name)
+    if not meta:
+        raise HTTPException(status_code=404, detail="Sheet not found")
+
+    row = session.exec(
+        select(SponsorshipSheetRow)
+        .where(SponsorshipSheetRow.sheet_name == sheet_name)
+        .where(SponsorshipSheetRow.row_index == row_index)
+    ).first()
+
+    if not row:
+        raise HTTPException(status_code=404, detail="Row not found")
+
+    session.delete(row)
+    session.commit()
+
+    meta.updated_at = datetime.utcnow()
+    session.add(meta)
+    session.commit()
+
+    return {"status": "success"}
+
 # TEMPORARY ADMIN ENDPOINT - Remove after first use
 @app.post("/api/admin/setup-donations")
 def setup_donations_from_spreadsheet(session: Session = Depends(get_session)):

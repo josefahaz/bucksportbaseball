@@ -2,6 +2,8 @@ from datetime import date, datetime
 from typing import Optional
 from pydantic import validator
 from sqlmodel import Field, Relationship, SQLModel
+from sqlalchemy import Column
+from sqlalchemy.types import JSON
 
 
 class Team(SQLModel, table=True):
@@ -133,4 +135,18 @@ class Donation(SQLModel, table=True):
     address: Optional[str] = None
     notes: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class SponsorshipSheetMeta(SQLModel, table=True):
+    sheet_name: str = Field(primary_key=True)
+    columns: list[str] = Field(sa_column=Column(JSON))
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class SponsorshipSheetRow(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    sheet_name: str = Field(index=True)
+    row_index: int = Field(index=True)
+    data: dict = Field(sa_column=Column(JSON))
     updated_at: datetime = Field(default_factory=datetime.utcnow)
