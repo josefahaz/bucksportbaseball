@@ -1039,11 +1039,12 @@
         });
         
         // Update sticky scrollbar when switching views
-        const originalSetActiveView = setActiveView;
-        setActiveView = (view) => {
-          originalSetActiveView(view);
+        viewTransactionsBtn.addEventListener('click', () => {
           setTimeout(updateStickyScrollbar, 100);
-        };
+        });
+        viewSpreadsheetBtn.addEventListener('click', () => {
+          setTimeout(updateStickyScrollbar, 100);
+        });
         
         // Update sticky scrollbar when window resizes or table changes
         window.addEventListener('resize', updateStickyScrollbar);
