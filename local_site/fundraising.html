@@ -141,8 +141,6 @@
     .sticky-scrollbar {
       position: fixed;
       bottom: 0;
-      left: 0;
-      right: 0;
       height: 20px;
       overflow-x: auto;
       overflow-y: hidden;
@@ -1102,10 +1100,13 @@
           
           const tableWidth = table.scrollWidth;
           const containerWidth = tableContainer.clientWidth;
+          const containerRect = tableContainer.getBoundingClientRect();
           
           // Show sticky scrollbar only when table is wider than container and spreadsheet view is active
           if (tableWidth > containerWidth && spreadsheetView.style.display !== 'none') {
             stickyScrollbar.style.display = 'block';
+            stickyScrollbar.style.left = containerRect.left + 'px';
+            stickyScrollbar.style.width = containerWidth + 'px';
             stickyScrollbarContent.style.width = tableWidth + 'px';
           } else {
             stickyScrollbar.style.display = 'none';
