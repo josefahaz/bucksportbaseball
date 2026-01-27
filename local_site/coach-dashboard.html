@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0" />
   <title>Bucksport Little League - Coach Dashboard</title>
   <script src="js/mobile-detect.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -546,10 +546,10 @@
         </div>
         <div class="mb-4">
           <label class="block text-gray-700 text-sm font-bold mb-2" for="coachEmail">
-            Email *
+            Email
           </label>
           <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
-                 id="coachEmail" type="email" required>
+                 id="coachEmail" type="email">
         </div>
         <div class="mb-4">
           <label class="block text-gray-700 text-sm font-bold mb-2" for="coachPhone">
@@ -572,10 +572,10 @@
         </div>
         <div class="mb-4">
           <label class="block text-gray-700 text-sm font-bold mb-2" for="coachTeam">
-            Team *
+            Team
           </label>
           <select class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
-                  id="coachTeam" required>
+                  id="coachTeam">
             <option value="Baseball Majors">Baseball Majors</option>
             <option value="Baseball Minors">Baseball Minors</option>
             <option value="Baseball Rookies">Baseball Rookies</option>
@@ -847,7 +847,7 @@
       // Store the coach ID for updating
       document.getElementById('coachForm').dataset.editingCoachId = coachId;
       
-      openCoachModal();
+      openCoachModal(true);
     }
     
     // Add a new coach (Note: Backend doesn't support this yet, so store locally for now)
@@ -875,11 +875,16 @@
     }
     
     // Modal functions
-    function openCoachModal() {
+    function openCoachModal(isEdit = false) {
       document.getElementById('coachModal').classList.remove('hidden');
-      document.getElementById('coachForm').reset();
-      document.getElementById('coachModalTitle').textContent = 'Add New Coach';
-      document.getElementById('coachId').value = '';
+      if (!isEdit) {
+        document.getElementById('coachForm').reset();
+        document.getElementById('coachModalTitle').textContent = 'Add New Coach';
+        document.getElementById('coachId').value = '';
+        delete document.getElementById('coachForm').dataset.editingCoachId;
+      } else {
+        document.getElementById('coachModalTitle').textContent = 'Edit Coach';
+      }
     }
     
     function closeCoachModal() {
@@ -915,7 +920,7 @@
       document.getElementById('cancelCoachBtn').addEventListener('click', closeCoachModal);
       
       // Handle form submission
-      document.getElementById('coachForm').addEventListener('submit', (e) => {
+      document.getElementById('coachForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
         const coachData = {
@@ -926,7 +931,28 @@
           team: document.getElementById('coachTeam').value
         };
         
-        saveCoach(coachData);
+        const editingCoachId = document.getElementById('coachForm').dataset.editingCoachId;
+        
+        if (editingCoachId) {
+          // Update existing coach
+          try {
+            await updateCoach(parseInt(editingCoachId), coachData);
+            const coachIndex = coaches.findIndex(c => c.id === parseInt(editingCoachId));
+            if (coachIndex !== -1) {
+              coaches[coachIndex] = { ...coaches[coachIndex], ...coachData };
+            }
+            logActivity('updated coach', { name: coachData.name });
+            renderCoaches();
+          } catch (error) {
+            console.error('Error updating coach:', error);
+            alert('Failed to update coach. Please try again.');
+            return;
+          }
+        } else {
+          // Add new coach
+          saveCoach(coachData);
+        }
+        
         closeCoachModal();
       });
       
