@@ -290,6 +290,7 @@
               <button id="sheet-export-excel" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg">
                 <i class="fas fa-file-excel"></i> Export to Excel
               </button>
+              <button id="sheet-add-column" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg">Add Column</button>
               <button id="sheet-add-row" class="bg-purple-800 hover:bg-purple-900 text-white font-bold py-2 px-4 rounded-lg shadow-lg">Add Row</button>
               <button id="sheet-refresh" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg shadow">Refresh</button>
             </div>
@@ -348,6 +349,7 @@
         const sheetTableHead = document.getElementById('sheet-table-head');
         const sheetTableBody = document.getElementById('sheet-table-body');
         const sheetStatusEl = document.getElementById('sheet-status');
+        const sheetAddColumnBtn = document.getElementById('sheet-add-column');
         const sheetAddRowBtn = document.getElementById('sheet-add-row');
         const sheetRefreshBtn = document.getElementById('sheet-refresh');
         const sheetExportBtn = document.getElementById('sheet-export-excel');
@@ -393,12 +395,14 @@
           const debugInfo = document.getElementById('user-info-debug');
           if (!userPermissions.can_edit_fundraising) {
             readOnlyNotice.style.display = '';
+            sheetAddColumnBtn.style.display = 'none';
             sheetAddRowBtn.style.display = 'none';
             if (debugInfo && userPermissions.email) {
               debugInfo.textContent = `Logged in as: ${userPermissions.email} (Role: ${userPermissions.role || 'none'})`;
             }
           } else {
             readOnlyNotice.style.display = 'none';
+            sheetAddColumnBtn.style.display = '';
             sheetAddRowBtn.style.display = '';
           }
         };
@@ -808,6 +812,41 @@
           }
         };
 
+        const addColumn = async () => {
+          if (!activeSheetName) return;
+          
+          const columnName = prompt('Enter the name for the new column (e.g., "2026"):');
+          if (!columnName || columnName.trim() === '') {
+            return;
+          }
+
+          sheetStatusEl.textContent = 'Adding column...';
+          
+          try {
+            const token = getAuthToken();
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            
+            const res = await fetch(`${API_BASE_URL}/api/sponsorship-sheets/${encodeURIComponent(activeSheetName)}/columns`, {
+              method: 'POST',
+              headers: headers,
+              body: JSON.stringify({ column_name: columnName.trim() })
+            });
+            
+            if (!res.ok) {
+              const errorData = await res.json();
+              throw new Error(errorData.detail || 'Failed to add column');
+            }
+            
+            await loadSheet(activeSheetName);
+            sheetStatusEl.textContent = `Column "${columnName}" added successfully`;
+          } catch (e) {
+            console.error(e);
+            sheetStatusEl.textContent = 'Failed to add column.';
+            alert(e.message || 'Failed to add column. Please try again.');
+          }
+        };
+
         const addRow = async () => {
           if (!activeSheetName) return;
           sheetStatusEl.textContent = 'Adding row...';
@@ -851,6 +890,11 @@
             sheetStatusEl.textContent = 'Failed to delete row.';
           }
         };
+
+        sheetAddColumnBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          await addColumn();
+        });
 
         sheetAddRowBtn.addEventListener('click', async (e) => {
           e.preventDefault();
