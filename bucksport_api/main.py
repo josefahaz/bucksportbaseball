@@ -997,6 +997,51 @@ def add_column_to_sheet(
     }
 
 
+@app.delete("/api/sponsorship-sheets/{sheet_name}/columns/{column_name}")
+def delete_column_from_sheet(
+    sheet_name: str,
+    column_name: str,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_fundraising_editor)
+):
+    from models import SponsorshipSheetMeta, SponsorshipSheetRow
+    from datetime import datetime
+
+    meta = session.get(SponsorshipSheetMeta, sheet_name)
+    if not meta:
+        raise HTTPException(status_code=404, detail="Sheet not found")
+
+    # Check if column exists
+    if column_name not in meta.columns:
+        raise HTTPException(status_code=404, detail="Column not found")
+
+    # Remove column from metadata
+    meta.columns.remove(column_name)
+    meta.updated_at = datetime.utcnow()
+    
+    # Remove column from all existing rows
+    rows = session.exec(
+        select(SponsorshipSheetRow)
+        .where(SponsorshipSheetRow.sheet_name == sheet_name)
+    ).all()
+    
+    for row in rows:
+        if column_name in row.data:
+            del row.data[column_name]
+            row.updated_at = datetime.utcnow()
+            session.add(row)
+    
+    session.add(meta)
+    session.commit()
+    session.refresh(meta)
+
+    return {
+        "sheet_name": meta.sheet_name,
+        "columns": meta.columns,
+        "updated_at": meta.updated_at.isoformat() if meta.updated_at else None,
+    }
+
+
 # TEMPORARY ADMIN ENDPOINT - Remove after first use
 @app.post("/api/admin/setup-donations")
 def setup_donations_from_spreadsheet(session: Session = Depends(get_session)):
