@@ -837,10 +837,10 @@
       const coach = coaches.find(c => c.id === coachId);
       if (!coach) return;
       
-      // Pre-fill the modal with coach data
+      // Pre-fill the modal with coach data, converting N/A to empty string
       document.getElementById('coachName').value = coach.name;
-      document.getElementById('coachEmail').value = coach.email || '';
-      document.getElementById('coachPhone').value = coach.phone || '';
+      document.getElementById('coachEmail').value = (coach.email && coach.email !== 'N/A') ? coach.email : '';
+      document.getElementById('coachPhone').value = (coach.phone && coach.phone !== 'N/A') ? coach.phone : '';
       document.getElementById('coachRole').value = coach.role || 'Head Coach';
       document.getElementById('coachTeam').value = coach.team || '';
       
@@ -889,6 +889,8 @@
     
     function closeCoachModal() {
       document.getElementById('coachModal').classList.add('hidden');
+      document.getElementById('coachForm').reset();
+      delete document.getElementById('coachForm').dataset.editingCoachId;
     }
     
     // Initial render
@@ -915,7 +917,7 @@
       });
       
       // Coach modal event listeners
-      document.getElementById('addCoachBtn').addEventListener('click', openCoachModal);
+      document.getElementById('addCoachBtn').addEventListener('click', () => openCoachModal(false));
       document.getElementById('closeCoachModal').addEventListener('click', closeCoachModal);
       document.getElementById('cancelCoachBtn').addEventListener('click', closeCoachModal);
       
