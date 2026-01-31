@@ -10,8 +10,14 @@ const AUTH_API_BASE_URL = window.location.hostname === 'localhost' || window.loc
 
 class AuthManager {
   constructor() {
-    this.token = localStorage.getItem('auth_token');
-    this.userInfo = JSON.parse(localStorage.getItem('user_info') || 'null');
+    try {
+      this.token = localStorage.getItem('auth_token');
+      this.userInfo = JSON.parse(localStorage.getItem('user_info') || 'null');
+    } catch (e) {
+      console.warn('localStorage not available:', e);
+      this.token = null;
+      this.userInfo = null;
+    }
   }
 
   /**
@@ -74,7 +80,11 @@ class AuthManager {
       if (response.ok) {
         const userData = await response.json();
         this.userInfo = userData;
-        localStorage.setItem('user_info', JSON.stringify(userData));
+        try {
+          localStorage.setItem('user_info', JSON.stringify(userData));
+        } catch (e) {
+          console.warn('Could not save user info to localStorage:', e);
+        }
         return true;
       } else {
         this.logout();
@@ -95,9 +105,13 @@ class AuthManager {
    * Logout user
    */
   logout() {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user_info');
-    localStorage.removeItem('dev_mode');
+    try {
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('user_info');
+      localStorage.removeItem('dev_mode');
+    } catch (e) {
+      console.warn('Could not clear localStorage:', e);
+    }
     this.token = null;
     this.userInfo = null;
     window.location.href = '/login.html';

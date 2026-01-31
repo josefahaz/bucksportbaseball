@@ -226,7 +226,15 @@
     
     // Check if already logged in
     window.addEventListener('DOMContentLoaded', () => {
-      const token = localStorage.getItem('auth_token');
+      // Check if localStorage is available (Safari incognito mode blocks it)
+      let token = null;
+      try {
+        token = localStorage.getItem('auth_token');
+      } catch (e) {
+        console.warn('localStorage not available (incognito mode?)', e);
+        // Continue without token - user will need to login
+      }
+      
       if (token) {
         // Verify token is still valid
         fetch(`${API_BASE_URL}/auth/me`, {
@@ -240,14 +248,22 @@
             window.location.href = 'index.html';
           } else {
             // Token invalid, clear storage
-            localStorage.removeItem('auth_token');
-            localStorage.removeItem('user_info');
+            try {
+              localStorage.removeItem('auth_token');
+              localStorage.removeItem('user_info');
+            } catch (e) {
+              console.warn('Could not clear localStorage', e);
+            }
           }
         })
         .catch(() => {
           // Error checking token, clear storage
-          localStorage.removeItem('auth_token');
-          localStorage.removeItem('user_info');
+          try {
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('user_info');
+          } catch (e) {
+            console.warn('Could not clear localStorage', e);
+          }
         });
       }
       
