@@ -957,6 +957,7 @@ def add_column_to_sheet(
 ):
     from models import SponsorshipSheetMeta, SponsorshipSheetRow
     from datetime import datetime
+    from sqlalchemy.orm.attributes import flag_modified
 
     meta = session.get(SponsorshipSheetMeta, sheet_name)
     if not meta:
@@ -972,6 +973,7 @@ def add_column_to_sheet(
 
     # Add column to metadata
     meta.columns.append(column_name)
+    flag_modified(meta, "columns")  # Mark JSON column as modified
     meta.updated_at = datetime.utcnow()
     
     # Update all existing rows to include the new column with empty value
@@ -983,6 +985,7 @@ def add_column_to_sheet(
     for row in rows:
         if column_name not in row.data:
             row.data[column_name] = ""
+            flag_modified(row, "data")  # Mark JSON column as modified
             row.updated_at = datetime.utcnow()
             session.add(row)
     
