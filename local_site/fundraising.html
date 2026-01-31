@@ -109,28 +109,47 @@
     
     .sheet-table-container {
       overflow-x: auto;
-      overflow-y: visible;
+      overflow-y: auto;
       max-width: 100%;
+      max-height: 70vh;
       border: 1px solid #e5e7eb;
       border-radius: 0.5rem;
+      position: relative;
+    }
+    
+    .sheet-table-container thead {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background-color: #f9fafb;
+    }
+    
+    .sheet-table-container thead th {
+      box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
     }
     
     .sheet-table-container::-webkit-scrollbar {
-      height: 12px;
+      height: 14px;
+      width: 14px;
     }
     
     .sheet-table-container::-webkit-scrollbar-track {
       background: #f1f1f1;
-      border-radius: 0 0 0.5rem 0.5rem;
+      border-radius: 0.25rem;
     }
     
     .sheet-table-container::-webkit-scrollbar-thumb {
       background: #9333ea;
-      border-radius: 6px;
+      border-radius: 0.25rem;
+      border: 2px solid #f1f1f1;
     }
     
     .sheet-table-container::-webkit-scrollbar-thumb:hover {
       background: #7e22ce;
+    }
+    
+    .sheet-table-container::-webkit-scrollbar-corner {
+      background: #f1f1f1;
     }
     
     .sheet-table-container table {

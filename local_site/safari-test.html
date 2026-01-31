@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Safari OAuth Test - Bucksport LL</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+  <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-8">
+    <h1 class="text-2xl font-bold text-purple-900 mb-6">Safari OAuth Diagnostic</h1>
+    
+    <div class="space-y-4">
+      <div class="bg-blue-50 border border-blue-300 rounded p-4">
+        <h2 class="font-bold text-blue-900 mb-2">Browser Information</h2>
+        <p id="userAgent" class="text-sm text-gray-700"></p>
+      </div>
+
+      <div class="bg-green-50 border border-green-300 rounded p-4">
+        <h2 class="font-bold text-green-900 mb-2">localStorage Test</h2>
+        <p id="localStorageTest" class="text-sm text-gray-700">Testing...</p>
+      </div>
+
+      <div class="bg-yellow-50 border border-yellow-300 rounded p-4">
+        <h2 class="font-bold text-yellow-900 mb-2">Cookie Test</h2>
+        <p id="cookieTest" class="text-sm text-gray-700">Testing...</p>
+      </div>
+
+      <div class="bg-purple-50 border border-purple-300 rounded p-4">
+        <h2 class="font-bold text-purple-900 mb-2">Instructions for Safari</h2>
+        <ol class="list-decimal list-inside space-y-2 text-sm text-gray-700">
+          <li>Open Safari Settings (Safari → Settings or Cmd+,)</li>
+          <li>Click on the <strong>Privacy</strong> tab</li>
+          <li><strong>Uncheck</strong> "Prevent cross-site tracking"</li>
+          <li><strong>Uncheck</strong> "Block all cookies" (if checked)</li>
+          <li>Close Settings and refresh this page</li>
+          <li>If tests pass, go to <a href="login.html" class="text-blue-600 underline">login.html</a></li>
+        </ol>
+      </div>
+
+      <div class="mt-6">
+        <a href="login.html" class="bg-purple-700 hover:bg-purple-800 text-white font-bold py-3 px-6 rounded-lg inline-block">
+          Go to Login Page
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Display user agent
+    document.getElementById('userAgent').textContent = navigator.userAgent;
+
+    // Test localStorage
+    try {
+      localStorage.setItem('test', 'value');
+      const testValue = localStorage.getItem('test');
+      localStorage.removeItem('test');
+      if (testValue === 'value') {
+        document.getElementById('localStorageTest').innerHTML = '✅ <strong>localStorage is working</strong>';
+        document.getElementById('localStorageTest').parentElement.className = 'bg-green-50 border border-green-300 rounded p-4';
+      } else {
+        throw new Error('localStorage read failed');
+      }
+    } catch (e) {
+      document.getElementById('localStorageTest').innerHTML = '❌ <strong>localStorage is BLOCKED</strong><br><span class="text-xs">' + e.message + '</span>';
+      document.getElementById('localStorageTest').parentElement.className = 'bg-red-50 border border-red-300 rounded p-4';
+    }
+
+    // Test cookies
+    try {
+      document.cookie = 'test=value; path=/';
+      const hasCookie = document.cookie.includes('test=value');
+      document.cookie = 'test=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      
+      if (hasCookie) {
+        document.getElementById('cookieTest').innerHTML = '✅ <strong>Cookies are working</strong>';
+        document.getElementById('cookieTest').parentElement.className = 'bg-green-50 border border-green-300 rounded p-4';
+      } else {
+        throw new Error('Cookie write/read failed');
+      }
+    } catch (e) {
+      document.getElementById('cookieTest').innerHTML = '❌ <strong>Cookies are BLOCKED</strong><br><span class="text-xs">' + e.message + '</span>';
+      document.getElementById('cookieTest').parentElement.className = 'bg-red-50 border border-red-300 rounded p-4';
+    }
+  </script>
+</body>
+</html>
